@@ -4,6 +4,8 @@
 #include <bytec/Sandbox/SandBox.hpp>
 #include <bytec/Interpreter/Interpreter.hpp>
 
+#include <bitset>
+
 using namespace bytec;
 
 int main() {
@@ -13,31 +15,37 @@ int main() {
     SandBox sandbox;
     {
         ui8 ope = static_cast<ui8>(Operations::MOV);
-        ui8 type = 0x2; // Immediate value
-        ui32 value = 42;
-        ui8 defer = 0x0;
-        ui8 reg = 0x0;
 
-        ui32 ope_shft = ope << 24;
-        ui32 type_shft = type << 22;
-        ui32 value_shft = value << 4;
-        ui32 defer_shft = defer << 3;
-        ui32 reg_shft = reg << 0;
+        ui32 command = ope << 24;
 
-        ui32 command = ope_shft | type_shft | value_shft | defer_shft | reg_shft;
+        {
+            ui8 target = 0x1B; // Immediate value
+            ui16 value = 42;
+            ui16 argument = (target << 7) | value;
+            command |= argument << 12;
+        }
+        {
+            ui8 target = 0x00; // Register A
+            ui16 argument = target << 7;
+            command |= argument;
+        }
+
+        std::cout << "0x00 : " << std::bitset<32>(command) << std::endl;
 
         program.append_instruction(command);
     }
     {
         ui8 ope = static_cast<ui8>(Operations::OUT);
-        ui8 type = 0x0; // Register
-        ui32 reg = 0x0;
 
-        ui32 ope_shft = ope << 24;
-        ui32 type_shft = type << 22;
-        ui32 reg_shft = reg << 19;
+        ui32 command = ope << 24;
 
-        ui32 command = ope_shft | type_shft | reg_shft;
+        {
+            ui8 target = 0x00; // Register A
+            ui16 argument = (target << 19);
+            command |= argument;
+        }
+
+        std::cout << "0x01 : " << std::bitset<32>(command) << std::endl;
 
         program.append_instruction(command);
     }

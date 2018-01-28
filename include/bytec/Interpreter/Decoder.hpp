@@ -4,90 +4,51 @@
 #include <bytec/Program/Program.hpp>
 #include <bytec/Interpreter/Operations.hpp>
 
+#include <array>
+
 namespace bytec {
 
 class Decoder {
 public:
 
-    enum class ReadMode {
-        Registre,
-        DeferRegistre,
+    enum class ArguementType {
+        Register,
+        DeferRegister,
+        DeferRegisterDisp,
         ImmValue,
-        NextValue
+        NextValue,
+        DeferImmValue,
+        DeferNextValue
     };
 
-    enum class WriteMode {
-        Registre,
-        DeferRegistre
+    enum class Register { // 8 + Sp Registers
+        A, B, C, D, E, F, G, H, SP
     };
 
-    enum class Registre { // 8 Registres
-        A, B, C, D, E, F, G, H,
-
-        NumRegistre
-    };
-
-    using Value = ui32;
-
-    struct Readable {
-        ReadMode mode;
+    struct Argument {
+        ArguementType type;
         union {
-            Registre registre;
-            Value value;
+            struct {
+                Register reg;
+                ui32 disp;
+            };
+            ui32 value;
         };
-    };
-
-    struct Writable {
-        WriteMode mode;
-        Registre registre;
-    };
-
-    struct RRW_t {
-        Readable operand0, operand1;
-        Writable target;
-    };
-
-    struct RR_t {
-        Readable operand0, operand1;
-    };
-
-    struct R_t {
-        Readable operand;
-    };
-
-    struct RW_t {
-        Readable operand;
-        Writable target;
-    };
-
-    struct WW_t {
-        Writable target0, target1;
-    };
-
-    struct W_t {
-        Writable target;
     };
 
     Decoder(Instruction_t instruction);
 
-    RRW_t as_RRW() const;
-    RR_t  as_RR () const;
-    R_t   as_R  () const;
-    RW_t  as_RW () const;
-    WW_t  as_WW () const;
-    W_t   as_W  () const;
+    Argument get_full_argument() const;
+    std::array<Argument, 2> get_half_arguments() const;
 
     Operations get_operations() const;
 
 private:
 
-    Writable decode_writable(ui8 value) const;
-    Readable decode_readable24(ui32 value) const;
-    Readable decode_readable20(ui32 value) const;
-    Readable decode_readable12(ui16 value) const;
-    Readable decode_readable10(ui16 value) const;
+    Argument decode_full(ui32 value) const;
+    Argument decode_half(ui16 value) const;
 
-    Registre get_registre(ui8 registre) const;
+    Register get_register(ui8 reg) const;
 
     Instruction_t instruction;
 
