@@ -11,7 +11,7 @@ namespace bytec {
 class Decoder {
 public:
 
-    enum class ArguementType {
+    enum class ArgumentType {
         Register,
         DeferRegister,
         DeferRegisterDisp,
@@ -26,7 +26,7 @@ public:
     };
 
     struct Argument {
-        ArguementType type;
+        ArgumentType type;
         union {
             struct {
                 Register reg;

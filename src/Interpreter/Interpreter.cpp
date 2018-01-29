@@ -69,15 +69,15 @@ void Interpreter::run(SandBox& sandbox, Program const& program) {
 
 void Interpreter::write(SandBox& sandbox, Program const& program, ui32 value, Decoder::Argument const& arg) {
     switch(arg.type) {
-        case Decoder::ArguementType::Register:
+        case Decoder::ArgumentType::Register:
             return sandbox.set_register(static_cast<ui8>(arg.reg), value);
-        case Decoder::ArguementType::DeferRegister:
+        case Decoder::ArgumentType::DeferRegister:
             return sandbox.set_memory_at(sandbox.get_register(static_cast<ui8>(arg.reg)), value);
-        case Decoder::ArguementType::DeferRegisterDisp:
+        case Decoder::ArgumentType::DeferRegisterDisp:
             return sandbox.set_memory_at(sandbox.get_register(static_cast<ui8>(arg.reg)) + arg.disp, value);
-        case Decoder::ArguementType::DeferImmValue:
+        case Decoder::ArgumentType::DeferImmValue:
             return sandbox.set_memory_at(arg.value, value);
-        case Decoder::ArguementType::DeferNextValue:
+        case Decoder::ArgumentType::DeferNextValue:
             return sandbox.set_memory_at(program.instruction_at(sandbox.get_pc_increment()), value);
 
         default:
@@ -87,19 +87,19 @@ void Interpreter::write(SandBox& sandbox, Program const& program, ui32 value, De
 
 ui32 Interpreter::read(SandBox& sandbox, Program const& program, Decoder::Argument const& arg) {
     switch(arg.type) {
-        case Decoder::ArguementType::Register:
+        case Decoder::ArgumentType::Register:
             return sandbox.get_register(static_cast<ui8>(arg.reg));
-        case Decoder::ArguementType::DeferRegister:
+        case Decoder::ArgumentType::DeferRegister:
             return sandbox.get_memory_at(sandbox.get_register(static_cast<ui8>(arg.reg)));
-        case Decoder::ArguementType::DeferRegisterDisp:
+        case Decoder::ArgumentType::DeferRegisterDisp:
             return sandbox.get_memory_at(sandbox.get_register(static_cast<ui8>(arg.reg)) + arg.disp);
-        case Decoder::ArguementType::ImmValue:
+        case Decoder::ArgumentType::ImmValue:
             return arg.value;
-        case Decoder::ArguementType::NextValue:
+        case Decoder::ArgumentType::NextValue:
             return program.instruction_at(sandbox.get_pc_increment());
-        case Decoder::ArguementType::DeferImmValue:
+        case Decoder::ArgumentType::DeferImmValue:
             return sandbox.get_memory_at(arg.value);
-        case Decoder::ArguementType::DeferNextValue:
+        case Decoder::ArgumentType::DeferNextValue:
             return sandbox.get_memory_at(program.instruction_at(sandbox.get_pc_increment()));
 
         default:

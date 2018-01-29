@@ -35,9 +35,9 @@ Decoder::Argument Decoder::decode_full(ui32 value) const {
 
     ui8 type = value >> 19;
     if (type <= 0x1A) {
-        arg.type = type >= 0x12 ? Decoder::ArguementType::DeferRegisterDisp :
-                   type >= 0x09 ? Decoder::ArguementType::DeferRegister :
-                                  Decoder::ArguementType::Register;
+        arg.type = type >= 0x12 ? Decoder::ArgumentType::DeferRegisterDisp :
+                   type >= 0x09 ? Decoder::ArgumentType::DeferRegister :
+                                  Decoder::ArgumentType::Register;
         if (type >= 0x12)
             arg.disp = value & 0x7FFFF;
         while(type >= 0x09) type -= 0x09;
@@ -45,18 +45,18 @@ Decoder::Argument Decoder::decode_full(ui32 value) const {
     } else {
         switch(type) {
             case 0x1B:
-                arg.type = Decoder::ArguementType::ImmValue;
+                arg.type = Decoder::ArgumentType::ImmValue;
                 arg.value = value & 0x40000 ? static_cast<ui32>(-static_cast<i32>(value & 0x3FFFF)) : value & 0x3FFFF;
                 break;
             case 0x1C:
-                arg.type = Decoder::ArguementType::NextValue;
+                arg.type = Decoder::ArgumentType::NextValue;
                 break;
             case 0x1D:
-                arg.type = Decoder::ArguementType::DeferImmValue;
+                arg.type = Decoder::ArgumentType::DeferImmValue;
                 arg.value = value & 0x40000 ? static_cast<ui32>(-static_cast<i32>(value & 0x3FFFF)) : value & 0x3FFFF;
                 break;
             case 0x1E:
-                arg.type = Decoder::ArguementType::DeferNextValue;
+                arg.type = Decoder::ArgumentType::DeferNextValue;
                 break;
             default:
                 throw std::runtime_error("Unknown type");
@@ -84,9 +84,9 @@ Decoder::Argument Decoder::decode_half(ui16 value) const {
 
     ui8 type = value >> 7;
     if (type <= 0x1A) {
-        arg.type = type >= 0x12 ? Decoder::ArguementType::DeferRegisterDisp :
-                   type >= 0x09 ? Decoder::ArguementType::DeferRegister :
-                                  Decoder::ArguementType::Register;
+        arg.type = type >= 0x12 ? Decoder::ArgumentType::DeferRegisterDisp :
+                   type >= 0x09 ? Decoder::ArgumentType::DeferRegister :
+                                  Decoder::ArgumentType::Register;
         if (type >= 0x12)
             arg.disp = value & 0x7F;
         while(type >= 0x09) type -= 0x09;
@@ -94,18 +94,18 @@ Decoder::Argument Decoder::decode_half(ui16 value) const {
     } else {
         switch(type) {
             case 0x1B:
-                arg.type = Decoder::ArguementType::ImmValue;
+                arg.type = Decoder::ArgumentType::ImmValue;
                 arg.value = value & 0x7F;
                 break;
             case 0x1C:
-                arg.type = Decoder::ArguementType::NextValue;
+                arg.type = Decoder::ArgumentType::NextValue;
                 break;
             case 0x1D:
-                arg.type = Decoder::ArguementType::DeferImmValue;
+                arg.type = Decoder::ArgumentType::DeferImmValue;
                 arg.value = value & 0x7F;
                 break;
             case 0x1E:
-                arg.type = Decoder::ArguementType::DeferNextValue;
+                arg.type = Decoder::ArgumentType::DeferNextValue;
                 break;
             default:
                 throw std::runtime_error("Unknown type");
