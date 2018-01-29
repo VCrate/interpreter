@@ -18,9 +18,9 @@ private:
     static void write(SandBox& sandbox, Program const& program, ui32 value, Decoder::Argument const& arg);
     static ui32 read(SandBox& sandbox, Program const& program, Decoder::Argument const& arg);
 
-    static void manage(SandBox& sandbox, Program const& program, void(*func)(SandBox&, ui32, ui32&), std::array<Decoder::Argument, 2> const& args);
+    static void manage(SandBox& sandbox, Program const& program, void(*func)(SandBox&, ui32, ui32&), std::array<Decoder::Argument, 2> const& args, bool load_target = false);
     static void manage(SandBox& sandbox, Program const& program, void(*func)(SandBox&, ui32, ui32), std::array<Decoder::Argument, 2> const& args);
-    static void manage(SandBox& sandbox, Program const& program, void(*func)(SandBox&, ui32&,ui32&), std::array<Decoder::Argument, 2> const& args);
+    static void manage(SandBox& sandbox, Program const& program, void(*func)(SandBox&, ui32&,ui32&), std::array<Decoder::Argument, 2> const& args, bool load_targets = false);
     static void manage(SandBox& sandbox, Program const& program, void(*func)(SandBox&, ui32), Decoder::Argument const& arg);
     static void manage(SandBox& sandbox, Program const& program, void(*func)(SandBox&, ui32&), Decoder::Argument const& arg, bool load_target = false);
 

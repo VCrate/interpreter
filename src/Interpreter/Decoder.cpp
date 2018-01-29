@@ -33,7 +33,7 @@ Decoder::Argument Decoder::decode_full(ui32 value) const {
      * VVV VVVV VVVV VVVV VVVV = Value / Displacement signed [-262144, 262143]
     */
 
-    ui8 type = value >> 18;
+    ui8 type = value >> 19;
     if (type <= 0x1A) {
         arg.type = type >= 0x12 ? Decoder::ArguementType::DeferRegisterDisp :
                    type >= 0x09 ? Decoder::ArguementType::DeferRegister :

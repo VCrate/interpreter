@@ -12,46 +12,50 @@ void Interpreter::run(SandBox& sandbox, Program const& program) {
         case Operations::ope:       \
             return Interpreter::manage(sandbox, program, &Interpreter::op_ ## func, decoder.get_half_arguments());
 
+#define DEF_OP_2_ARGS_LOAD(ope, func)       \
+        case Operations::ope:       \
+            return Interpreter::manage(sandbox, program, &Interpreter::op_ ## func, decoder.get_half_arguments(), true);
+
 #define DEF_OP_ARG(ope, func)        \
         case Operations::ope:       \
             return Interpreter::manage(sandbox, program, &Interpreter::op_ ## func, decoder.get_full_argument());
 
-#define DEF_OP_ARG_RW(ope, func)        \
+#define DEF_OP_ARG_LOAD(ope, func)        \
         case Operations::ope:       \
             return Interpreter::manage(sandbox, program, &Interpreter::op_ ## func, decoder.get_full_argument(), true);
 
-        DEF_OP_2_ARGS(ADD, add)
-        DEF_OP_2_ARGS(SUB, sub)
-        DEF_OP_2_ARGS(MUL, mul)
-        DEF_OP_2_ARGS(MULU, mulu)
-        DEF_OP_2_ARGS(DIV, div)
-        DEF_OP_2_ARGS(DIVU, divu)
+        DEF_OP_2_ARGS_LOAD(ADD, add)
+        DEF_OP_2_ARGS_LOAD(SUB, sub)
+        DEF_OP_2_ARGS_LOAD(MUL, mul)
+        DEF_OP_2_ARGS_LOAD(MULU, mulu)
+        DEF_OP_2_ARGS_LOAD(DIV, div)
+        DEF_OP_2_ARGS_LOAD(DIVU, divu)
 
         DEF_OP_2_ARGS(MOV, mov)
-        DEF_OP_2_ARGS(SWP, swp)
+        DEF_OP_2_ARGS_LOAD(SWP, swp)
         DEF_OP_ARG(POP, pop)
         DEF_OP_ARG(PUSH, push)
 
         DEF_OP_ARG(JMP, jmp)
         DEF_OP_2_ARGS(JMPC, jmpc)
 
-        DEF_OP_2_ARGS(AND, and)
-        DEF_OP_2_ARGS(OR, or)
-        DEF_OP_2_ARGS(XOR, xor)
-        DEF_OP_ARG_RW(NEG, neg)
+        DEF_OP_2_ARGS_LOAD(AND, and)
+        DEF_OP_2_ARGS_LOAD(OR, or)
+        DEF_OP_2_ARGS_LOAD(XOR, xor)
+        DEF_OP_ARG_LOAD(NEG, neg)
 
-        DEF_OP_2_ARGS(SHL, shl)
-        DEF_OP_2_ARGS(RTL, rtl)
-        DEF_OP_2_ARGS(SHR, shr)
-        DEF_OP_2_ARGS(RTR, rtr)
+        DEF_OP_2_ARGS_LOAD(SHL, shl)
+        DEF_OP_2_ARGS_LOAD(RTL, rtl)
+        DEF_OP_2_ARGS_LOAD(SHR, shr)
+        DEF_OP_2_ARGS_LOAD(RTR, rtr)
 
-        DEF_OP_2_ARGS(CMPE, cmpe)
-        DEF_OP_2_ARGS(CMPNE, cmpne)
-        DEF_OP_2_ARGS(CMPG, cmpg)
-        DEF_OP_2_ARGS(CMPGE, cmpge)
+        DEF_OP_2_ARGS_LOAD(CMPE, cmpe)
+        DEF_OP_2_ARGS_LOAD(CMPNE, cmpne)
+        DEF_OP_2_ARGS_LOAD(CMPG, cmpg)
+        DEF_OP_2_ARGS_LOAD(CMPGE, cmpge)
 
-        DEF_OP_ARG_RW(INC, inc)
-        DEF_OP_ARG_RW(DEC, dec)
+        DEF_OP_ARG_LOAD(INC, inc)
+        DEF_OP_ARG_LOAD(DEC, dec)
 
         DEF_OP_ARG(OUT, out)
 
@@ -103,32 +107,43 @@ ui32 Interpreter::read(SandBox& sandbox, Program const& program, Decoder::Argume
     }
 }
 
-void Interpreter::manage(SandBox& sandbox, Program const& program, void(*func)(SandBox&, ui32, ui32&), std::array<Decoder::Argument, 2> const& args) {
+void Interpreter::manage(SandBox& sandbox, Program const& program, void(*func)(SandBox&, ui32, ui32&), 
+                         std::array<Decoder::Argument, 2> const& args, bool load_target) {
     ui32 operand = Interpreter::read(sandbox, program, args[0]);
     ui32 target;
+    if (load_target)
+        target = Interpreter::read(sandbox, program, args[1]);
     func(sandbox, operand, target);
     Interpreter::write(sandbox, program, target, args[1]);
 }
 
-void Interpreter::manage(SandBox& sandbox, Program const& program, void(*func)(SandBox&, ui32, ui32), std::array<Decoder::Argument, 2> const& args) {
+void Interpreter::manage(SandBox& sandbox, Program const& program, void(*func)(SandBox&, ui32, ui32), 
+                         std::array<Decoder::Argument, 2> const& args) {
     ui32 operand0 = Interpreter::read(sandbox, program, args[0]);
     ui32 operand1 = Interpreter::read(sandbox, program, args[1]);
     func(sandbox, operand0, operand1);
 }
 
-void Interpreter::manage(SandBox& sandbox, Program const& program, void(*func)(SandBox&, ui32&, ui32&), std::array<Decoder::Argument, 2> const& args) {
+void Interpreter::manage(SandBox& sandbox, Program const& program, void(*func)(SandBox&, ui32&, ui32&), 
+                         std::array<Decoder::Argument, 2> const& args, bool load_targets) {
     ui32 target0, target1;
+    if (load_targets) {
+        target0 = Interpreter::read(sandbox, program, args[0]);
+        target1 = Interpreter::read(sandbox, program, args[1]);
+    }
     func(sandbox, target0, target1);
     Interpreter::write(sandbox, program, target0, args[0]);
     Interpreter::write(sandbox, program, target1, args[1]);
 }
 
-void Interpreter::manage(SandBox& sandbox, Program const& program, void(*func)(SandBox&, ui32), Decoder::Argument const& arg) {
+void Interpreter::manage(SandBox& sandbox, Program const& program, void(*func)(SandBox&, ui32), 
+                         Decoder::Argument const& arg) {
     ui32 operand = Interpreter::read(sandbox, program, arg);
     func(sandbox, operand);
 }
 
-void Interpreter::manage(SandBox& sandbox, Program const& program, void(*func)(SandBox&, ui32&), Decoder::Argument const& arg, bool load_target) {
+void Interpreter::manage(SandBox& sandbox, Program const& program, void(*func)(SandBox&, ui32&),
+                         Decoder::Argument const& arg, bool load_target) {
     ui32 target;
     if (load_target)
         target = Interpreter::read(sandbox, program, arg);
@@ -141,7 +156,7 @@ void Interpreter::op_add (SandBox&, ui32 operand, ui32& target) {
 }
 
 void Interpreter::op_sub (SandBox&, ui32 operand, ui32& target) {
-    target += operand;
+    target -= operand;
 }
 
 void Interpreter::op_mul (SandBox&, ui32 operand, ui32& target) {
