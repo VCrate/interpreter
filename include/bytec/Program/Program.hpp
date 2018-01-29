@@ -13,6 +13,8 @@ class Program {
 public:
 
     void append_instruction(Instruction_t instruction);
+    void append_instructions(std::vector<Instruction_t> instructions);
+
     void reserve_instructions_count(ui32 size);
 
     Instruction_t instruction_at(ui32 pointer) const;

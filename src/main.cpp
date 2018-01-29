@@ -3,6 +3,7 @@
 #include <bytec/Program/Program.hpp>
 #include <bytec/Sandbox/SandBox.hpp>
 #include <bytec/Interpreter/Interpreter.hpp>
+#include <bytec/Interpreter/Assembler.hpp>
 
 #include <bitset>
 
@@ -13,136 +14,17 @@ int main() {
 
     Program program;
     SandBox sandbox;
-    {
-        ui8 ope = static_cast<ui8>(Operations::MOV);
 
-        ui32 command = ope << 24;
 
-        {
-            ui8 target = 0x1B; // Immediate value
-            ui16 value = 42;
-            ui16 argument = (target << 7) | value;
-            command |= argument << 12;
-        }
-        {
-            ui8 target = 0x00; // Register A
-            ui16 argument = target << 7;
-            command |= argument;
-        }
-
-        std::cout << "0x00 : " << std::bitset<32>(command) << std::endl;
-
-        program.append_instruction(command);
-    }
-    {
-        ui8 ope = static_cast<ui8>(Operations::MOV);
-
-        ui32 command = ope << 24;
-
-        {
-            ui8 target = 0x1B; // Immediate value
-            ui16 value = 11;
-            ui16 argument = (target << 7) | value;
-            command |= argument << 12;
-        }
-        {
-            ui8 target = 0x01; // Register B
-            ui16 argument = target << 7;
-            command |= argument;
-        }
-
-        std::cout << "0x01 : " << std::bitset<32>(command) << std::endl;
-
-        program.append_instruction(command);
-    }
-    {
-        ui8 ope = static_cast<ui8>(Operations::OUT);
-
-        ui32 command = ope << 24;
-
-        {
-            ui8 target = 0x00; // Register A
-            ui32 argument = (target << 19);
-            command |= argument;
-        }
-
-        std::cout << "0x02 : " << std::bitset<32>(command) << std::endl;
-
-        program.append_instruction(command);
-    }
-    {
-        ui8 ope = static_cast<ui8>(Operations::OUT);
-
-        ui32 command = ope << 24;
-
-        {
-            ui8 target = 0x01; // Register B
-            ui32 argument = (target << 19);
-            command |= argument;
-        }
-
-        std::cout << "0x03 : " << std::bitset<32>(command) << std::endl;
-
-        program.append_instruction(command);
-    }
-    {
-        ui8 ope = static_cast<ui8>(Operations::CMPG);
-
-        ui32 command = ope << 24;
-
-        {
-            ui8 target = 0x01; // Register B
-            ui16 argument = target << 7;
-            command |= argument << 12;
-        }
-        {
-            ui8 target = 0x00; // Register A
-            ui16 argument = target << 7;
-            command |= argument;
-        }
-
-        std::cout << "0x04 : " << std::bitset<32>(command) << std::endl;
-
-        program.append_instruction(command);
-    }
-    {
-        ui8 ope = static_cast<ui8>(Operations::OUT);
-
-        ui32 command = ope << 24;
-
-        {
-            ui8 target = 0x00; // Register A
-            ui32 argument = (target << 19);
-            command |= argument;
-        }
-
-        std::cout << "0x05 : " << std::bitset<32>(command) << std::endl;
-
-        program.append_instruction(command);
-    }
-    {
-        ui8 ope = static_cast<ui8>(Operations::OUT);
-
-        ui32 command = ope << 24;
-
-        {
-            ui8 target = 0x01; // Register B
-            ui32 argument = (target << 19);
-            command |= argument;
-        }
-
-        std::cout << "0x06 : " << std::bitset<32>(command) << std::endl;
-
-        program.append_instruction(command);
-    }
+    program.append_instructions(Assembler::MOV(
+        Assembler::Argument(Assembler::NextValue, 133700),
+        Assembler::RegA));
+    program.append_instructions(Assembler::OUT(
+        Assembler::RegA));
+    
 
     sandbox.set_pc(0);
 
-    Interpreter::run(sandbox, program);
-    Interpreter::run(sandbox, program);
-    Interpreter::run(sandbox, program);
-    Interpreter::run(sandbox, program);
-    Interpreter::run(sandbox, program);
     Interpreter::run(sandbox, program);
     Interpreter::run(sandbox, program);
 

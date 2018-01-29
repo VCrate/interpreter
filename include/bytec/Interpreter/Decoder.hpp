@@ -5,6 +5,7 @@
 #include <bytec/Interpreter/Operations.hpp>
 
 #include <array>
+#include <string>
 
 namespace bytec {
 

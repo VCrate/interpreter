@@ -7,6 +7,7 @@ ui32 SandBox::get_pc() const {
 }
 
 ui32 SandBox::get_pc_increment() {
+    push_32(program_pointer * 7);
     return program_pointer++;
 }
 
