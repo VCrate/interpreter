@@ -66,9 +66,9 @@ ui16 DeferRegister::as_12() const {
     return ((reg + 0x9) & 0x1F) << 7;
 }
 
-void append_MOV(Program& program, Argument const& from, Argument const& to) {
+void append_instruction_2_args(Program& program, Operations operation, Argument const& from, Argument const& to) {
     program.append_instruction(
-        (static_cast<ui8>(Operations::MOV) << 24) | 
+        (static_cast<ui8>(operation) << 24) | 
         (from.as_12() << 12) |
         to.as_12()
     );
@@ -80,9 +80,9 @@ void append_MOV(Program& program, Argument const& from, Argument const& to) {
         program.append_instruction(value);
 }
 
-void append_OUT(Program& program, Argument const& target) {
+void append_instruction_1_arg(Program& program, Operations operation, Argument const& target) {
     program.append_instruction(
-        (static_cast<ui8>(Operations::OUT) << 24) | 
+        (static_cast<ui8>(operation) << 24) | 
         target.as_24()
     );
 
@@ -90,5 +90,114 @@ void append_OUT(Program& program, Argument const& target) {
     if (target.get_potential_next_24(value))
         program.append_instruction(value);
 }
+
+void append_ADD(Program& program, Argument const& from, Argument const& to) {
+    append_instruction_2_args(program, Operations::ADD, from, to);
+}
+
+void append_SUB(Program& program, Argument const& from, Argument const& to) {
+    append_instruction_2_args(program, Operations::SUB, from, to);
+}
+
+void append_MUL(Program& program, Argument const& from, Argument const& to) {
+    append_instruction_2_args(program, Operations::MUL, from, to);
+}
+
+void append_MULU(Program& program, Argument const& from, Argument const& to) {
+    append_instruction_2_args(program, Operations::MULU, from, to);
+}
+
+void append_DIV(Program& program, Argument const& from, Argument const& to) {
+    append_instruction_2_args(program, Operations::DIV, from, to);
+}
+
+void append_DIVU(Program& program, Argument const& from, Argument const& to) {
+    append_instruction_2_args(program, Operations::DIVU, from, to);
+}
+
+void append_MOV(Program& program, Argument const& from, Argument const& to) {
+    append_instruction_2_args(program, Operations::MOV, from, to);
+}
+
+void append_SWP(Program& program, Argument const& from, Argument const& to) {
+    append_instruction_2_args(program, Operations::SWP, from, to);
+}
+
+void append_PUSH(Program& program, Argument const& target) {
+    append_instruction_1_arg(program, Operations::PUSH, target);
+}
+
+void append_POP(Program& program, Argument const& target) {
+    append_instruction_1_arg(program, Operations::POP, target);
+}
+
+void append_JMP(Program& program, Argument const& target) {
+    append_instruction_1_arg(program, Operations::JMP, target);
+}
+
+void append_JMPC(Program& program, Argument const& from, Argument const& to) {
+    append_instruction_2_args(program, Operations::JMPC, from, to);
+}
+
+void append_AND(Program& program, Argument const& from, Argument const& to) {
+    append_instruction_2_args(program, Operations::AND, from, to);
+}
+
+void append_OR(Program& program, Argument const& from, Argument const& to) {
+    append_instruction_2_args(program, Operations::OR, from, to);
+}
+
+void append_XOR(Program& program, Argument const& from, Argument const& to) {
+    append_instruction_2_args(program, Operations::XOR, from, to);
+}
+
+void append_NEG(Program& program, Argument const& target) {
+    append_instruction_1_arg(program, Operations::NEG, target);
+}
+
+void append_SHL(Program& program, Argument const& from, Argument const& to) {
+    append_instruction_2_args(program, Operations::SHL, from, to);
+}
+
+void append_RTL(Program& program, Argument const& from, Argument const& to) {
+    append_instruction_2_args(program, Operations::RTL, from, to);
+}
+
+void append_SHR(Program& program, Argument const& from, Argument const& to) {
+    append_instruction_2_args(program, Operations::SHR, from, to);
+}
+
+void append_RTR(Program& program, Argument const& from, Argument const& to) {
+    append_instruction_2_args(program, Operations::RTR, from, to);
+}
+
+void append_CMPE(Program& program, Argument const& from, Argument const& to) {
+    append_instruction_2_args(program, Operations::CMPE, from, to);
+}
+
+void append_CMPNE(Program& program, Argument const& from, Argument const& to) {
+    append_instruction_2_args(program, Operations::CMPNE, from, to);
+}
+
+void append_CMPG(Program& program, Argument const& from, Argument const& to) {
+    append_instruction_2_args(program, Operations::CMPG, from, to);
+}
+
+void append_CMPGE(Program& program, Argument const& from, Argument const& to) {
+    append_instruction_2_args(program, Operations::CMPGE, from, to);
+}
+
+void append_INC(Program& program, Argument const& target) {
+    append_instruction_1_arg(program, Operations::INC, target);
+}
+
+void append_DEC(Program& program, Argument const& target) {
+    append_instruction_1_arg(program, Operations::DEC, target);
+}
+
+void append_OUT(Program& program, Argument const& target) {
+    append_instruction_1_arg(program, Operations::OUT, target);
+}
+
 
 }}

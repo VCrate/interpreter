@@ -19,6 +19,8 @@ public:
 
     Instruction_t instruction_at(ui32 pointer) const;
 
+    ui32 size() const;
+
 private:
 
     std::vector<Instruction_t> instructions;

@@ -19,4 +19,9 @@ Instruction_t Program::instruction_at(ui32 address) const {
     return this->instructions[address];
 }
 
+ui32 Program::size() const {
+    return instructions.size();
+}
+
+
 }

@@ -15,13 +15,19 @@ int main() {
     Program program;
     SandBox sandbox;
 
-    assembly::append_MOV(program, assembly::Value{1337}, assembly::Register::A);
+    assembly::append_MOV(program, assembly::Value{10}, assembly::Register::A);
+    assembly::append_OUT(program, assembly::Register::A);
+    assembly::append_DEC(program, assembly::Register::A);
+    assembly::append_MOV(program, assembly::Register::A, assembly::Register::B);
+    assembly::append_CMPG(program, assembly::Value{0}, assembly::Register::B);
+    assembly::append_JMPC(program, assembly::Register::B, assembly::Value{1});
     assembly::append_OUT(program, assembly::Register::A);
     
 
     sandbox.set_pc(0);
 
-    Interpreter::run(sandbox, program);
-    Interpreter::run(sandbox, program);
-
+    while(sandbox.get_pc() < program.size()) {
+        Interpreter::run(sandbox, program);
+    }
+    
 }
