@@ -25,6 +25,14 @@ struct Value : public Argument {
     ui32 value;
 };
 
+struct DeferValue : public Value {
+
+    DeferValue(ui32 value);
+
+    virtual ui32 as_24() const;
+    virtual ui16 as_12() const;
+};
+
 struct Register : public Argument {
     static const Register A;
     static const Register B;
@@ -49,6 +57,18 @@ struct DeferRegister : public Register {
 
     virtual ui32 as_24() const;
     virtual ui16 as_12() const;
+};
+
+struct DeferRegisterDisp : public Register {
+    DeferRegisterDisp(ui8 reg, ui32 disp);
+
+    virtual ui32 as_24() const;
+    virtual ui16 as_12() const;
+
+    virtual bool get_potential_next_12(ui32& value) const;
+    virtual bool get_potential_next_24(ui32& value) const;
+
+    ui32 disp;
 };
 
 void append_instruction_2_args(Program& program, Operations operation, Argument const& from, Argument const& to);

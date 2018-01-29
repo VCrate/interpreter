@@ -1,6 +1,11 @@
 #include <bytec/Interpreter/Assembly.hpp>
 
 #include <bytec/Interpreter/Operations.hpp>
+#include <bytec/Interpreter/BinRepr.hpp>
+
+#include <cassert>
+#include <iostream>
+#include <bitset>
 
 namespace bytec { namespace assembly {
 
@@ -15,25 +20,39 @@ bool Argument::get_potential_next_24(ui32&) const {
 Value::Value(ui32 value) : value(value) {}
 
 ui16 Value::as_12() const {
-    if (value > 0x7F)
-        return 0x1C << 7; // next value
-    return (0x1B << 7) | value & 0x7F; // Immediate value
+    if (value > bin_repr::arg12_value_max)
+        return bin_repr::arg12_type_encode(0x1C); // next value
+    return bin_repr::arg12_type_encode(0x1B) | bin_repr::arg12_value_encode(value); // Immediate value
 }
 
 ui32 Value::as_24() const {
-    if (value > 0x7FFFF)
-        return 0x1C << 19; // next value
-    return (0x1B << 19) | value & 0x7FFFF; // Immediate value
+    if (value > bin_repr::arg24_value_max)
+        return bin_repr::arg24_type_encode(0x1C); // next value
+    return bin_repr::arg24_type_encode(0x1B) | bin_repr::arg24_value_encode(value); // Immediate value
 }
 
 bool Value::get_potential_next_12(ui32& v) const {
     v = value;
-    return value > 0x7F;
+    return value > bin_repr::arg12_value_max;
 }
 
 bool Value::get_potential_next_24(ui32& v) const {
     v = value;
-    return value > 0x7FFFF;
+    return value > bin_repr::arg24_value_max;
+}
+
+DeferValue::DeferValue(ui32 value) : Value(value) {}
+
+ui16 DeferValue::as_12() const {
+    if (value > bin_repr::arg12_value_max)
+        return bin_repr::arg12_type_encode(0x1E); // next value
+    return bin_repr::arg12_type_encode(0x1D) | bin_repr::arg12_value_encode(value); // Immediate value
+}
+
+ui32 DeferValue::as_24() const {
+    if (value > bin_repr::arg24_value_max)
+        return bin_repr::arg24_type_encode(0x1E); // next value
+    return bin_repr::arg24_type_encode(0x1D) | bin_repr::arg24_value_encode(value); // Immediate value
 }
 
 const Register Register::A  = Register{ 0x0 };
@@ -49,28 +68,54 @@ const Register Register::SP = Register{ 0x8 };
 Register::Register(ui8 reg) : reg(reg) {}
 
 ui32 Register::as_24() const {
-    return (reg & 0x1F) << 19;
+    return bin_repr::arg24_type_encode(reg);
 }
 
 ui16 Register::as_12() const {
-    return (reg & 0x1F) << 7;
+    return bin_repr::arg12_type_encode(reg);
 }
 
 DeferRegister::DeferRegister(ui8 reg) : Register(reg) {}
 
 ui32 DeferRegister::as_24() const {
-    return ((reg + 0x9) & 0x1F) << 19;
+    return bin_repr::arg24_type_encode(reg + 0x09);
 }
 
 ui16 DeferRegister::as_12() const {
-    return ((reg + 0x9) & 0x1F) << 7;
+    return bin_repr::arg12_type_encode(reg + 0x09);
+}
+
+DeferRegisterDisp::DeferRegisterDisp(ui8 reg, ui32 disp) : Register(reg), disp(disp) {}
+
+ui32 DeferRegisterDisp::as_24() const {
+    /*if (disp > 0x7FFFF)
+        return ((reg + 0x12) & 0x1F) << 19;*/ // next value
+    return bin_repr::arg24_type_encode(reg + 0x12) | bin_repr::arg24_value_encode(disp);
+}
+
+ui16 DeferRegisterDisp::as_12() const {
+    /*if (disp > 0x7F)
+        return 0x1C << 7;*/ // next value
+    return bin_repr::arg12_type_encode(reg + 0x12) | bin_repr::arg12_value_encode(disp);
+}
+
+bool DeferRegisterDisp::get_potential_next_12(ui32&) const {
+    return false;/*
+    v = disp;
+    return disp > bin_repr::arg12_value_max;*/
+}
+
+bool DeferRegisterDisp::get_potential_next_24(ui32&) const {
+    return false;/*
+    v = disp;
+    return disp > bin_repr::arg24_value_max;*/
 }
 
 void append_instruction_2_args(Program& program, Operations operation, Argument const& from, Argument const& to) {
     program.append_instruction(
-        (static_cast<ui8>(operation) << 24) | 
-        (from.as_12() << 12) |
-        to.as_12()
+        bin_repr::operation_encode(static_cast<ui8>(operation)) |
+        bin_repr::arg0_encode(from.as_12()) |
+        bin_repr::arg1_encode(to.as_12())
     );
 
     ui32 value;
@@ -82,8 +127,8 @@ void append_instruction_2_args(Program& program, Operations operation, Argument 
 
 void append_instruction_1_arg(Program& program, Operations operation, Argument const& target) {
     program.append_instruction(
-        (static_cast<ui8>(operation) << 24) | 
-        target.as_24()
+        bin_repr::operation_encode(static_cast<ui8>(operation)) |
+        bin_repr::arg_encode(target.as_24())
     );
 
     ui32 value;
