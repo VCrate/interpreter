@@ -19,13 +19,13 @@ int main() {
     assembly::append_DEC(program, assembly::Register::A);
     assembly::append_MOV(program, assembly::Register::A, assembly::Register::B);
     assembly::append_CMP(program, assembly::Register::B, assembly::Value{0});
-    assembly::append_JMPG(program, assembly::Value{1});
+    assembly::append_JMPG(program, assembly::Value{4});
     assembly::append_OUT(program, assembly::Register::A);
     
 
     sandbox.set_pc(0);
 
-    while(sandbox.get_pc() < program.size()) {
+    while(sandbox.get_pc() < program.size() * 4) {
         Interpreter::run(sandbox, program);
         //std::cin.get();
     }

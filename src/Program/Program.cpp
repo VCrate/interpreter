@@ -11,7 +11,7 @@ void Program::reserve_instructions_count(ui32 size) {
 }
 
 Instruction_t Program::instruction_at(ui32 address) const {
-    return this->instructions[address];
+    return this->instructions[address / 4];
 }
 
 ui32 Program::size() const {

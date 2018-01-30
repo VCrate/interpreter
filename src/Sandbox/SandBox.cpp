@@ -9,8 +9,8 @@ ui32 SandBox::get_pc() const {
 }
 
 ui32 SandBox::get_pc_increment() {
-    set_pc(get_pc() + 1);
-    return get_pc() - 1;
+    set_pc(get_pc() + 4);
+    return get_pc() - 4;
 }
 
 void SandBox::set_pc(ui32 value) {
