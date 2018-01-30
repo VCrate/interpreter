@@ -1,6 +1,7 @@
 #include <bytec/Interpreter/Interpreter.hpp>
 
 #include <iostream>
+#include <bitset>
 
 namespace bytec {
 

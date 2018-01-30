@@ -29,6 +29,37 @@ MAKE_ALL(arg0,                  0x00'FF'F0'00,  12)
 MAKE_ALL(arg1,                  0x00'00'0F'FF,  0)
 MAKE_ALL(arg,                   0x00'FF'FF'FF,  0)
 
+static constexpr ui32 arg_type_register = 0x00;
+static constexpr ui32 arg_type_defer_register = 0x01;
+static constexpr ui32 arg_type_defer_register_disp = 0x02;
+static constexpr ui32 arg_type_defer_register_next_disp = 0x03;
+static constexpr ui32 arg_type_defer_imm_value = 0x04;
+static constexpr ui32 arg_type_defer_next_value = 0x05;
+static constexpr ui32 arg_type_imm_value = 0x06;
+static constexpr ui32 arg_type_next_value = 0x07;
+
+static constexpr ui32 arg_register_A = 0x00;
+static constexpr ui32 arg_register_B = 0x01;
+static constexpr ui32 arg_register_C = 0x02;
+static constexpr ui32 arg_register_D = 0x03;
+
+static constexpr ui32 arg_register_E = 0x04;
+static constexpr ui32 arg_register_F = 0x05;
+static constexpr ui32 arg_register_G = 0x06;
+static constexpr ui32 arg_register_H = 0x07;
+
+static constexpr ui32 arg_register_I = 0x08;
+static constexpr ui32 arg_register_J = 0x09;
+static constexpr ui32 arg_register_K = 0x0A;
+static constexpr ui32 arg_register_L = 0x0B;
+
+static constexpr ui32 arg_register_PC = 0x0C;
+static constexpr ui32 arg_register_FG = 0x0D;
+static constexpr ui32 arg_register_BP = 0x0E;
+static constexpr ui32 arg_register_SP = 0x0F;
+
+static constexpr ui32 arg_disp_factor = 0x04;
+
 MAKE_ALL(arg12_type,            0xE'00,         9)
 MAKE_ALL(arg12_value,           0x1'FF,         0)
 MAKE_ALL(arg12_value_wo_sign,   0x0'FF,         0)

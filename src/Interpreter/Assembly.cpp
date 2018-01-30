@@ -17,14 +17,16 @@ Value::Value(ui32 value) : value(value) {}
 
 ui16 Value::as_12() const {
     if (value > bin_repr::arg12_value_max)
-        return bin_repr::arg12_type_encode(0x07); // next value
-    return bin_repr::arg12_type_encode(0x06) | bin_repr::arg12_value_encode(value); // Immediate value
+        return bin_repr::arg12_type_encode(bin_repr::arg_type_next_value); 
+    return bin_repr::arg12_type_encode(bin_repr::arg_type_imm_value) | 
+           bin_repr::arg12_value_encode(value);
 }
 
 ui32 Value::as_24() const {
     if (value > bin_repr::arg24_value_max)
-        return bin_repr::arg24_type_encode(0x07); // next value
-    return bin_repr::arg24_type_encode(0x06) | bin_repr::arg24_value_encode(value); // Immediate value
+        return bin_repr::arg24_type_encode(bin_repr::arg_type_next_value);
+    return bin_repr::arg24_type_encode(bin_repr::arg_type_imm_value) | 
+           bin_repr::arg24_value_encode(value);
 }
 
 bool Value::get_potential_next_12(ui32& v) const {
@@ -41,63 +43,80 @@ DeferValue::DeferValue(ui32 value) : Value(value) {}
 
 ui16 DeferValue::as_12() const {
     if (value > bin_repr::arg12_value_max)
-        return bin_repr::arg12_type_encode(0x05); // next value
-    return bin_repr::arg12_type_encode(0x04) | bin_repr::arg12_value_encode(value); // Immediate value
+        return bin_repr::arg12_type_encode(bin_repr::arg_type_defer_next_value); 
+    return bin_repr::arg12_type_encode(bin_repr::arg_type_defer_imm_value) | 
+           bin_repr::arg12_value_encode(value);
 }
 
 ui32 DeferValue::as_24() const {
     if (value > bin_repr::arg24_value_max)
-        return bin_repr::arg24_type_encode(0x05); // next value
-    return bin_repr::arg24_type_encode(0x04) | bin_repr::arg24_value_encode(value); // Immediate value
+        return bin_repr::arg24_type_encode(bin_repr::arg_type_defer_next_value); 
+    return bin_repr::arg24_type_encode(bin_repr::arg_type_defer_imm_value) | 
+           bin_repr::arg24_value_encode(value); 
 }
 
-const Register Register::A  = Register{ 0x0 };
-const Register Register::B  = Register{ 0x1 };
-const Register Register::C  = Register{ 0x2 };
-const Register Register::D  = Register{ 0x3 };
-const Register Register::E  = Register{ 0x4 };
-const Register Register::F  = Register{ 0x5 };
-const Register Register::G  = Register{ 0x6 };
-const Register Register::H  = Register{ 0x7 };
-const Register Register::SP = Register{ 0x8 };
+const Register Register::A  = Register{ bin_repr::arg_register_A };
+const Register Register::B  = Register{ bin_repr::arg_register_B };
+const Register Register::C  = Register{ bin_repr::arg_register_C };
+const Register Register::D  = Register{ bin_repr::arg_register_D };
+const Register Register::E  = Register{ bin_repr::arg_register_E };
+const Register Register::F  = Register{ bin_repr::arg_register_F };
+const Register Register::G  = Register{ bin_repr::arg_register_G };
+const Register Register::H  = Register{ bin_repr::arg_register_H };
+const Register Register::I  = Register{ bin_repr::arg_register_I };
+const Register Register::J  = Register{ bin_repr::arg_register_J };
+const Register Register::K  = Register{ bin_repr::arg_register_K };
+const Register Register::L  = Register{ bin_repr::arg_register_L };
+const Register Register::PC = Register{ bin_repr::arg_register_PC };
+const Register Register::FG = Register{ bin_repr::arg_register_FG };
+const Register Register::BP = Register{ bin_repr::arg_register_BP };
+const Register Register::SP = Register{ bin_repr::arg_register_SP };
 
 Register::Register(ui8 reg) : reg(reg) {}
 
 ui32 Register::as_24() const {
-    return bin_repr::arg24_type_encode(0x00) | bin_repr::arg24_register_encode(reg);
+    return bin_repr::arg24_type_encode(bin_repr::arg_type_register) | 
+           bin_repr::arg24_register_encode(reg);
 }
 
 ui16 Register::as_12() const {
-    return bin_repr::arg12_type_encode(0x00) | bin_repr::arg12_register_encode(reg);
+    return bin_repr::arg12_type_encode(bin_repr::arg_type_register) | 
+           bin_repr::arg12_register_encode(reg);
 }
 
 DeferRegister::DeferRegister(ui8 reg) : Register(reg) {}
 
 ui32 DeferRegister::as_24() const {
-    return bin_repr::arg24_type_encode(0x01) | bin_repr::arg24_register_encode(reg);
+    return bin_repr::arg24_type_encode(bin_repr::arg_type_defer_register) | 
+           bin_repr::arg24_register_encode(reg);
 }
 
 ui16 DeferRegister::as_12() const {
-    return bin_repr::arg12_type_encode(0x01) | bin_repr::arg12_register_encode(reg);
+    return bin_repr::arg12_type_encode(bin_repr::arg_type_defer_register) | 
+           bin_repr::arg12_register_encode(reg);
 }
 
 DeferRegisterDisp::DeferRegisterDisp(ui8 reg, ui32 disp) : Register(reg), disp(disp) {}
 
 ui32 DeferRegisterDisp::as_24() const {
     if (disp > bin_repr::arg24_disp_max)
-        return bin_repr::arg24_type_encode(0x03) | bin_repr::arg24_register_encode(reg);
-    return bin_repr::arg24_type_encode(0x02) | bin_repr::arg24_register_encode(reg) | bin_repr::arg24_disp_encode(disp / 4);
+        return bin_repr::arg24_type_encode(bin_repr::arg_type_defer_register_next_disp) | 
+               bin_repr::arg24_register_encode(reg);
+    return bin_repr::arg24_type_encode(bin_repr::arg_type_defer_register_disp) | 
+           bin_repr::arg24_register_encode(reg) | bin_repr::arg24_disp_encode(disp);
 }
 
 ui16 DeferRegisterDisp::as_12() const {
-    if (disp > bin_repr::arg12_disp_max * 4 || (disp % 4) != 0)
-        return bin_repr::arg12_type_encode(0x03) | bin_repr::arg12_register_encode(reg);
-    return bin_repr::arg12_type_encode(0x02) | bin_repr::arg12_register_encode(reg) | bin_repr::arg12_disp_encode(disp / 4);
+    if (disp > bin_repr::arg12_disp_max * bin_repr::arg_disp_factor || (disp % bin_repr::arg_disp_factor) != 0)
+        return bin_repr::arg12_type_encode(bin_repr::arg_type_defer_register_next_disp) | 
+               bin_repr::arg12_register_encode(reg);
+    return bin_repr::arg12_type_encode(bin_repr::arg_type_defer_register_disp) | 
+           bin_repr::arg12_register_encode(reg) | bin_repr::arg12_disp_encode(disp / bin_repr::arg_disp_factor);
 }
 
 bool DeferRegisterDisp::get_potential_next_12(ui32& v) const {
     v = disp;
-    return disp > bin_repr::arg12_disp_max * 4 || (disp % 4) != 0;
+    return disp > bin_repr::arg12_disp_max * bin_repr::arg_disp_factor || (disp % bin_repr::arg_disp_factor) != 0;
 }
 
 bool DeferRegisterDisp::get_potential_next_24(ui32& v) const {

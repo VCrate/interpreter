@@ -42,6 +42,13 @@ struct Register : public Argument {
     static const Register F;
     static const Register G;
     static const Register H;
+    static const Register I;
+    static const Register J;
+    static const Register K;
+    static const Register L;
+    static const Register PC;
+    static const Register FG;
+    static const Register BP;
     static const Register SP;
 
     Register(ui8 reg);
