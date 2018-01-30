@@ -47,6 +47,9 @@ public:
     void halt();
     bool is_halted() const;
 
+    void output(ui8 value) const;
+    ui8 input() const;
+
 private:
 
     std::array<ui32, 16> registers;

@@ -287,8 +287,8 @@ void Interpreter::op_hlt (SandBox& sandbox) {
     sandbox.halt();
 }
 
-void Interpreter::op_out (SandBox&, ui32 operand) {
-    std::cout << operand << '\n';
+void Interpreter::op_out (SandBox& sandbox, ui32 operand) {
+    sandbox.output(static_cast<ui8>(operand & 0xFF));
 }
 
 

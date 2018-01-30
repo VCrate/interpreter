@@ -4,7 +4,19 @@
 #include <bytec/Interpreter/Operations.hpp>
 #include <bytec/Program/Program.hpp>
 
+#include <vector>
+#include <optional>
+
 namespace bytec { namespace assembly {
+
+struct Label {
+
+    std::vector<ui32> jmp_instructions;
+    std::optional<ui32> address;
+
+};
+
+void link_label(Program& program, Label& label);
 
 struct Argument {
     virtual ui32 as_24() const = 0;
@@ -133,6 +145,12 @@ void append_JMPE(Program& program, Argument const& target);
 void append_JMPNE(Program& program, Argument const& target);
 void append_JMPG(Program& program, Argument const& target);
 void append_JMPGE(Program& program, Argument const& target);
+
+void append_JMP(Program& program, Label& label);
+void append_JMPE(Program& program, Label& label);
+void append_JMPNE(Program& program, Label& label);
+void append_JMPG(Program& program, Label& label);
+void append_JMPGE(Program& program, Label& label);
 
 void append_AND(Program& program, Argument const& from, Argument const& to);
 void append_OR(Program& program, Argument const& from, Argument const& to);

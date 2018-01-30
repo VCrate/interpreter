@@ -19,8 +19,8 @@ bool SandBox::is_halted() const {
 void SandBox::load_program(Program const& program) {
     set_pc(0);
     set_fg(0);
-    set_bp(program.size() * 4);
-    set_sp(program.size() * 4);
+    set_bp((program.size() - 1) * 4);
+    set_sp((program.size() - 1) * 4);
     for(ui32 i = 0; i < program.size(); ++i)
         set_memory_at(i * 4, program.instruction_at(i));
 }
@@ -101,27 +101,55 @@ ui32 SandBox::pop_32() {
     return get_memory_at(get_sp() + 4);
 }
 
-ui32 SandBox::get_register(ui32 reg) const {
+ui32 SandBox::get_register(ui32 reg) const {/*
+    std::cout << "return %";
+    switch(reg) {
+        case bin_repr::arg_register_PC: std::cout << "PC"; break;
+        case bin_repr::arg_register_FG: std::cout << "FG"; break;
+        case bin_repr::arg_register_BP: std::cout << "BP"; break;
+        case bin_repr::arg_register_SP: std::cout << "SP"; break;
+        default:                        std::cout << reg;  break;
+    }
+    std::cout << " // " << registers[reg] << std::endl;*/
     return registers[reg];
 }
 
-void SandBox::set_register(ui32 reg, ui32 value) {
+void SandBox::set_register(ui32 reg, ui32 value) {/*
+    std::cout << "%";
+    switch(reg) {
+        case bin_repr::arg_register_PC: std::cout << "PC"; break;
+        case bin_repr::arg_register_FG: std::cout << "FG"; break;
+        case bin_repr::arg_register_BP: std::cout << "BP"; break;
+        case bin_repr::arg_register_SP: std::cout << "SP"; break;
+        default:                        std::cout << reg;  break;
+    }
+    std::cout << " = " << value << std::endl;*/
     registers[reg] = value;
 }
 
 ui32 SandBox::get_memory_at(ui32 address) {
     if (address + 3 >= memory.size())
-        memory.resize(address + 3);
+        memory.resize(address + 3);/*
+    std::cout << "return [" << address << "] //" << ((memory[address] << 24) | (memory[address + 1] << 16) | (memory[address + 2] << 8) | memory[address + 3]) << std::endl;*/
     return (memory[address] << 24) | (memory[address + 1] << 16) | (memory[address + 2] << 8) | memory[address + 3]; 
 }
 
 void SandBox::set_memory_at(ui32 address, ui32 value) {
     if (address + 3 >= memory.size())
-        memory.resize(address + 3);
+        memory.resize(address + 3);/*
+    std::cout << "[" << address << "] = " << value << std::endl;*/
     memory[address] = (value >> 24) & 0xFF; 
     memory[address + 1] = (value >> 16) & 0xFF; 
     memory[address + 2] = (value >> 8) & 0xFF; 
     memory[address + 3] = value & 0xFF; 
+}
+
+void SandBox::output(ui8 value) const {
+    std::cout << static_cast<char>(value);
+}
+
+ui8 SandBox::input() const {
+    return static_cast<ui8>(std::cin.get());
 }
 
 }

@@ -3,6 +3,8 @@
 #include <bytec/Interpreter/Operations.hpp>
 #include <bytec/Interpreter/BinRepr.hpp>
 
+#include <iostream>
+
 namespace bytec { namespace assembly {
 
 bool Argument::get_potential_next_12(ui32&) const {
@@ -192,6 +194,55 @@ void append_instruction_0_arg(Program& program, Operations operation) {
     program.append_instruction(
         bin_repr::operation_encode(static_cast<ui8>(operation))
     );
+}
+
+void link_label(Program& program, Label& label) {
+    if (label.address)
+        throw std::runtime_error("Label Already linked");
+
+    label.address = program.size() * 4;
+    for(auto adr : label.jmp_instructions) {
+        auto instruction = program.instruction_at(adr);
+        auto operation = bin_repr::operation_decode(instruction);
+        auto arg = Value{ label.address.value() };
+        program.set_instruction(
+            bin_repr::operation_encode(operation) |
+            bin_repr::arg_encode(arg.as_24()),
+
+            adr
+        ); // IMPORTANT : argument is not in the next instruction, it should be fine because the max is 2^21
+    }
+
+}
+
+void append_JMP(Program& program, Label& label) {
+    append_instruction_1_arg(program, Operations::JMP, Value{label.address.value_or(0)});
+    if (!label.address)
+        label.jmp_instructions.push_back(program.size() - 1);
+}
+
+void append_JMPE(Program& program, Label& label) {
+    append_instruction_1_arg(program, Operations::JMPE, Value{label.address.value_or(0)});
+    if (!label.address)
+        label.jmp_instructions.push_back(program.size() - 1);
+}
+
+void append_JMPNE(Program& program, Label& label) {
+    append_instruction_1_arg(program, Operations::JMPNE, Value{label.address.value_or(0)});
+    if (!label.address)
+        label.jmp_instructions.push_back(program.size() - 1);
+}
+
+void append_JMPG(Program& program, Label& label) {
+    append_instruction_1_arg(program, Operations::JMPG, Value{label.address.value_or(0)});
+    if (!label.address)
+        label.jmp_instructions.push_back(program.size() - 1);
+}
+
+void append_JMPGE(Program& program, Label& label) {
+    append_instruction_1_arg(program, Operations::JMPGE, Value{label.address.value_or(0)});
+    if (!label.address)
+        label.jmp_instructions.push_back(program.size() - 1);
 }
 
 void append_ADD(Program& program, Argument const& from, Argument const& to) {

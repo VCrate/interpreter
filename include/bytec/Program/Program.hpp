@@ -13,6 +13,7 @@ class Program {
 public:
 
     void append_instruction(Instruction_t instruction);
+    void set_instruction(Instruction_t instruction, ui32 address);
 
     void reserve_instructions_count(ui32 size);
 
