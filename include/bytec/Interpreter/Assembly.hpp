@@ -80,6 +80,7 @@ struct DeferRegisterDisp : public Register {
 
 void append_instruction_2_args(Program& program, Operations operation, Argument const& from, Argument const& to);
 void append_instruction_1_arg(Program& program, Operations operation, Argument const& target);
+void append_instruction_0_arg(Program& program, Operations operation);
 
 void append_ADD(Program& program, Argument const& from, Argument const& to);
 void append_SUB(Program& program, Argument const& from, Argument const& to);
@@ -114,6 +115,8 @@ void append_CMP(Program& program, Argument const& op0, Argument const& op1);
 
 void append_INC(Program& program, Argument const& target);
 void append_DEC(Program& program, Argument const& target);
+
+void append_HLT(Program& program);
 
 void append_OUT(Program& program, Argument const& target);
 

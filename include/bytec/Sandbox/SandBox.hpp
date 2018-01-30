@@ -1,6 +1,7 @@
 #pragma once
 
 #include <bytec/Alias.hpp>
+#include <bytec/Program/Program.hpp>
 
 #include <vector>
 #include <array>
@@ -10,6 +11,10 @@ namespace bytec {
 class SandBox {
 public:
 
+    SandBox(ui32 memory_initial_size = 1 << 16);
+
+    ui32 get_instruction();
+    ui32 get_instruction_and_move();
     ui32 get_pc() const;
     ui32 get_pc_increment();
     void set_pc(ui32 value);
@@ -37,12 +42,17 @@ public:
     ui32 get_memory_at(ui32 address);
     void set_memory_at(ui32 address, ui32 value);
 
+    void load_program(Program const& program);
+
+    void halt();
+    bool is_halted() const;
+
 private:
 
     std::array<ui32, 16> registers;
+    std::vector<ui8> memory; 
 
-    std::vector<ui32> stack;
-
+    bool halted = false;
 };
 
 }

@@ -32,6 +32,8 @@ enum class Operations : ui8 {
     INC,  // Increment (RW)
     DEC,  // Decrement (RW)
 
+    HLT,  // Halt the program
+
     OUT
 };
 

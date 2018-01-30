@@ -2,7 +2,6 @@
 
 #include <bytec/Alias.hpp>
 
-#include <bytec/Program/Program.hpp>
 #include <bytec/Interpreter/Decoder.hpp>
 #include <bytec/Sandbox/SandBox.hpp>
 
@@ -11,18 +10,19 @@ namespace bytec {
 class Interpreter {
 public:
 
-    static void run(SandBox& sandbox, Program const& program); 
+    static void run(SandBox& sandbox); 
 
 private:
 
-    static void write(SandBox& sandbox, Program const& program, ui32 value, Decoder::Argument const& arg);
-    static ui32 read(SandBox& sandbox, Program const& program, Decoder::Argument const& arg);
+    static void write(SandBox& sandbox, ui32 value, Decoder::Argument const& arg);
+    static ui32 read(SandBox& sandbox, Decoder::Argument const& arg);
 
-    static void manage(SandBox& sandbox, Program const& program, void(*func)(SandBox&, ui32, ui32&), std::array<Decoder::Argument, 2> const& args, bool load_target = false);
-    static void manage(SandBox& sandbox, Program const& program, void(*func)(SandBox&, ui32, ui32), std::array<Decoder::Argument, 2> const& args);
-    static void manage(SandBox& sandbox, Program const& program, void(*func)(SandBox&, ui32&,ui32&), std::array<Decoder::Argument, 2> const& args, bool load_targets = false);
-    static void manage(SandBox& sandbox, Program const& program, void(*func)(SandBox&, ui32), Decoder::Argument const& arg);
-    static void manage(SandBox& sandbox, Program const& program, void(*func)(SandBox&, ui32&), Decoder::Argument const& arg, bool load_target = false);
+    static void manage(SandBox& sandbox, void(*func)(SandBox&, ui32, ui32&), std::array<Decoder::Argument, 2> const& args, bool load_target = false);
+    static void manage(SandBox& sandbox, void(*func)(SandBox&, ui32, ui32), std::array<Decoder::Argument, 2> const& args);
+    static void manage(SandBox& sandbox, void(*func)(SandBox&, ui32&,ui32&), std::array<Decoder::Argument, 2> const& args, bool load_targets = false);
+    static void manage(SandBox& sandbox, void(*func)(SandBox&, ui32), Decoder::Argument const& arg);
+    static void manage(SandBox& sandbox, void(*func)(SandBox&));
+    static void manage(SandBox& sandbox, void(*func)(SandBox&, ui32&), Decoder::Argument const& arg, bool load_target = false);
 
     static void op_add  (SandBox& sandbox, ui32 operand, ui32& target);
     static void op_sub  (SandBox& sandbox, ui32 operand, ui32& target); 
@@ -50,6 +50,7 @@ private:
     static void op_cmp  (SandBox& sandbox, ui32 operand0, ui32 operand1); 
     static void op_inc  (SandBox& sandbox, ui32& target); 
     static void op_dec  (SandBox& sandbox, ui32& target); 
+    static void op_hlt  (SandBox& sandbox);
 
     static void op_out  (SandBox& sandbox, ui32 operand); 
 

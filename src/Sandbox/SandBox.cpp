@@ -4,6 +4,21 @@
 
 namespace bytec {
 
+SandBox::SandBox(ui32 memory_initial_size) : memory(memory_initial_size) {}
+
+void SandBox::halt() {
+    halted = true;
+}
+
+bool SandBox::is_halted() const {
+    return halted;
+}
+
+void SandBox::load_program(Program const& program) {
+    for(ui32 i = 0; i < program.size(); ++i)
+        set_memory_at(i * 4, program.instruction_at(i));
+}
+
 ui32 SandBox::get_pc() const {
     return get_register(bin_repr::arg_register_PC);
 }
@@ -11,6 +26,14 @@ ui32 SandBox::get_pc() const {
 ui32 SandBox::get_pc_increment() {
     set_pc(get_pc() + 4);
     return get_pc() - 4;
+}
+
+ui32 SandBox::get_instruction() {
+    return get_memory_at(get_pc());
+}
+
+ui32 SandBox::get_instruction_and_move() {
+    return get_memory_at(get_pc_increment());
 }
 
 void SandBox::set_pc(ui32 value) {
@@ -63,13 +86,13 @@ bool SandBox::get_flag_greater() const {
 }
 
 void SandBox::push_32(ui32 value) {
-    stack.push_back(value);
+    set_memory_at(get_sp(), value);
+    set_sp(get_sp() - 4);
 }
 
 ui32 SandBox::pop_32() {
-    ui32 value = stack.back();
-    stack.pop_back();
-    return value;
+    set_sp(get_sp() + 4);
+    return get_memory_at(get_sp() - 4);
 }
 
 ui32 SandBox::get_register(ui32 reg) const {
@@ -81,11 +104,18 @@ void SandBox::set_register(ui32 reg, ui32 value) {
 }
 
 ui32 SandBox::get_memory_at(ui32 address) {
-    return stack[address]; // no heap or anything for the moment
+    if (address + 3 >= memory.size())
+        memory.resize(address + 3);
+    return (memory[address] << 24) | (memory[address + 1] << 16) | (memory[address + 2] << 8) | memory[address + 3]; 
 }
 
 void SandBox::set_memory_at(ui32 address, ui32 value) {
-    stack[address] = value; // no heap or anything for the moment
+    if (address + 3 >= memory.size())
+        memory.resize(address + 3);
+    memory[address] = (value >> 24) & 0xFF; 
+    memory[address + 1] = (value >> 16) & 0xFF; 
+    memory[address + 2] = (value >> 8) & 0xFF; 
+    memory[address + 3] = value & 0xFF; 
 }
-    
+
 }

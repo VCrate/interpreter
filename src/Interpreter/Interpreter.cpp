@@ -5,25 +5,29 @@
 
 namespace bytec {
 
-void Interpreter::run(SandBox& sandbox, Program const& program) {
-    Decoder decoder(program.instruction_at(sandbox.get_pc_increment()));
+void Interpreter::run(SandBox& sandbox) {
+    Decoder decoder(sandbox.get_instruction_and_move());
     switch(decoder.get_operations()) {
 
 #define DEF_OP_2_ARGS(ope, func)       \
         case Operations::ope:       \
-            return Interpreter::manage(sandbox, program, &Interpreter::op_ ## func, decoder.get_half_arguments());
+            return Interpreter::manage(sandbox, &Interpreter::op_ ## func, decoder.get_half_arguments());
 
 #define DEF_OP_2_ARGS_LOAD(ope, func)       \
         case Operations::ope:       \
-            return Interpreter::manage(sandbox, program, &Interpreter::op_ ## func, decoder.get_half_arguments(), true);
+            return Interpreter::manage(sandbox, &Interpreter::op_ ## func, decoder.get_half_arguments(), true);
 
 #define DEF_OP_ARG(ope, func)        \
         case Operations::ope:       \
-            return Interpreter::manage(sandbox, program, &Interpreter::op_ ## func, decoder.get_full_argument());
+            return Interpreter::manage(sandbox, &Interpreter::op_ ## func, decoder.get_full_argument());
+
+#define DEF_OP(ope, func)           \
+        case Operations::ope:       \
+            return Interpreter::manage(sandbox, &Interpreter::op_ ## func);
 
 #define DEF_OP_ARG_LOAD(ope, func)        \
         case Operations::ope:       \
-            return Interpreter::manage(sandbox, program, &Interpreter::op_ ## func, decoder.get_full_argument(), true);
+            return Interpreter::manage(sandbox, &Interpreter::op_ ## func, decoder.get_full_argument(), true);
 
         DEF_OP_2_ARGS_LOAD(ADD, add)
         DEF_OP_2_ARGS_LOAD(SUB, sub)
@@ -58,6 +62,8 @@ void Interpreter::run(SandBox& sandbox, Program const& program) {
         DEF_OP_ARG_LOAD(INC, inc)
         DEF_OP_ARG_LOAD(DEC, dec)
 
+        DEF_OP(HLT, hlt)
+
         DEF_OP_ARG(OUT, out)
 
 #undef DEF_OP_2_ARGS
@@ -68,7 +74,7 @@ void Interpreter::run(SandBox& sandbox, Program const& program) {
     }
 }
 
-void Interpreter::write(SandBox& sandbox, Program const& program, ui32 value, Decoder::Argument const& arg) {
+void Interpreter::write(SandBox& sandbox, ui32 value, Decoder::Argument const& arg) {
     switch(arg.type) {
         case Decoder::ArgumentType::Register:
             return sandbox.set_register(static_cast<ui8>(arg.reg), value);
@@ -77,18 +83,18 @@ void Interpreter::write(SandBox& sandbox, Program const& program, ui32 value, De
         case Decoder::ArgumentType::DeferRegisterDisp:
             return sandbox.set_memory_at(sandbox.get_register(static_cast<ui8>(arg.reg)) + arg.disp, value);
         case Decoder::ArgumentType::DeferRegisterNextDisp:
-            return sandbox.set_memory_at(sandbox.get_register(static_cast<ui8>(arg.reg)) + program.instruction_at(sandbox.get_pc_increment()), value);
+            return sandbox.set_memory_at(sandbox.get_register(static_cast<ui8>(arg.reg)) + sandbox.get_instruction_and_move(), value);
         case Decoder::ArgumentType::DeferImmValue:
             return sandbox.set_memory_at(arg.value, value);
         case Decoder::ArgumentType::DeferNextValue:
-            return sandbox.set_memory_at(program.instruction_at(sandbox.get_pc_increment()), value);
+            return sandbox.set_memory_at(sandbox.get_instruction_and_move(), value);
 
         default:
             throw std::runtime_error("Unknown or unwritable write target");
     }
 }
 
-ui32 Interpreter::read(SandBox& sandbox, Program const& program, Decoder::Argument const& arg) {
+ui32 Interpreter::read(SandBox& sandbox, Decoder::Argument const& arg) {
     switch(arg.type) {
         case Decoder::ArgumentType::Register:
             return sandbox.get_register(static_cast<ui8>(arg.reg));
@@ -97,63 +103,67 @@ ui32 Interpreter::read(SandBox& sandbox, Program const& program, Decoder::Argume
         case Decoder::ArgumentType::DeferRegisterDisp:
             return sandbox.get_memory_at(sandbox.get_register(static_cast<ui8>(arg.reg)) + arg.disp);
         case Decoder::ArgumentType::DeferRegisterNextDisp:
-            return sandbox.get_memory_at(sandbox.get_register(static_cast<ui8>(arg.reg)) + program.instruction_at(sandbox.get_pc_increment()));
+            return sandbox.get_memory_at(sandbox.get_register(static_cast<ui8>(arg.reg)) + sandbox.get_instruction_and_move());
         case Decoder::ArgumentType::ImmValue:
             return arg.value;
         case Decoder::ArgumentType::NextValue:
-            return program.instruction_at(sandbox.get_pc_increment());
+            return sandbox.get_instruction_and_move();
         case Decoder::ArgumentType::DeferImmValue:
             return sandbox.get_memory_at(arg.value);
         case Decoder::ArgumentType::DeferNextValue:
-            return sandbox.get_memory_at(program.instruction_at(sandbox.get_pc_increment()));
+            return sandbox.get_memory_at(sandbox.get_instruction_and_move());
 
         default:
             throw std::runtime_error("Unknown or unwritable write target");
     }
 }
 
-void Interpreter::manage(SandBox& sandbox, Program const& program, void(*func)(SandBox&, ui32, ui32&), 
+void Interpreter::manage(SandBox& sandbox, void(*func)(SandBox&, ui32, ui32&), 
                          std::array<Decoder::Argument, 2> const& args, bool load_target) {
-    ui32 operand = Interpreter::read(sandbox, program, args[0]);
+    ui32 operand = Interpreter::read(sandbox, args[0]);
     ui32 target;
     if (load_target)
-        target = Interpreter::read(sandbox, program, args[1]);
+        target = Interpreter::read(sandbox, args[1]);
     func(sandbox, operand, target);
-    Interpreter::write(sandbox, program, target, args[1]);
+    Interpreter::write(sandbox, target, args[1]);
 }
 
-void Interpreter::manage(SandBox& sandbox, Program const& program, void(*func)(SandBox&, ui32, ui32), 
+void Interpreter::manage(SandBox& sandbox, void(*func)(SandBox&, ui32, ui32), 
                          std::array<Decoder::Argument, 2> const& args) {
-    ui32 operand0 = Interpreter::read(sandbox, program, args[0]);
-    ui32 operand1 = Interpreter::read(sandbox, program, args[1]);
+    ui32 operand0 = Interpreter::read(sandbox, args[0]);
+    ui32 operand1 = Interpreter::read(sandbox, args[1]);
     func(sandbox, operand0, operand1);
 }
 
-void Interpreter::manage(SandBox& sandbox, Program const& program, void(*func)(SandBox&, ui32&, ui32&), 
+void Interpreter::manage(SandBox& sandbox, void(*func)(SandBox&, ui32&, ui32&), 
                          std::array<Decoder::Argument, 2> const& args, bool load_targets) {
     ui32 target0, target1;
     if (load_targets) {
-        target0 = Interpreter::read(sandbox, program, args[0]);
-        target1 = Interpreter::read(sandbox, program, args[1]);
+        target0 = Interpreter::read(sandbox, args[0]);
+        target1 = Interpreter::read(sandbox, args[1]);
     }
     func(sandbox, target0, target1);
-    Interpreter::write(sandbox, program, target0, args[0]);
-    Interpreter::write(sandbox, program, target1, args[1]);
+    Interpreter::write(sandbox, target0, args[0]);
+    Interpreter::write(sandbox, target1, args[1]);
 }
 
-void Interpreter::manage(SandBox& sandbox, Program const& program, void(*func)(SandBox&, ui32), 
+void Interpreter::manage(SandBox& sandbox, void(*func)(SandBox&, ui32), 
                          Decoder::Argument const& arg) {
-    ui32 operand = Interpreter::read(sandbox, program, arg);
+    ui32 operand = Interpreter::read(sandbox, arg);
     func(sandbox, operand);
 }
 
-void Interpreter::manage(SandBox& sandbox, Program const& program, void(*func)(SandBox&, ui32&),
+void Interpreter::manage(SandBox& sandbox, void(*func)(SandBox&)) {
+    func(sandbox);
+}
+
+void Interpreter::manage(SandBox& sandbox, void(*func)(SandBox&, ui32&),
                          Decoder::Argument const& arg, bool load_target) {
     ui32 target;
     if (load_target)
-        target = Interpreter::read(sandbox, program, arg);
+        target = Interpreter::read(sandbox, arg);
     func(sandbox, target);
-    Interpreter::write(sandbox, program, target, arg);
+    Interpreter::write(sandbox, target, arg);
 }
 
 void Interpreter::op_add (SandBox&, ui32 operand, ui32& target) {
@@ -271,6 +281,10 @@ void Interpreter::op_inc (SandBox&, ui32& target) {
 
 void Interpreter::op_dec (SandBox&, ui32& target) {
     --target;
+}
+
+void Interpreter::op_hlt (SandBox& sandbox) {
+    sandbox.halt();
 }
 
 void Interpreter::op_out (SandBox&, ui32 operand) {

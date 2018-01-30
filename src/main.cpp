@@ -21,13 +21,14 @@ int main() {
     assembly::append_CMP(program, assembly::Register::B, assembly::Value{0});
     assembly::append_JMPG(program, assembly::Value{4});
     assembly::append_OUT(program, assembly::Register::A);
+    assembly::append_HLT(program);
     
 
     sandbox.set_pc(0);
+    sandbox.load_program(program);
 
-    while(sandbox.get_pc() < program.size() * 4) {
-        Interpreter::run(sandbox, program);
+    while(!sandbox.is_halted()) {
+        Interpreter::run(sandbox);
         //std::cin.get();
     }
-    
 }

@@ -149,6 +149,12 @@ void append_instruction_1_arg(Program& program, Operations operation, Argument c
         program.append_instruction(value);
 }
 
+void append_instruction_0_arg(Program& program, Operations operation) {
+    program.append_instruction(
+        bin_repr::operation_encode(static_cast<ui8>(operation))
+    );
+}
+
 void append_ADD(Program& program, Argument const& from, Argument const& to) {
     append_instruction_2_args(program, Operations::ADD, from, to);
 }
@@ -251,6 +257,10 @@ void append_INC(Program& program, Argument const& target) {
 
 void append_DEC(Program& program, Argument const& target) {
     append_instruction_1_arg(program, Operations::DEC, target);
+}
+
+void append_HLT(Program& program) {
+    append_instruction_0_arg(program, Operations::HLT);
 }
 
 void append_OUT(Program& program, Argument const& target) {
