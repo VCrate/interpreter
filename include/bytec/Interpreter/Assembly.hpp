@@ -60,6 +60,22 @@ struct Register : public Argument {
 };
 
 struct DeferRegister : public Register {
+    static const DeferRegister A;
+    static const DeferRegister B;
+    static const DeferRegister C;
+    static const DeferRegister D;
+    static const DeferRegister E;
+    static const DeferRegister F;
+    static const DeferRegister G;
+    static const DeferRegister H;
+    static const DeferRegister I;
+    static const DeferRegister J;
+    static const DeferRegister K;
+    static const DeferRegister L;
+    static const DeferRegister PC;
+    static const DeferRegister FG;
+    static const DeferRegister BP;
+    static const DeferRegister SP;
     DeferRegister(ui8 reg);
 
     virtual ui32 as_24() const;
@@ -77,6 +93,23 @@ struct DeferRegisterDisp : public Register {
 
     ui32 disp;
 };
+
+DeferRegisterDisp DeferDispRegisterA(ui32 value);
+DeferRegisterDisp DeferDispRegisterB(ui32 value);
+DeferRegisterDisp DeferDispRegisterC(ui32 value);
+DeferRegisterDisp DeferDispRegisterD(ui32 value);
+DeferRegisterDisp DeferDispRegisterE(ui32 value);
+DeferRegisterDisp DeferDispRegisterF(ui32 value);
+DeferRegisterDisp DeferDispRegisterG(ui32 value);
+DeferRegisterDisp DeferDispRegisterH(ui32 value);
+DeferRegisterDisp DeferDispRegisterI(ui32 value);
+DeferRegisterDisp DeferDispRegisterJ(ui32 value);
+DeferRegisterDisp DeferDispRegisterK(ui32 value);
+DeferRegisterDisp DeferDispRegisterL(ui32 value);
+DeferRegisterDisp DeferDispRegisterPC(ui32 value);
+DeferRegisterDisp DeferDispRegisterFG(ui32 value);
+DeferRegisterDisp DeferDispRegisterBP(ui32 value);
+DeferRegisterDisp DeferDispRegisterSP(ui32 value);
 
 void append_instruction_2_args(Program& program, Operations operation, Argument const& from, Argument const& to);
 void append_instruction_1_arg(Program& program, Operations operation, Argument const& target);

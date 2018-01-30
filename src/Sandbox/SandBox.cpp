@@ -2,6 +2,8 @@
 
 #include <bytec/Interpreter/BinRepr.hpp>
 
+#include <iostream>
+
 namespace bytec {
 
 SandBox::SandBox(ui32 memory_initial_size) : memory(memory_initial_size) {}
@@ -86,8 +88,8 @@ bool SandBox::get_flag_greater() const {
 }
 
 void SandBox::push_32(ui32 value) {
-    set_memory_at(get_sp(), value);
     set_sp(get_sp() - 4);
+    set_memory_at(get_sp(), value);
 }
 
 ui32 SandBox::pop_32() {
@@ -106,12 +108,14 @@ void SandBox::set_register(ui32 reg, ui32 value) {
 ui32 SandBox::get_memory_at(ui32 address) {
     if (address + 3 >= memory.size())
         memory.resize(address + 3);
+    std::cout << ">>> [" << address << "] : " << (ui32)((memory[address] << 24) | (memory[address + 1] << 16) | (memory[address + 2] << 8) | memory[address + 3]) << std::endl;
     return (memory[address] << 24) | (memory[address + 1] << 16) | (memory[address + 2] << 8) | memory[address + 3]; 
 }
 
 void SandBox::set_memory_at(ui32 address, ui32 value) {
     if (address + 3 >= memory.size())
         memory.resize(address + 3);
+    std::cout << ">>> [" << address << "] = " << value << std::endl;
     memory[address] = (value >> 24) & 0xFF; 
     memory[address + 1] = (value >> 16) & 0xFF; 
     memory[address + 2] = (value >> 8) & 0xFF; 

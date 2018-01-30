@@ -84,6 +84,23 @@ ui16 Register::as_12() const {
            bin_repr::arg12_register_encode(reg);
 }
 
+const DeferRegister DeferRegister::A  = DeferRegister{ bin_repr::arg_register_A };
+const DeferRegister DeferRegister::B  = DeferRegister{ bin_repr::arg_register_B };
+const DeferRegister DeferRegister::C  = DeferRegister{ bin_repr::arg_register_C };
+const DeferRegister DeferRegister::D  = DeferRegister{ bin_repr::arg_register_D };
+const DeferRegister DeferRegister::E  = DeferRegister{ bin_repr::arg_register_E };
+const DeferRegister DeferRegister::F  = DeferRegister{ bin_repr::arg_register_F };
+const DeferRegister DeferRegister::G  = DeferRegister{ bin_repr::arg_register_G };
+const DeferRegister DeferRegister::H  = DeferRegister{ bin_repr::arg_register_H };
+const DeferRegister DeferRegister::I  = DeferRegister{ bin_repr::arg_register_I };
+const DeferRegister DeferRegister::J  = DeferRegister{ bin_repr::arg_register_J };
+const DeferRegister DeferRegister::K  = DeferRegister{ bin_repr::arg_register_K };
+const DeferRegister DeferRegister::L  = DeferRegister{ bin_repr::arg_register_L };
+const DeferRegister DeferRegister::PC = DeferRegister{ bin_repr::arg_register_PC };
+const DeferRegister DeferRegister::FG = DeferRegister{ bin_repr::arg_register_FG };
+const DeferRegister DeferRegister::BP = DeferRegister{ bin_repr::arg_register_BP };
+const DeferRegister DeferRegister::SP = DeferRegister{ bin_repr::arg_register_SP };
+
 DeferRegister::DeferRegister(ui8 reg) : Register(reg) {}
 
 ui32 DeferRegister::as_24() const {
@@ -95,6 +112,28 @@ ui16 DeferRegister::as_12() const {
     return bin_repr::arg12_type_encode(bin_repr::arg_type_defer_register) | 
            bin_repr::arg12_register_encode(reg);
 }
+
+#define DEF_DEFER_DISP_REG(__name) \
+    DeferRegisterDisp DeferDispRegister ## __name(ui32 value) { return DeferRegisterDisp(Register::__name.reg, value); }
+
+    DEF_DEFER_DISP_REG(A)
+    DEF_DEFER_DISP_REG(B)
+    DEF_DEFER_DISP_REG(C)
+    DEF_DEFER_DISP_REG(D)
+    DEF_DEFER_DISP_REG(E)
+    DEF_DEFER_DISP_REG(F)
+    DEF_DEFER_DISP_REG(G)
+    DEF_DEFER_DISP_REG(H)
+    DEF_DEFER_DISP_REG(I)
+    DEF_DEFER_DISP_REG(J)
+    DEF_DEFER_DISP_REG(K)
+    DEF_DEFER_DISP_REG(L)
+    DEF_DEFER_DISP_REG(PC)
+    DEF_DEFER_DISP_REG(FG)
+    DEF_DEFER_DISP_REG(BP)
+    DEF_DEFER_DISP_REG(SP)
+
+#undef DEF_DEFER_DISP_REG
 
 DeferRegisterDisp::DeferRegisterDisp(ui8 reg, ui32 disp) : Register(reg), disp(disp) {}
 
