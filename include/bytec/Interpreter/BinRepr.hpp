@@ -60,6 +60,9 @@ static constexpr ui32 arg_register_SP = 0x0F;
 
 static constexpr ui32 arg_disp_factor = 0x04;
 
+static constexpr ui32 flag_zero = 1 << 0;
+static constexpr ui32 flag_greater = 1 << 1;
+
 MAKE_ALL(arg12_type,            0xE'00,         9)
 MAKE_ALL(arg12_value,           0x1'FF,         0)
 MAKE_ALL(arg12_value_wo_sign,   0x0'FF,         0)

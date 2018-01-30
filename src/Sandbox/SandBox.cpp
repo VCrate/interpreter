@@ -43,15 +43,15 @@ void SandBox::set_fg(ui32 value) {
 
 void SandBox::set_flag_zero(bool value) {
     if (value)
-        set_fg(get_fg() | 0x01);
+        set_fg(get_fg() | bin_repr::flag_zero);
     else
-        set_fg(get_fg() & (~0x01));
+        set_fg(get_fg() & (~bin_repr::flag_zero));
 }
 void SandBox::set_flag_greater(bool value) {
     if (value)
-        set_fg(get_fg() | 0x02);
+        set_fg(get_fg() | bin_repr::flag_greater);
     else
-        set_fg(get_fg() & (~0x02));
+        set_fg(get_fg() & (~bin_repr::flag_greater));
 }
 
 bool SandBox::get_flag_zero() const {
