@@ -22,102 +22,94 @@ Operations Decoder::get_operations() const {
 
 Decoder::Argument Decoder::decode_full(ui32 value) const {
     Decoder::Argument arg;
-    /*
-     * TTTT TVVV VVVV VVVV VVVV VVVV
-     * TTTT T = type
-     *      0x00-0x08 = Register
-     *      0x09-0x11 = Register Deferenced
-     *      0x12-0x1A = Register Deferenced + Displacement
-     *      0x1B      = Immediate Value
-     *      0x1C      = Value next Instruction
-     *      0x1D      = Immediate Value Deferenced
-     *      0x1E      = Value next Instruction Deferenced
-     *      0x1F      = Unused
-     * 
-     * VVV VVVV VVVV VVVV VVVV = Value / Displacement signed [-262144, 262143]
-    */
 
     ui8 type = bin_repr::arg24_type_decode(value);
-    if (type <= 0x1A) {
-        arg.type = type >= 0x12 ? Decoder::ArgumentType::DeferRegisterDisp :
-                   type >= 0x09 ? Decoder::ArgumentType::DeferRegister :
-                                  Decoder::ArgumentType::Register;
-        if (type >= 0x12)
-            arg.disp = bin_repr::arg24_value_decode(value);
-        while(type >= 0x09) type -= 0x09;
-        arg.reg = get_register(type);
-    } else {
-        switch(type) {
-            case 0x1B:
-                arg.type = Decoder::ArgumentType::ImmValue;
-                    arg.value = bin_repr::arg24_value_wo_sign_decode(value);
-                if (bin_repr::arg24_value_sign_decode(value))
-                    arg.value = -arg.value;
-                break;
-            case 0x1C:
-                arg.type = Decoder::ArgumentType::NextValue;
-                break;
-            case 0x1D:
-                arg.type = Decoder::ArgumentType::DeferImmValue;
-                arg.value = bin_repr::arg24_value_wo_sign_decode(value);
-                if (bin_repr::arg24_value_sign_decode(value))
-                    arg.value = -arg.value;
-                break;
-            case 0x1E:
-                arg.type = Decoder::ArgumentType::DeferNextValue;
-                break;
-            default:
-                throw std::runtime_error("Unknown type");
-        }
+    switch(type) {
+        case 0x00: // Register
+            arg.type = Decoder::ArgumentType::Register;
+            arg.reg = get_register(bin_repr::arg24_register_decode(value));
+            break;
+        case 0x01: // [Register]
+            arg.type = Decoder::ArgumentType::DeferRegister;
+            arg.reg = get_register(bin_repr::arg24_register_decode(value));
+            break;
+        case 0x02: // [Register + Disp]
+            arg.type = Decoder::ArgumentType::DeferRegisterDisp;
+            arg.reg = get_register(bin_repr::arg24_register_decode(value));
+            arg.disp = bin_repr::arg24_disp_decode(value);
+            break;
+        case 0x03: // [Register + Next Disp]
+            arg.type = Decoder::ArgumentType::DeferRegisterNextDisp;
+            arg.reg = get_register(bin_repr::arg24_register_decode(value));
+            break;
+
+        case 0x04: // [Imm Value]
+            arg.type = Decoder::ArgumentType::DeferImmValue;
+            arg.value = bin_repr::arg24_value_wo_sign_decode(value);
+            if (bin_repr::arg24_value_sign_decode(value))
+                arg.value = -arg.value;
+            break;
+        case 0x05: // [Next value]
+            arg.type = Decoder::ArgumentType::DeferNextValue;
+            break;
+        case 0x06: // Imm value
+            arg.type = Decoder::ArgumentType::ImmValue;
+            arg.value = bin_repr::arg24_value_wo_sign_decode(value);
+            if (bin_repr::arg24_value_sign_decode(value))
+                arg.value = -arg.value;
+            break;
+        case 0x07: // Next value
+            arg.type = Decoder::ArgumentType::NextValue;
+            break;
+        default:
+            throw std::runtime_error("Unknown type");
     }
     return arg;
 }
 
 Decoder::Argument Decoder::decode_half(ui16 value) const {
     Decoder::Argument arg;
-    /*
-     * TTTT TVVV VVVV
-     * TTTT T = type
-     *      0x00-0x08 = Register
-     *      0x09-0x11 = Register Deferenced
-     *      0x12-0x1A = Register Deferenced + Displacement
-     *      0x1B      = Immediate Value
-     *      0x1C      = Value next Instruction
-     *      0x1D      = Immediate Value Deferenced
-     *      0x1E      = Value next Instruction Deferenced
-     *      0x1F      = Unused
-     * 
-     * VVV VVVV = Value / Displacement unsigned [0, 128]
-    */
 
     ui8 type = bin_repr::arg12_type_decode(value);
-    if (type <= 0x1A) {
-        arg.type = type >= 0x12 ? Decoder::ArgumentType::DeferRegisterDisp :
-                   type >= 0x09 ? Decoder::ArgumentType::DeferRegister :
-                                  Decoder::ArgumentType::Register;
-        if (type >= 0x12)
-            arg.disp = bin_repr::arg12_value_decode(value);
-        while(type >= 0x09) type -= 0x09;
-        arg.reg = get_register(type);
-    } else {
-        switch(type) {
-            case 0x1B:
-                arg.type = Decoder::ArgumentType::ImmValue;
-                arg.value = bin_repr::arg12_value_decode(value);
-                break;
-            case 0x1C:
-                arg.type = Decoder::ArgumentType::NextValue;
-                break;
-            case 0x1D:
-                arg.type = Decoder::ArgumentType::DeferImmValue;
-                arg.value = bin_repr::arg12_value_decode(value);
-                break;
-            case 0x1E:
-                arg.type = Decoder::ArgumentType::DeferNextValue;
-                break;
-            default:
-                throw std::runtime_error("Unknown type");
-        }
+    switch(type) {
+        case 0x00: // Register
+            arg.type = Decoder::ArgumentType::Register;
+            arg.reg = get_register(bin_repr::arg12_register_decode(value));
+            break;
+        case 0x01: // [Register]
+            arg.type = Decoder::ArgumentType::DeferRegister;
+            arg.reg = get_register(bin_repr::arg12_register_decode(value));
+            break;
+        case 0x02: // [Register + Disp]
+            arg.type = Decoder::ArgumentType::DeferRegisterDisp;
+            arg.reg = get_register(bin_repr::arg12_register_decode(value));
+            arg.disp = bin_repr::arg12_disp_decode(value) * 4; // optimization because of low possible value for disp
+            break;
+        case 0x03: // [Register + Next Disp]
+            arg.type = Decoder::ArgumentType::DeferRegisterNextDisp;
+            arg.reg = get_register(bin_repr::arg12_register_decode(value));
+            break;
+
+        case 0x04: // [Imm Value]
+            arg.type = Decoder::ArgumentType::DeferImmValue;
+            arg.value = bin_repr::arg12_value_wo_sign_decode(value);
+            if (bin_repr::arg12_value_sign_decode(value))
+                arg.value = -arg.value;
+            break;
+        case 0x05: // [Next value]
+            arg.type = Decoder::ArgumentType::DeferNextValue;
+            break;
+        case 0x06: // Imm value
+            arg.type = Decoder::ArgumentType::ImmValue;
+            arg.value = bin_repr::arg12_value_wo_sign_decode(value);
+            if (bin_repr::arg12_value_sign_decode(value))
+                arg.value = -arg.value;
+            break;
+        case 0x07: // Next value
+            arg.type = Decoder::ArgumentType::NextValue;
+            break;
+        default:
+            throw std::runtime_error("Unknown type");
     }
     return arg;
 }

@@ -26,7 +26,7 @@ public:
 private:
 
     ui32 program_pointer;
-    std::array<ui32, 8> registers;
+    std::array<ui32, 16> registers;
 
     std::vector<ui32> stack;
 

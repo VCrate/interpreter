@@ -16,14 +16,18 @@ public:
         Register,
         DeferRegister,
         DeferRegisterDisp,
+        DeferRegisterNextDisp,
         ImmValue,
         NextValue,
         DeferImmValue,
         DeferNextValue
     };
 
-    enum class Register { // 8 + Sp Registers
-        A, B, C, D, E, F, G, H, SP
+    enum class Register { // 12 + PC + FG + BP + SP Registers
+        A, B, C, D, 
+        E, F, G, H, 
+        I, J, K, L, 
+        PC, FG, BP, SP
     };
 
     struct Argument {

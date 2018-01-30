@@ -1,10 +1,9 @@
-#include <iostream>
-
 #include <bytec/Program/Program.hpp>
 #include <bytec/Sandbox/SandBox.hpp>
 #include <bytec/Interpreter/Interpreter.hpp>
 #include <bytec/Interpreter/Assembly.hpp>
 
+#include <iostream>
 #include <bitset>
 
 using namespace bytec;
@@ -28,6 +27,7 @@ int main() {
 
     while(sandbox.get_pc() < program.size()) {
         Interpreter::run(sandbox, program);
+        //std::cin.get();
     }
     
 }

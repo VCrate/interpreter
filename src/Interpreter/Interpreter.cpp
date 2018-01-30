@@ -75,6 +75,8 @@ void Interpreter::write(SandBox& sandbox, Program const& program, ui32 value, De
             return sandbox.set_memory_at(sandbox.get_register(static_cast<ui8>(arg.reg)), value);
         case Decoder::ArgumentType::DeferRegisterDisp:
             return sandbox.set_memory_at(sandbox.get_register(static_cast<ui8>(arg.reg)) + arg.disp, value);
+        case Decoder::ArgumentType::DeferRegisterNextDisp:
+            return sandbox.set_memory_at(sandbox.get_register(static_cast<ui8>(arg.reg)) + program.instruction_at(sandbox.get_pc_increment()), value);
         case Decoder::ArgumentType::DeferImmValue:
             return sandbox.set_memory_at(arg.value, value);
         case Decoder::ArgumentType::DeferNextValue:
@@ -93,6 +95,8 @@ ui32 Interpreter::read(SandBox& sandbox, Program const& program, Decoder::Argume
             return sandbox.get_memory_at(sandbox.get_register(static_cast<ui8>(arg.reg)));
         case Decoder::ArgumentType::DeferRegisterDisp:
             return sandbox.get_memory_at(sandbox.get_register(static_cast<ui8>(arg.reg)) + arg.disp);
+        case Decoder::ArgumentType::DeferRegisterNextDisp:
+            return sandbox.get_memory_at(sandbox.get_register(static_cast<ui8>(arg.reg)) + program.instruction_at(sandbox.get_pc_increment()));
         case Decoder::ArgumentType::ImmValue:
             return arg.value;
         case Decoder::ArgumentType::NextValue:

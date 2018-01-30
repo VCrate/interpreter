@@ -3,10 +3,6 @@
 #include <bytec/Interpreter/Operations.hpp>
 #include <bytec/Interpreter/BinRepr.hpp>
 
-#include <cassert>
-#include <iostream>
-#include <bitset>
-
 namespace bytec { namespace assembly {
 
 bool Argument::get_potential_next_12(ui32&) const {
@@ -21,14 +17,14 @@ Value::Value(ui32 value) : value(value) {}
 
 ui16 Value::as_12() const {
     if (value > bin_repr::arg12_value_max)
-        return bin_repr::arg12_type_encode(0x1C); // next value
-    return bin_repr::arg12_type_encode(0x1B) | bin_repr::arg12_value_encode(value); // Immediate value
+        return bin_repr::arg12_type_encode(0x07); // next value
+    return bin_repr::arg12_type_encode(0x06) | bin_repr::arg12_value_encode(value); // Immediate value
 }
 
 ui32 Value::as_24() const {
     if (value > bin_repr::arg24_value_max)
-        return bin_repr::arg24_type_encode(0x1C); // next value
-    return bin_repr::arg24_type_encode(0x1B) | bin_repr::arg24_value_encode(value); // Immediate value
+        return bin_repr::arg24_type_encode(0x07); // next value
+    return bin_repr::arg24_type_encode(0x06) | bin_repr::arg24_value_encode(value); // Immediate value
 }
 
 bool Value::get_potential_next_12(ui32& v) const {
@@ -45,14 +41,14 @@ DeferValue::DeferValue(ui32 value) : Value(value) {}
 
 ui16 DeferValue::as_12() const {
     if (value > bin_repr::arg12_value_max)
-        return bin_repr::arg12_type_encode(0x1E); // next value
-    return bin_repr::arg12_type_encode(0x1D) | bin_repr::arg12_value_encode(value); // Immediate value
+        return bin_repr::arg12_type_encode(0x05); // next value
+    return bin_repr::arg12_type_encode(0x04) | bin_repr::arg12_value_encode(value); // Immediate value
 }
 
 ui32 DeferValue::as_24() const {
     if (value > bin_repr::arg24_value_max)
-        return bin_repr::arg24_type_encode(0x1E); // next value
-    return bin_repr::arg24_type_encode(0x1D) | bin_repr::arg24_value_encode(value); // Immediate value
+        return bin_repr::arg24_type_encode(0x05); // next value
+    return bin_repr::arg24_type_encode(0x04) | bin_repr::arg24_value_encode(value); // Immediate value
 }
 
 const Register Register::A  = Register{ 0x0 };
@@ -68,47 +64,45 @@ const Register Register::SP = Register{ 0x8 };
 Register::Register(ui8 reg) : reg(reg) {}
 
 ui32 Register::as_24() const {
-    return bin_repr::arg24_type_encode(reg);
+    return bin_repr::arg24_type_encode(0x00) | bin_repr::arg24_register_encode(reg);
 }
 
 ui16 Register::as_12() const {
-    return bin_repr::arg12_type_encode(reg);
+    return bin_repr::arg12_type_encode(0x00) | bin_repr::arg12_register_encode(reg);
 }
 
 DeferRegister::DeferRegister(ui8 reg) : Register(reg) {}
 
 ui32 DeferRegister::as_24() const {
-    return bin_repr::arg24_type_encode(reg + 0x09);
+    return bin_repr::arg24_type_encode(0x01) | bin_repr::arg24_register_encode(reg);
 }
 
 ui16 DeferRegister::as_12() const {
-    return bin_repr::arg12_type_encode(reg + 0x09);
+    return bin_repr::arg12_type_encode(0x01) | bin_repr::arg12_register_encode(reg);
 }
 
 DeferRegisterDisp::DeferRegisterDisp(ui8 reg, ui32 disp) : Register(reg), disp(disp) {}
 
 ui32 DeferRegisterDisp::as_24() const {
-    /*if (disp > 0x7FFFF)
-        return ((reg + 0x12) & 0x1F) << 19;*/ // next value
-    return bin_repr::arg24_type_encode(reg + 0x12) | bin_repr::arg24_value_encode(disp);
+    if (disp > bin_repr::arg24_disp_max)
+        return bin_repr::arg24_type_encode(0x03) | bin_repr::arg24_register_encode(reg);
+    return bin_repr::arg24_type_encode(0x02) | bin_repr::arg24_register_encode(reg) | bin_repr::arg24_disp_encode(disp / 4);
 }
 
 ui16 DeferRegisterDisp::as_12() const {
-    /*if (disp > 0x7F)
-        return 0x1C << 7;*/ // next value
-    return bin_repr::arg12_type_encode(reg + 0x12) | bin_repr::arg12_value_encode(disp);
+    if (disp > bin_repr::arg12_disp_max * 4 || (disp % 4) != 0)
+        return bin_repr::arg12_type_encode(0x03) | bin_repr::arg12_register_encode(reg);
+    return bin_repr::arg12_type_encode(0x02) | bin_repr::arg12_register_encode(reg) | bin_repr::arg12_disp_encode(disp / 4);
 }
 
-bool DeferRegisterDisp::get_potential_next_12(ui32&) const {
-    return false;/*
+bool DeferRegisterDisp::get_potential_next_12(ui32& v) const {
     v = disp;
-    return disp > bin_repr::arg12_value_max;*/
+    return disp > bin_repr::arg12_disp_max * 4 || (disp % 4) != 0;
 }
 
-bool DeferRegisterDisp::get_potential_next_24(ui32&) const {
-    return false;/*
+bool DeferRegisterDisp::get_potential_next_24(ui32& v) const {
     v = disp;
-    return disp > bin_repr::arg24_value_max;*/
+    return disp > bin_repr::arg24_disp_max;
 }
 
 void append_instruction_2_args(Program& program, Operations operation, Argument const& from, Argument const& to) {
