@@ -19,7 +19,7 @@ int main() {
     assembly::append_OUT(program, assembly::DeferDispRegisterSP(0));
     assembly::append_PUSH(program, assembly::Value{1337});
     assembly::append_OUT(program, assembly::DeferRegister::SP);
-    assembly::append_OUT(program, assembly::DeferDispRegisterSP(4));
+    assembly::append_OUT(program, assembly::DeferDispRegisterSP(-4));
     /*
     assembly::append_DEC(program, assembly::Register::A);
     assembly::append_MOV(program, assembly::Register::A, assembly::Register::B);
@@ -29,9 +29,8 @@ int main() {
     assembly::append_HLT(program);
 
 
-    sandbox.set_pc(0);
-    sandbox.set_sp(1 << 16);
     sandbox.load_program(program);
+    std::cout << std::endl;
 
     while(!sandbox.is_halted()) {
         Interpreter::run(sandbox);

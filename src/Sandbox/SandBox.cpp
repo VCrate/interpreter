@@ -17,6 +17,10 @@ bool SandBox::is_halted() const {
 }
 
 void SandBox::load_program(Program const& program) {
+    set_pc(0);
+    set_fg(0);
+    set_bp(program.size() * 4);
+    set_sp(program.size() * 4);
     for(ui32 i = 0; i < program.size(); ++i)
         set_memory_at(i * 4, program.instruction_at(i));
 }
@@ -88,13 +92,13 @@ bool SandBox::get_flag_greater() const {
 }
 
 void SandBox::push_32(ui32 value) {
-    set_sp(get_sp() - 4);
+    set_sp(get_sp() + 4);
     set_memory_at(get_sp(), value);
 }
 
 ui32 SandBox::pop_32() {
-    set_sp(get_sp() + 4);
-    return get_memory_at(get_sp() - 4);
+    set_sp(get_sp() - 4);
+    return get_memory_at(get_sp() + 4);
 }
 
 ui32 SandBox::get_register(ui32 reg) const {
@@ -108,14 +112,12 @@ void SandBox::set_register(ui32 reg, ui32 value) {
 ui32 SandBox::get_memory_at(ui32 address) {
     if (address + 3 >= memory.size())
         memory.resize(address + 3);
-    std::cout << ">>> [" << address << "] : " << (ui32)((memory[address] << 24) | (memory[address + 1] << 16) | (memory[address + 2] << 8) | memory[address + 3]) << std::endl;
     return (memory[address] << 24) | (memory[address + 1] << 16) | (memory[address + 2] << 8) | memory[address + 3]; 
 }
 
 void SandBox::set_memory_at(ui32 address, ui32 value) {
     if (address + 3 >= memory.size())
         memory.resize(address + 3);
-    std::cout << ">>> [" << address << "] = " << value << std::endl;
     memory[address] = (value >> 24) & 0xFF; 
     memory[address + 1] = (value >> 16) & 0xFF; 
     memory[address + 2] = (value >> 8) & 0xFF; 
