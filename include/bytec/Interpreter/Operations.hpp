@@ -15,7 +15,10 @@ enum class Operations : ui8 {
     POP,  // Pop from stack (W)
     PUSH, // Push to stack (R)
     JMP,  // Jump to (R)
-    JMPC, // Jump to _ if (RR)
+    JMPE, // Jump to _ if zero flag (R)
+    JMPNE, // Jump to _ if !zero flag (R)
+    JMPG, // Jump to _ if greater flag (R)
+    JMPGE, // Jump to _ if greater and zero flag (R)
     AND,  // And (RRW)
     OR,   // Or (RRW)
     XOR,  // Xor (RRW)
@@ -25,12 +28,9 @@ enum class Operations : ui8 {
     SHR,  // Shift right (RRW)
     RTR,  // Rotate right (RRW)
     SWP,  // Swap (WW)
-    CMPE, // Is equal (RRW)
-    CMPNE, // Is not equal (RRW)
-    CMPG, // Is greater (RRW)
-    CMPGE,// Is Greater or equal (RRW)
+    CMP,  // set zero/greater flags
     INC,  // Increment (RW)
-    DEC,   // Decrement (RW)
+    DEC,  // Decrement (RW)
 
     OUT
 };

@@ -41,6 +41,27 @@ void SandBox::set_fg(ui32 value) {
     set_register(bin_repr::arg_register_FG, value);
 }
 
+void SandBox::set_flag_zero(bool value) {
+    if (value)
+        set_fg(get_fg() | 0x01);
+    else
+        set_fg(get_fg() & (~0x01));
+}
+void SandBox::set_flag_greater(bool value) {
+    if (value)
+        set_fg(get_fg() | 0x02);
+    else
+        set_fg(get_fg() & (~0x02));
+}
+
+bool SandBox::get_flag_zero() const {
+    return (get_fg() & 0x01) > 0;
+}
+
+bool SandBox::get_flag_greater() const {
+    return (get_fg() & 0x02) > 0;
+}
+
 void SandBox::push_32(ui32 value) {
     stack.push_back(value);
 }

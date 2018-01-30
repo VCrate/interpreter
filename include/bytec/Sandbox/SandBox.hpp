@@ -23,6 +23,11 @@ public:
     ui32 get_fg() const;
     void set_fg(ui32 value);
 
+    void set_flag_zero(bool value);
+    void set_flag_greater(bool value);
+    bool get_flag_zero() const;
+    bool get_flag_greater() const;
+
     void push_32(ui32 value);
     ui32 pop_32();
 

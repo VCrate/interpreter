@@ -34,7 +34,10 @@ private:
     static void op_pop  (SandBox& sandbox, ui32& target); 
     static void op_push (SandBox& sandbox, ui32 operand); 
     static void op_jmp  (SandBox& sandbox, ui32 operand); 
-    static void op_jmpc (SandBox& sandbox, ui32 operand0, ui32 operand1); 
+    static void op_jmpe (SandBox& sandbox, ui32 operand); 
+    static void op_jmpne(SandBox& sandbox, ui32 operand); 
+    static void op_jmpg (SandBox& sandbox, ui32 operand); 
+    static void op_jmpge(SandBox& sandbox, ui32 operand); 
     static void op_and  (SandBox& sandbox, ui32 operand, ui32& target); 
     static void op_or   (SandBox& sandbox, ui32 operand, ui32& target); 
     static void op_xor  (SandBox& sandbox, ui32 operand, ui32& target); 
@@ -44,10 +47,7 @@ private:
     static void op_shr  (SandBox& sandbox, ui32 operand, ui32& target); 
     static void op_rtr  (SandBox& sandbox, ui32 operand, ui32& target); 
     static void op_swp  (SandBox& sandbox, ui32& target0, ui32& target1); 
-    static void op_cmpe (SandBox& sandbox, ui32 operand, ui32& target); 
-    static void op_cmpne(SandBox& sandbox, ui32 operand, ui32& target); 
-    static void op_cmpg (SandBox& sandbox, ui32 operand, ui32& target); 
-    static void op_cmpge(SandBox& sandbox, ui32 operand, ui32& target); 
+    static void op_cmp  (SandBox& sandbox, ui32 operand0, ui32 operand1); 
     static void op_inc  (SandBox& sandbox, ui32& target); 
     static void op_dec  (SandBox& sandbox, ui32& target); 
 

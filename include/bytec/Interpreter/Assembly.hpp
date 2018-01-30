@@ -95,7 +95,10 @@ void append_PUSH(Program& program, Argument const& target);
 void append_POP(Program& program, Argument const& target);
 
 void append_JMP(Program& program, Argument const& target);
-void append_JMPC(Program& program, Argument const& from, Argument const& to);
+void append_JMPE(Program& program, Argument const& target);
+void append_JMPNE(Program& program, Argument const& target);
+void append_JMPG(Program& program, Argument const& target);
+void append_JMPGE(Program& program, Argument const& target);
 
 void append_AND(Program& program, Argument const& from, Argument const& to);
 void append_OR(Program& program, Argument const& from, Argument const& to);
@@ -107,10 +110,7 @@ void append_RTL(Program& program, Argument const& from, Argument const& to);
 void append_SHR(Program& program, Argument const& from, Argument const& to);
 void append_RTR(Program& program, Argument const& from, Argument const& to);
 
-void append_CMPE(Program& program, Argument const& from, Argument const& to);
-void append_CMPNE(Program& program, Argument const& from, Argument const& to);
-void append_CMPG(Program& program, Argument const& from, Argument const& to);
-void append_CMPGE(Program& program, Argument const& from, Argument const& to);
+void append_CMP(Program& program, Argument const& op0, Argument const& op1);
 
 void append_INC(Program& program, Argument const& target);
 void append_DEC(Program& program, Argument const& target);

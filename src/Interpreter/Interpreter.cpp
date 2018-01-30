@@ -38,7 +38,10 @@ void Interpreter::run(SandBox& sandbox, Program const& program) {
         DEF_OP_ARG(PUSH, push)
 
         DEF_OP_ARG(JMP, jmp)
-        DEF_OP_2_ARGS(JMPC, jmpc)
+        DEF_OP_ARG(JMPE, jmpe)
+        DEF_OP_ARG(JMPNE, jmpne)
+        DEF_OP_ARG(JMPG, jmpg)
+        DEF_OP_ARG(JMPGE, jmpge)
 
         DEF_OP_2_ARGS_LOAD(AND, and)
         DEF_OP_2_ARGS_LOAD(OR, or)
@@ -50,10 +53,7 @@ void Interpreter::run(SandBox& sandbox, Program const& program) {
         DEF_OP_2_ARGS_LOAD(SHR, shr)
         DEF_OP_2_ARGS_LOAD(RTR, rtr)
 
-        DEF_OP_2_ARGS_LOAD(CMPE, cmpe)
-        DEF_OP_2_ARGS_LOAD(CMPNE, cmpne)
-        DEF_OP_2_ARGS_LOAD(CMPG, cmpg)
-        DEF_OP_2_ARGS_LOAD(CMPGE, cmpge)
+        DEF_OP_2_ARGS(CMP, cmp)
 
         DEF_OP_ARG_LOAD(INC, inc)
         DEF_OP_ARG_LOAD(DEC, dec)
@@ -202,9 +202,24 @@ void Interpreter::op_jmp (SandBox& sandbox, ui32 operand) {
     sandbox.set_pc(operand);
 }
 
-void Interpreter::op_jmpc (SandBox& sandbox, ui32 operand0, ui32 operand1) {
-    if (operand0)
-        sandbox.set_pc(operand1);
+void Interpreter::op_jmpe (SandBox& sandbox, ui32 operand) {
+    if (sandbox.get_flag_zero())
+        sandbox.set_pc(operand);
+}
+
+void Interpreter::op_jmpne (SandBox& sandbox, ui32 operand) {
+    if (!sandbox.get_flag_zero())
+        sandbox.set_pc(operand);
+}
+
+void Interpreter::op_jmpg (SandBox& sandbox, ui32 operand) {
+    if (sandbox.get_flag_greater())
+        sandbox.set_pc(operand);
+}
+
+void Interpreter::op_jmpge (SandBox& sandbox, ui32 operand) {
+    if (sandbox.get_flag_zero() && sandbox.get_flag_greater())
+        sandbox.set_pc(operand);
 }
 
 void Interpreter::op_and (SandBox&, ui32 operand, ui32& target) {
@@ -245,20 +260,9 @@ void Interpreter::op_swp (SandBox&, ui32& target0, ui32& target1) {
     std::swap(target0, target1);
 }
 
-void Interpreter::op_cmpe (SandBox&, ui32 operand, ui32& target) {
-    target = target == operand;
-}
-
-void Interpreter::op_cmpne (SandBox&, ui32 operand, ui32& target) {
-    target = target != operand;
-}
-
-void Interpreter::op_cmpg (SandBox&, ui32 operand, ui32& target) {
-    target = target > operand;
-}
-
-void Interpreter::op_cmpge (SandBox&, ui32 operand, ui32& target) {
-    target = target >= operand;
+void Interpreter::op_cmp (SandBox& sandbox, ui32 operand0, ui32 operand1) {
+    sandbox.set_flag_zero(operand0 == operand1);
+    sandbox.set_flag_greater(operand0 > operand1);
 }
 
 void Interpreter::op_inc (SandBox&, ui32& target) {

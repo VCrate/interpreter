@@ -18,8 +18,8 @@ int main() {
     assembly::append_OUT(program, assembly::Register::A);
     assembly::append_DEC(program, assembly::Register::A);
     assembly::append_MOV(program, assembly::Register::A, assembly::Register::B);
-    assembly::append_CMPG(program, assembly::Value{0}, assembly::Register::B);
-    assembly::append_JMPC(program, assembly::Register::B, assembly::Value{1});
+    assembly::append_CMP(program, assembly::Register::B, assembly::Value{0});
+    assembly::append_JMPG(program, assembly::Value{1});
     assembly::append_OUT(program, assembly::Register::A);
     
 

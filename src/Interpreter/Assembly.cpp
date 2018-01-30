@@ -193,8 +193,20 @@ void append_JMP(Program& program, Argument const& target) {
     append_instruction_1_arg(program, Operations::JMP, target);
 }
 
-void append_JMPC(Program& program, Argument const& from, Argument const& to) {
-    append_instruction_2_args(program, Operations::JMPC, from, to);
+void append_JMPE(Program& program, Argument const& target) {
+    append_instruction_1_arg(program, Operations::JMPE, target);
+}
+
+void append_JMPNE(Program& program, Argument const& target) {
+    append_instruction_1_arg(program, Operations::JMPNE, target);
+}
+
+void append_JMPG(Program& program, Argument const& target) {
+    append_instruction_1_arg(program, Operations::JMPG, target);
+}
+
+void append_JMPGE(Program& program, Argument const& target) {
+    append_instruction_1_arg(program, Operations::JMPGE, target);
 }
 
 void append_AND(Program& program, Argument const& from, Argument const& to) {
@@ -229,20 +241,8 @@ void append_RTR(Program& program, Argument const& from, Argument const& to) {
     append_instruction_2_args(program, Operations::RTR, from, to);
 }
 
-void append_CMPE(Program& program, Argument const& from, Argument const& to) {
-    append_instruction_2_args(program, Operations::CMPE, from, to);
-}
-
-void append_CMPNE(Program& program, Argument const& from, Argument const& to) {
-    append_instruction_2_args(program, Operations::CMPNE, from, to);
-}
-
-void append_CMPG(Program& program, Argument const& from, Argument const& to) {
-    append_instruction_2_args(program, Operations::CMPG, from, to);
-}
-
-void append_CMPGE(Program& program, Argument const& from, Argument const& to) {
-    append_instruction_2_args(program, Operations::CMPGE, from, to);
+void append_CMP(Program& program, Argument const& from, Argument const& to) {
+    append_instruction_2_args(program, Operations::CMP, from, to);
 }
 
 void append_INC(Program& program, Argument const& target) {
