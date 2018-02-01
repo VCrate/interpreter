@@ -138,6 +138,14 @@ void SandBox::set_memory_at(ui32 address, ui32 value) {
     memory.set32(address, value);
 }
 
+ui32 SandBox::allocate(ui32 size) {
+    return memory.allocate(size);
+}
+
+void SandBox::deallocate(ui32 address) {
+    return memory.deallocate(address);
+}
+
 void SandBox::output(ui8 value) const {
     std::cout << static_cast<char>(value);
 }

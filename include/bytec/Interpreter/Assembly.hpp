@@ -167,6 +167,9 @@ void append_CMP(Program& program, Argument const& op0, Argument const& op1);
 void append_INC(Program& program, Argument const& target);
 void append_DEC(Program& program, Argument const& target);
 
+void append_NEW(Program& program, Argument const& from, Argument const& to);
+void append_DEL(Program& program, Argument const& target);
+
 void append_HLT(Program& program);
 
 void append_OUT(Program& program, Argument const& target);

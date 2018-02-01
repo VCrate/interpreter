@@ -27,19 +27,22 @@ int main() {
     assembly::append_ADD(program, assembly::Value{4}, assembly::Register::A);
     assembly::append_JMP(program, begin);
     assembly::link_label(program, end);
+    assembly::append_NEW(program, assembly::Value{10}, assembly::Register::D);
+    assembly::append_MOV(program, assembly::Value{'M'}, assembly::DeferRegister::D);
+    assembly::append_OUT(program, assembly::DeferRegister::D);
+    assembly::append_DEL(program, assembly::Register::D);
     assembly::append_HLT(program);
 
 
     sandbox.load_program(program);
-/*
+
     std::cout << "# Start #" << std::endl;
 
     while(!sandbox.is_halted()) {
         Interpreter::run(sandbox);
         //std::cin.get();
     }
-    std::cout << "# Halt #" << std::endl;*/
-
+/*
     Memory mem(256);
 
     auto b0 = mem.allocate(4);
@@ -72,6 +75,6 @@ int main() {
     std::cout << mem.get32(b0) << " == " << 0xF1F1F1F1 << std::endl;
     std::cout << mem.get32(b1) << " == " << 0xB3B3B3B3 << std::endl;
     std::cout << mem.get32(b2) << " == " << 0x1F1F1F1F << std::endl;
-    std::cout << mem.get32(b3) << " == " << 0x3B3B3B3B << std::endl;
+    std::cout << mem.get32(b3) << " == " << 0x3B3B3B3B << std::endl;*/
 
 }

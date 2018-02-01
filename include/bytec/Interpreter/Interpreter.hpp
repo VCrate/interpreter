@@ -50,6 +50,8 @@ private:
     static void op_cmp  (SandBox& sandbox, ui32 operand0, ui32 operand1); 
     static void op_inc  (SandBox& sandbox, ui32& target); 
     static void op_dec  (SandBox& sandbox, ui32& target); 
+    static void op_new  (SandBox& sandbox, ui32 operand, ui32& target); 
+    static void op_del  (SandBox& sandbox, ui32 operand); 
     static void op_hlt  (SandBox& sandbox);
 
     static void op_out  (SandBox& sandbox, ui32 operand); 

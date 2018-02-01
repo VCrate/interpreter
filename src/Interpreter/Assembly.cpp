@@ -349,6 +349,14 @@ void append_DEC(Program& program, Argument const& target) {
     append_instruction_1_arg(program, Operations::DEC, target);
 }
 
+void append_NEW(Program& program, Argument const& from, Argument const& to) {
+    append_instruction_2_args(program, Operations::NEW, from, to);
+}
+
+void append_DEL(Program& program, Argument const& target) {
+    append_instruction_1_arg(program, Operations::DEL, target);
+}
+
 void append_HLT(Program& program) {
     append_instruction_0_arg(program, Operations::HLT);
 }

@@ -51,6 +51,9 @@ public:
     void output(ui8 value) const;
     ui8 input() const;
 
+    ui32 allocate(ui32 size);
+    void deallocate(ui32 address);
+
 private:
 
     std::array<ui32, 15> registers;

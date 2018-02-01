@@ -62,6 +62,9 @@ void Interpreter::run(SandBox& sandbox) {
         DEF_OP_ARG_LOAD(INC, inc)
         DEF_OP_ARG_LOAD(DEC, dec)
 
+        DEF_OP_ARG(DEL, del)
+        DEF_OP_2_ARGS(NEW, new)
+
         DEF_OP(HLT, hlt)
 
         DEF_OP_ARG(OUT, out)
@@ -285,6 +288,14 @@ void Interpreter::op_dec (SandBox&, ui32& target) {
 
 void Interpreter::op_hlt (SandBox& sandbox) {
     sandbox.halt();
+}
+
+void Interpreter::op_new (SandBox& sandbox, ui32 operand, ui32& target) {
+    target = sandbox.allocate(operand);
+}
+
+void Interpreter::op_del (SandBox& sandbox, ui32 operand) {
+    sandbox.deallocate(operand);
 }
 
 void Interpreter::op_out (SandBox& sandbox, ui32 operand) {
