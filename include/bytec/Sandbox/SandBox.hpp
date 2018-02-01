@@ -2,6 +2,7 @@
 
 #include <bytec/Alias.hpp>
 #include <bytec/Program/Program.hpp>
+#include <bytec/Sandbox/Memory.hpp>
 
 #include <vector>
 #include <array>
@@ -52,8 +53,8 @@ public:
 
 private:
 
-    std::array<ui32, 16> registers;
-    std::vector<ui8> memory; 
+    std::array<ui32, 15> registers;
+    Memory memory;
 
     bool halted = false;
 };

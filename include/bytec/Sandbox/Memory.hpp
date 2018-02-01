@@ -11,7 +11,10 @@ public:
 
     static constexpr ui32 null = 0;
 
-    Memory(ui32 initial_size);
+    Memory(ui32 initial_size = 1<<16);
+
+    ui32 get_stack_pointer() const;
+    void set_stack_pointer(ui32 address);
 
     void push32(ui32 value);
     void push16(ui16 value);
@@ -24,6 +27,10 @@ public:
     ui32 get32(ui32 address) const;
     ui16 get16(ui32 address) const;
     ui8 get8(ui32 address) const;
+
+    void set32(ui32 address, ui32 value);
+    void set16(ui32 address, ui16 value);
+    void set8(ui32 address, ui8 value); 
 
     ui32 allocate(ui32 size); 
     void deallocate(ui32 address);
