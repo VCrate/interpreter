@@ -1,10 +1,33 @@
 #include <bytec/Sandbox/Memory.hpp>
 
+#include <stdexcept>
+
 namespace bytec {
 
 Memory::Memory(ui32 initial_size) : stack_pointer(0), memory(initial_size), free_blocks{ Memory::FreeBlock{initial_size, initial_size} } {}
 
 void Memory::set_stack_pointer(ui32 address) {
+    if (address == stack_pointer) 
+        return;
+
+    if (address > stack_pointer) {
+        if (!free_blocks.empty()) {
+            auto& block = free_blocks.back();
+            ui32 dsize = address - stack_pointer;
+            if (block.size == dsize)
+                free_blocks.pop_back();
+            else if (block.size < dsize)
+                throw std::runtime_error("Stack overflow");
+            block.size -= dsize;
+        } else
+            throw std::runtime_error("Stack overflow");
+    } else {
+        if (!free_blocks.empty())
+            free_blocks.back().size += stack_pointer - address;
+        else
+            free_blocks.emplace_back(FreeBlock{stack_pointer + (stack_pointer - address), 1});
+    }
+
     stack_pointer = address;
 }
 
@@ -23,7 +46,8 @@ void Memory::push16(ui16 value) {
 }
 
 void Memory::push8(ui8 value) {
-    memory[stack_pointer++] = value;
+    memory[stack_pointer] = value;
+    set_stack_pointer(stack_pointer + 1);
     if (!free_blocks.empty()) {
         auto& block = free_blocks.back();
         if (--block.size <= 0)
@@ -44,7 +68,8 @@ ui8 Memory::pop8() {
         ++free_blocks.back().size;
     else
         free_blocks.emplace_back(FreeBlock{stack_pointer+1, 1});
-    return memory[--stack_pointer];
+    set_stack_pointer(stack_pointer - 1);
+    return memory[stack_pointer];
 }
 
 ui32 Memory::get32(ui32 address) const {
