@@ -13,13 +13,13 @@ ui32 Memory::get_stack_pointer() const {
 }
 
 void Memory::push32(ui32 value) {
-    push16(value >> 16);
     push16(value);
+    push16(value >> 16);
 }
 
 void Memory::push16(ui16 value) {
-    push8(value >> 8);
     push8(value);
+    push8(value >> 8);
 }
 
 void Memory::push8(ui8 value) {
@@ -32,11 +32,11 @@ void Memory::push8(ui8 value) {
 }
 
 ui32 Memory::pop32() {
-    return (pop16() << 16) | pop16();
+    return pop16() | (pop16() << 16);
 }
 
 ui16 Memory::pop16() {
-    return (pop8() << 8) | pop8();
+    return pop8() | (pop8() << 8);
 }
 
 ui8 Memory::pop8() {
@@ -48,11 +48,11 @@ ui8 Memory::pop8() {
 }
 
 ui32 Memory::get32(ui32 address) const {
-    return (get16(address) << 16) | get16(address + 2);
+    return (get16(address + 2) << 16) | get16(address);
 }
 
 ui16 Memory::get16(ui32 address) const {
-    return (get8(address) << 8) | get8(address + 1);
+    return (get8(address + 1) << 8) | get8(address);
 }
 
 ui8 Memory::get8(ui32 address) const {
@@ -60,13 +60,13 @@ ui8 Memory::get8(ui32 address) const {
 }
 
 void Memory::set32(ui32 address, ui32 value) {
-    set16(address, value >> 16);
-    set16(address + 2, value);
+    set16(address + 2, value >> 16);
+    set16(address, value);
 }
 
 void Memory::set16(ui32 address, ui16 value) {
-    set8(address, value >> 8);
-    set8(address + 1, value);
+    set8(address + 1, value >> 8);
+    set8(address, value);
 }
 
 void Memory::set8(ui32 address, ui8 value) {

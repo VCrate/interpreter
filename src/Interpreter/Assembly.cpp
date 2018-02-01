@@ -3,8 +3,6 @@
 #include <bytec/Interpreter/Operations.hpp>
 #include <bytec/Interpreter/BinRepr.hpp>
 
-#include <iostream>
-
 namespace bytec { namespace assembly {
 
 bool Argument::get_potential_next_12(ui32&) const {
@@ -165,7 +163,43 @@ bool DeferRegisterDisp::get_potential_next_24(ui32& v) const {
     return disp > bin_repr::arg24_disp_max;
 }
 
-void append_instruction_2_args(Program& program, Operations operation, Argument const& from, Argument const& to) {
+std::vector<ui32> arguments_for_ope = {
+    2, // ADD
+    2, // SUB
+    2, // MUL
+    2, // MULU
+    2, // DIV
+    2, // DIVU
+    2, // MOV
+    1, // POP
+    1, // PUSH
+    1, // JMP
+    1, // JMPE
+    1, // JMPNE
+    1, // JMPG
+    1, // JMPGE
+    2, // AND
+    2, // OR
+    2, // XOR
+    1, // NEG
+    2, // SHL
+    2, // RTL
+    2, // SHR
+    2, // RTR
+    2, // SWP
+    2, // CMP
+    1, // INC
+    1, // DEC
+    2, // NEW
+    1, // DEL
+    0, // HLT
+    1  // OUT
+};
+
+void append(Program& program, Operations operation, Argument const& from, Argument const& to) {
+    if (arguments_for_ope[static_cast<ui32>(operation)] != 2) 
+        throw std::runtime_error("Too many arguments for this operation");
+
     program.append_instruction(
         bin_repr::operation_encode(static_cast<ui8>(operation)) |
         bin_repr::arg0_encode(from.as_12()) |
@@ -179,7 +213,62 @@ void append_instruction_2_args(Program& program, Operations operation, Argument 
         program.append_instruction(value);
 }
 
-void append_instruction_1_arg(Program& program, Operations operation, Argument const& target) {
+void append(Program& program, Operations operation, Label& from, Argument const& to) {
+    if (arguments_for_ope[static_cast<ui32>(operation)] != 2) 
+        throw std::runtime_error("Too many arguments for this operation");
+
+    if (!from.address)
+        from.instructions.push_back({program.size(), Label::Part::FirstHalf});
+
+    program.append_instruction(
+        bin_repr::operation_encode(static_cast<ui8>(operation)) |
+        bin_repr::arg0_encode(Value{from.address.value_or(0)}.as_12()) |
+        bin_repr::arg1_encode(to.as_12())
+    );
+
+    ui32 value;
+    if (to.get_potential_next_12(value))
+        program.append_instruction(value);
+}
+
+void append(Program& program, Operations operation, Argument const& from, Label& to) {
+    if (arguments_for_ope[static_cast<ui32>(operation)] != 2) 
+        throw std::runtime_error("Too many arguments for this operation");
+
+    if (!to.address)
+        to.instructions.push_back({program.size(), Label::Part::SecondHalf});
+
+    program.append_instruction(
+        bin_repr::operation_encode(static_cast<ui8>(operation)) |
+        bin_repr::arg0_encode(from.as_12()) |
+        bin_repr::arg1_encode(Value{to.address.value_or(0)}.as_12())
+    );
+
+    ui32 value;
+    if (from.get_potential_next_12(value))
+        program.append_instruction(value);
+}
+
+void append(Program& program, Operations operation, Label& from, Label& to) {
+    if (arguments_for_ope[static_cast<ui32>(operation)] != 2) 
+        throw std::runtime_error("Too many arguments for this operation");
+
+    if (!from.address)
+        from.instructions.push_back({program.size(), Label::Part::FirstHalf});
+    if (!to.address)
+        to.instructions.push_back({program.size()+1, Label::Part::SecondHalf});
+
+    program.append_instruction(
+        bin_repr::operation_encode(static_cast<ui8>(operation)) |
+        bin_repr::arg0_encode(Value{from.address.value_or(0)}.as_12()) |
+        bin_repr::arg1_encode(Value{to.address.value_or(0)}.as_12())
+    );
+}
+
+void append(Program& program, Operations operation, Argument const& target) {
+    if (arguments_for_ope[static_cast<ui32>(operation)] != 1) 
+        throw std::runtime_error("Too many/few arguments for this operation");
+        
     program.append_instruction(
         bin_repr::operation_encode(static_cast<ui8>(operation)) |
         bin_repr::arg_encode(target.as_24())
@@ -190,7 +279,23 @@ void append_instruction_1_arg(Program& program, Operations operation, Argument c
         program.append_instruction(value);
 }
 
-void append_instruction_0_arg(Program& program, Operations operation) {
+void append(Program& program, Operations operation, Label& target) {
+    if (arguments_for_ope[static_cast<ui32>(operation)] != 1) 
+        throw std::runtime_error("Too many/few arguments for this operation");
+
+    if (!target.address)
+        target.instructions.push_back({program.size(), Label::Part::Full});
+
+    program.append_instruction(
+        bin_repr::operation_encode(static_cast<ui8>(operation)) |
+        bin_repr::arg_encode(Value{target.address.value_or(0)}.as_24())
+    );
+}
+
+void append(Program& program, Operations operation) {
+    if (arguments_for_ope[static_cast<ui32>(operation)] != 0) 
+        throw std::runtime_error("Too few arguments for this operation");
+        
     program.append_instruction(
         bin_repr::operation_encode(static_cast<ui8>(operation))
     );
@@ -201,169 +306,48 @@ void link_label(Program& program, Label& label) {
         throw std::runtime_error("Label Already linked");
 
     label.address = program.size() * 4;
-    for(auto adr : label.jmp_instructions) {
-        auto instruction = program.instruction_at(adr);
+    for(auto adr : label.instructions) {
+        auto instruction = program.instruction_at(adr.first);
         auto operation = bin_repr::operation_decode(instruction);
         auto arg = Value{ label.address.value() };
-        program.set_instruction(
-            bin_repr::operation_encode(operation) |
-            bin_repr::arg_encode(arg.as_24()),
 
-            adr
-        ); // IMPORTANT : argument is not in the next instruction, it should be fine because the max is 2^21
+        switch(adr.second) {
+            case Label::Part::Full:
+            {
+                program.set_instruction(
+                    bin_repr::operation_encode(operation) |
+                    bin_repr::arg_encode(arg.as_24()),
+
+                    adr.first
+                ); 
+                break;
+            }
+            case Label::Part::FirstHalf:
+            {
+                program.set_instruction(
+                    bin_repr::operation_encode(operation) |
+                    bin_repr::arg0_encode(arg.as_12()) |
+                    bin_repr::arg1_encode(bin_repr::arg1_decode(instruction)),
+
+                    adr.first
+                ); 
+                break;
+            }
+            case Label::Part::SecondHalf:
+            {
+                program.set_instruction(
+                    bin_repr::operation_encode(operation) |
+                    bin_repr::arg0_encode(bin_repr::arg0_decode(instruction)) |
+                    bin_repr::arg1_encode(arg.as_12()),
+
+                    adr.first
+                ); 
+                break;
+            }
+        }
+
     }
 
 }
-
-void append_JMP(Program& program, Label& label) {
-    append_instruction_1_arg(program, Operations::JMP, Value{label.address.value_or(0)});
-    if (!label.address)
-        label.jmp_instructions.push_back(program.size() - 1);
-}
-
-void append_JMPE(Program& program, Label& label) {
-    append_instruction_1_arg(program, Operations::JMPE, Value{label.address.value_or(0)});
-    if (!label.address)
-        label.jmp_instructions.push_back(program.size() - 1);
-}
-
-void append_JMPNE(Program& program, Label& label) {
-    append_instruction_1_arg(program, Operations::JMPNE, Value{label.address.value_or(0)});
-    if (!label.address)
-        label.jmp_instructions.push_back(program.size() - 1);
-}
-
-void append_JMPG(Program& program, Label& label) {
-    append_instruction_1_arg(program, Operations::JMPG, Value{label.address.value_or(0)});
-    if (!label.address)
-        label.jmp_instructions.push_back(program.size() - 1);
-}
-
-void append_JMPGE(Program& program, Label& label) {
-    append_instruction_1_arg(program, Operations::JMPGE, Value{label.address.value_or(0)});
-    if (!label.address)
-        label.jmp_instructions.push_back(program.size() - 1);
-}
-
-void append_ADD(Program& program, Argument const& from, Argument const& to) {
-    append_instruction_2_args(program, Operations::ADD, from, to);
-}
-
-void append_SUB(Program& program, Argument const& from, Argument const& to) {
-    append_instruction_2_args(program, Operations::SUB, from, to);
-}
-
-void append_MUL(Program& program, Argument const& from, Argument const& to) {
-    append_instruction_2_args(program, Operations::MUL, from, to);
-}
-
-void append_MULU(Program& program, Argument const& from, Argument const& to) {
-    append_instruction_2_args(program, Operations::MULU, from, to);
-}
-
-void append_DIV(Program& program, Argument const& from, Argument const& to) {
-    append_instruction_2_args(program, Operations::DIV, from, to);
-}
-
-void append_DIVU(Program& program, Argument const& from, Argument const& to) {
-    append_instruction_2_args(program, Operations::DIVU, from, to);
-}
-
-void append_MOV(Program& program, Argument const& from, Argument const& to) {
-    append_instruction_2_args(program, Operations::MOV, from, to);
-}
-
-void append_SWP(Program& program, Argument const& from, Argument const& to) {
-    append_instruction_2_args(program, Operations::SWP, from, to);
-}
-
-void append_PUSH(Program& program, Argument const& target) {
-    append_instruction_1_arg(program, Operations::PUSH, target);
-}
-
-void append_POP(Program& program, Argument const& target) {
-    append_instruction_1_arg(program, Operations::POP, target);
-}
-
-void append_JMP(Program& program, Argument const& target) {
-    append_instruction_1_arg(program, Operations::JMP, target);
-}
-
-void append_JMPE(Program& program, Argument const& target) {
-    append_instruction_1_arg(program, Operations::JMPE, target);
-}
-
-void append_JMPNE(Program& program, Argument const& target) {
-    append_instruction_1_arg(program, Operations::JMPNE, target);
-}
-
-void append_JMPG(Program& program, Argument const& target) {
-    append_instruction_1_arg(program, Operations::JMPG, target);
-}
-
-void append_JMPGE(Program& program, Argument const& target) {
-    append_instruction_1_arg(program, Operations::JMPGE, target);
-}
-
-void append_AND(Program& program, Argument const& from, Argument const& to) {
-    append_instruction_2_args(program, Operations::AND, from, to);
-}
-
-void append_OR(Program& program, Argument const& from, Argument const& to) {
-    append_instruction_2_args(program, Operations::OR, from, to);
-}
-
-void append_XOR(Program& program, Argument const& from, Argument const& to) {
-    append_instruction_2_args(program, Operations::XOR, from, to);
-}
-
-void append_NEG(Program& program, Argument const& target) {
-    append_instruction_1_arg(program, Operations::NEG, target);
-}
-
-void append_SHL(Program& program, Argument const& from, Argument const& to) {
-    append_instruction_2_args(program, Operations::SHL, from, to);
-}
-
-void append_RTL(Program& program, Argument const& from, Argument const& to) {
-    append_instruction_2_args(program, Operations::RTL, from, to);
-}
-
-void append_SHR(Program& program, Argument const& from, Argument const& to) {
-    append_instruction_2_args(program, Operations::SHR, from, to);
-}
-
-void append_RTR(Program& program, Argument const& from, Argument const& to) {
-    append_instruction_2_args(program, Operations::RTR, from, to);
-}
-
-void append_CMP(Program& program, Argument const& from, Argument const& to) {
-    append_instruction_2_args(program, Operations::CMP, from, to);
-}
-
-void append_INC(Program& program, Argument const& target) {
-    append_instruction_1_arg(program, Operations::INC, target);
-}
-
-void append_DEC(Program& program, Argument const& target) {
-    append_instruction_1_arg(program, Operations::DEC, target);
-}
-
-void append_NEW(Program& program, Argument const& from, Argument const& to) {
-    append_instruction_2_args(program, Operations::NEW, from, to);
-}
-
-void append_DEL(Program& program, Argument const& target) {
-    append_instruction_1_arg(program, Operations::DEL, target);
-}
-
-void append_HLT(Program& program) {
-    append_instruction_0_arg(program, Operations::HLT);
-}
-
-void append_OUT(Program& program, Argument const& target) {
-    append_instruction_1_arg(program, Operations::OUT, target);
-}
-
 
 }}

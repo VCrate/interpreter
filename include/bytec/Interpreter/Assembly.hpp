@@ -11,7 +11,11 @@ namespace bytec { namespace assembly {
 
 struct Label {
 
-    std::vector<ui32> jmp_instructions;
+    enum class Part {
+        Full, FirstHalf, SecondHalf
+    };
+
+    std::vector<std::pair<ui32/* Address*/, Part>> instructions;
     std::optional<ui32> address;
 
 };
@@ -123,55 +127,14 @@ DeferRegisterDisp DeferDispRegisterFG(ui32 value);
 DeferRegisterDisp DeferDispRegisterBP(ui32 value);
 DeferRegisterDisp DeferDispRegisterSP(ui32 value);
 
-void append_instruction_2_args(Program& program, Operations operation, Argument const& from, Argument const& to);
-void append_instruction_1_arg(Program& program, Operations operation, Argument const& target);
-void append_instruction_0_arg(Program& program, Operations operation);
+void append(Program& program, Operations operation, Argument const& from, Argument const& to);
+void append(Program& program, Operations operation, Argument const& from, Label& to);
+void append(Program& program, Operations operation, Label& from, Argument const& to);
+void append(Program& program, Operations operation, Label& from, Label& to);
 
-void append_ADD(Program& program, Argument const& from, Argument const& to);
-void append_SUB(Program& program, Argument const& from, Argument const& to);
-void append_MUL(Program& program, Argument const& from, Argument const& to);
-void append_MULU(Program& program, Argument const& from, Argument const& to);
-void append_DIV(Program& program, Argument const& from, Argument const& to);
-void append_DIVU(Program& program, Argument const& from, Argument const& to);
+void append(Program& program, Operations operation, Argument const& target);
+void append(Program& program, Operations operation, Label& target);
 
-void append_MOV(Program& program, Argument const& from, Argument const& to);
-void append_SWP(Program& program, Argument const& from, Argument const& to);
-
-void append_PUSH(Program& program, Argument const& target);
-void append_POP(Program& program, Argument const& target);
-
-void append_JMP(Program& program, Argument const& target);
-void append_JMPE(Program& program, Argument const& target);
-void append_JMPNE(Program& program, Argument const& target);
-void append_JMPG(Program& program, Argument const& target);
-void append_JMPGE(Program& program, Argument const& target);
-
-void append_JMP(Program& program, Label& label);
-void append_JMPE(Program& program, Label& label);
-void append_JMPNE(Program& program, Label& label);
-void append_JMPG(Program& program, Label& label);
-void append_JMPGE(Program& program, Label& label);
-
-void append_AND(Program& program, Argument const& from, Argument const& to);
-void append_OR(Program& program, Argument const& from, Argument const& to);
-void append_XOR(Program& program, Argument const& from, Argument const& to);
-void append_NEG(Program& program, Argument const& target);
-
-void append_SHL(Program& program, Argument const& from, Argument const& to);
-void append_RTL(Program& program, Argument const& from, Argument const& to);
-void append_SHR(Program& program, Argument const& from, Argument const& to);
-void append_RTR(Program& program, Argument const& from, Argument const& to);
-
-void append_CMP(Program& program, Argument const& op0, Argument const& op1);
-
-void append_INC(Program& program, Argument const& target);
-void append_DEC(Program& program, Argument const& target);
-
-void append_NEW(Program& program, Argument const& from, Argument const& to);
-void append_DEL(Program& program, Argument const& target);
-
-void append_HLT(Program& program);
-
-void append_OUT(Program& program, Argument const& target);
+void append(Program& program, Operations operation);
 
 }}

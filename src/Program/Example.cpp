@@ -1,5 +1,7 @@
 #include <bytec/Program/Example.hpp>
 
+#include <iostream>
+
 namespace bytec { namespace program_ex {
 
 Program hello_world() {
@@ -7,23 +9,32 @@ Program hello_world() {
 
     assembly::Label begin;
     assembly::Label end;
+    assembly::Label data_hello_world;
 
-    assembly::append_MOV(program, assembly::Register::SP, assembly::Register::A);
-    for (auto c : "Hello World !\n")
-        assembly::append_PUSH(program, assembly::Value{static_cast<ui32>(c)});
+    auto chars_to_int = [] (ui8 a, ui8 b, ui8 c, ui8 d) {
+        return (d << 24) | (c << 16)| (b << 8) | a;
+    };
+
+    assembly::append(program, Operations::MOV, data_hello_world, assembly::Register::A);
 
     assembly::link_label(program, begin);
 
-    assembly::append_CMP(program, assembly::Value{'\0'}, assembly::DeferRegister::A);
-    assembly::append_JMPE(program, end);
+    assembly::append(program, Operations::CMP, assembly::Value{'\0'}, assembly::DeferRegister::A);
+    assembly::append(program, Operations::JMPE, end);
 
-    assembly::append_OUT(program, assembly::DeferRegister::A);
-    assembly::append_ADD(program, assembly::Value{4}, assembly::Register::A);
+    assembly::append(program, Operations::OUT, assembly::DeferRegister::A);
+    assembly::append(program, Operations::INC, assembly::Register::A);
 
-    assembly::append_JMP(program, begin);
+    assembly::append(program, Operations::JMP, begin);
 
     assembly::link_label(program, end);
-    assembly::append_HLT(program);
+    assembly::append(program, Operations::HLT);
+
+    assembly::link_label(program, data_hello_world);
+    program.append_instruction(chars_to_int('H', 'e', 'l', 'l'));
+    program.append_instruction(chars_to_int('o', ' ', 'W', 'o'));
+    program.append_instruction(chars_to_int('r', 'l', 'd', ' '));
+    program.append_instruction(chars_to_int('!', '\n', '\0', '\0'));
 
     return program;
 }
