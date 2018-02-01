@@ -17,20 +17,41 @@ int main() {
     assembly::Label begin;
     assembly::Label end;
 
+    // A = address of Hello world (yes a bit tricky for the moment)
     assembly::append_MOV(program, assembly::Register::SP, assembly::Register::A);
+    // Push "Hello world", 0 (yes I'm too lazy to hardcoded it when the program is loaded)
     for (auto c : "Hello World !\n")
         assembly::append_PUSH(program, assembly::Value{static_cast<ui32>(c)});
+
     assembly::link_label(program, begin);
+
+    // while(*a != '\0')
     assembly::append_CMP(program, assembly::Value{'\0'}, assembly::DeferRegister::A);
     assembly::append_JMPE(program, end);
+
+    // cout << *a
     assembly::append_OUT(program, assembly::DeferRegister::A);
+    // a += 4
     assembly::append_ADD(program, assembly::Value{4}, assembly::Register::A);
+
+    // end while
     assembly::append_JMP(program, begin);
+
     assembly::link_label(program, end);
+
+    // d = allocate(10) (yes 10 is too much)
     assembly::append_NEW(program, assembly::Value{10}, assembly::Register::D);
+    // *d = 'M'
     assembly::append_MOV(program, assembly::Value{'M'}, assembly::DeferRegister::D);
+    // cout << *d
     assembly::append_OUT(program, assembly::DeferRegister::D);
+    // *d = '\n'
+    assembly::append_MOV(program, assembly::Value{'\n'}, assembly::DeferRegister::D);
+    // cout << *d
+    assembly::append_OUT(program, assembly::DeferRegister::D);
+    // delete d
     assembly::append_DEL(program, assembly::Register::D);
+
     assembly::append_HLT(program);
 
 
