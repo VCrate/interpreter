@@ -26,6 +26,7 @@ private:
 
     static void op_add  (SandBox& sandbox, ui32 operand, ui32& target);
     static void op_sub  (SandBox& sandbox, ui32 operand, ui32& target); 
+    static void op_mod  (SandBox& sandbox, ui32 operand, ui32& target); 
     static void op_mul  (SandBox& sandbox, ui32 operand, ui32& target); 
     static void op_mulu (SandBox& sandbox, ui32 operand, ui32& target); 
     static void op_div  (SandBox& sandbox, ui32 operand, ui32& target); 

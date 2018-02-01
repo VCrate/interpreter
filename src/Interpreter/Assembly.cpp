@@ -166,6 +166,7 @@ bool DeferRegisterDisp::get_potential_next_24(ui32& v) const {
 std::vector<ui32> arguments_for_ope = {
     2, // ADD
     2, // SUB
+    2, // MOD
     2, // MUL
     2, // MULU
     2, // DIV

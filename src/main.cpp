@@ -13,7 +13,7 @@ using namespace bytec;
 int main() {
     
 
-    Program program = program_ex::hello_world();
+    Program program = program_ex::print_number();
     SandBox sandbox;
 
     sandbox.load_program(program);

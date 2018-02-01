@@ -61,4 +61,46 @@ Program hello_world() {
     return program;
 }
 
+Program vector() {
+    Program program;
+
+    assembly::append(program, Operations::HLT);
+
+    return program;
+}
+
+Program print_number() {
+    Program program;
+
+    assembly::Label print, after_call;
+
+    assembly::append(program, Operations::MOV, assembly::Value{1337042}, assembly::Register::A);
+    assembly::append(program, Operations::CALL, print);
+    assembly::append(program, Operations::OUT, assembly::Value{'\n'});
+    assembly::append(program, Operations::HLT);
+
+
+    assembly::link_label(program, print);
+    assembly::append(program, Operations::MOV, assembly::Register::A, assembly::Register::B);
+    assembly::append(program, Operations::MOD, assembly::Value{10}, assembly::Register::B);
+    assembly::append(program, Operations::DIV, assembly::Value{10}, assembly::Register::A);
+
+    assembly::append(program, Operations::CMP, assembly::Value{0}, assembly::Register::A);
+    assembly::append(program, Operations::JMPE, after_call);
+
+    assembly::append(program, Operations::PUSH, assembly::Register::B);
+    assembly::append(program, Operations::CALL, print);
+    assembly::append(program, Operations::POP, assembly::Register::B);
+
+    assembly::link_label(program, after_call);
+    assembly::append(program, Operations::MOV, assembly::Value{'0'}, assembly::Register::C);
+    assembly::append(program, Operations::ADD, assembly::Register::B, assembly::Register::C);
+    assembly::append(program, Operations::OUT, assembly::Register::C);
+
+    assembly::append(program, Operations::RET);
+
+    return program;
+}
+
+
 }}

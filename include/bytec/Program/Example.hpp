@@ -7,5 +7,7 @@
 namespace bytec { namespace program_ex {
 
 Program hello_world();
+Program vector();
+Program print_number();
 
 }}

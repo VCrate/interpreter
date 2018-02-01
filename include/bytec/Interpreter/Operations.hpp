@@ -7,6 +7,7 @@ namespace bytec {
 enum class Operations : ui8 {
     ADD,  // Add (RRW)
     SUB,  // Subtract (RRW)
+    MOD,  // Modulo (RRW)
     MUL,  // Multiply (RRW)
     MULU, // Multiply unsigned (RRW)
     DIV,  // Divide (RRW)

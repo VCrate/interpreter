@@ -31,6 +31,7 @@ void Interpreter::run(SandBox& sandbox) {
 
         DEF_OP_2_ARGS_LOAD(ADD, add)
         DEF_OP_2_ARGS_LOAD(SUB, sub)
+        DEF_OP_2_ARGS_LOAD(MOD, mod)
         DEF_OP_2_ARGS_LOAD(MUL, mul)
         DEF_OP_2_ARGS_LOAD(MULU, mulu)
         DEF_OP_2_ARGS_LOAD(DIV, div)
@@ -180,6 +181,10 @@ void Interpreter::op_add (SandBox&, ui32 operand, ui32& target) {
 
 void Interpreter::op_sub (SandBox&, ui32 operand, ui32& target) {
     target -= operand;
+}
+
+void Interpreter::op_mod (SandBox&, ui32 operand, ui32& target) {
+    target = target % operand;
 }
 
 void Interpreter::op_mul (SandBox&, ui32 operand, ui32& target) {
