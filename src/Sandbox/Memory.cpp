@@ -32,19 +32,19 @@ void Memory::push8(ui8 value) {
 }
 
 ui32 Memory::pop32() {
-    return pop16() | (pop16() << 16);
+    return (pop16() << 16) | pop16();
 }
 
 ui16 Memory::pop16() {
-    return pop8() | (pop8() << 8);
+    return (pop8() << 8) | pop8();
 }
 
 ui8 Memory::pop8() {
-    return memory[--stack_pointer];
     if (!free_blocks.empty())
         ++free_blocks.back().size;
     else
         free_blocks.emplace_back(FreeBlock{stack_pointer+1, 1});
+    return memory[--stack_pointer];
 }
 
 ui32 Memory::get32(ui32 address) const {

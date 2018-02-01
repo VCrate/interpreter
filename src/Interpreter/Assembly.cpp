@@ -192,6 +192,10 @@ std::vector<ui32> arguments_for_ope = {
     1, // DEC
     2, // NEW
     1, // DEL
+    1, // CALL
+    0, // RET
+    0, // ETR
+    0, // LVE
     0, // HLT
     1  // OUT
 };
@@ -293,7 +297,7 @@ void append(Program& program, Operations operation, Label& target) {
 }
 
 void append(Program& program, Operations operation) {
-    if (arguments_for_ope[static_cast<ui32>(operation)] != 0) 
+    if (arguments_for_ope[static_cast<ui32>(operation)] != 0)
         throw std::runtime_error("Too few arguments for this operation");
         
     program.append_instruction(

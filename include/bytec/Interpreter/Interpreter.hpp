@@ -53,7 +53,10 @@ private:
     static void op_new  (SandBox& sandbox, ui32 operand, ui32& target); 
     static void op_del  (SandBox& sandbox, ui32 operand); 
     static void op_hlt  (SandBox& sandbox);
-
+    static void op_call (SandBox& sandbox, ui32 operand); 
+    static void op_ret  (SandBox& sandbox); 
+    static void op_etr  (SandBox& sandbox);
+    static void op_lve  (SandBox& sandbox);
     static void op_out  (SandBox& sandbox, ui32 operand); 
 
 };

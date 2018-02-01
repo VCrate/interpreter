@@ -65,6 +65,11 @@ void Interpreter::run(SandBox& sandbox) {
         DEF_OP_ARG(DEL, del)
         DEF_OP_2_ARGS(NEW, new)
 
+        DEF_OP_ARG(CALL, call)
+        DEF_OP(RET, ret)
+        DEF_OP(ETR, etr)
+        DEF_OP(LVE, lve)
+
         DEF_OP(HLT, hlt)
 
         DEF_OP_ARG(OUT, out)
@@ -296,6 +301,25 @@ void Interpreter::op_new (SandBox& sandbox, ui32 operand, ui32& target) {
 
 void Interpreter::op_del (SandBox& sandbox, ui32 operand) {
     sandbox.deallocate(operand);
+}
+
+void Interpreter::op_call (SandBox& sandbox, ui32 operand) {
+    sandbox.push_32(sandbox.get_pc());
+    sandbox.set_pc(operand);
+}
+
+void Interpreter::op_ret (SandBox& sandbox) {
+    sandbox.set_pc(sandbox.pop_32());
+}
+
+void Interpreter::op_etr (SandBox& sandbox) {
+    sandbox.push_32(sandbox.get_bp());
+    sandbox.set_bp(sandbox.get_sp());
+}
+
+void Interpreter::op_lve (SandBox& sandbox) {
+    sandbox.set_sp(sandbox.get_bp());
+    sandbox.set_bp(sandbox.pop_32());
 }
 
 void Interpreter::op_out (SandBox& sandbox, ui32 operand) {

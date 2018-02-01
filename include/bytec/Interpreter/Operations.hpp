@@ -35,6 +35,11 @@ enum class Operations : ui8 {
     NEW,  // New (RW)
     DEL,  // Delete (R)
 
+    CALL, // Call (R)
+    RET,  // Return
+    ETR,  // Enter
+    LVE,  // Leave
+
     HLT,  // Halt the program
 
     OUT
