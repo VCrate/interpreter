@@ -355,4 +355,14 @@ void link_label(Program& program, Label& label) {
 
 }
 
+void reference_label(Label& reference, Label& to_copy) {
+    if (to_copy.address)
+        throw std::runtime_error("Label Already linked");
+    if (!reference.address)
+        throw std::runtime_error("Label must be linked");
+
+    to_copy.address = reference.address;
+}
+
+
 }}

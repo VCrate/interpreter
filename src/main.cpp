@@ -13,18 +13,27 @@ using namespace bytec;
 int main() {
     
 
-    Program program = program_ex::print_number();
-    SandBox sandbox;
+    Program program;
+    assembly::Label entry_point;
 
+    assembly::append(program, Operations::JMP, entry_point);
+
+    auto hello_world = program_ex::hello_world(program);
+
+    assembly::link_label(program, entry_point);
+
+    assembly::append(program, Operations::CALL, hello_world.func);
+
+    assembly::append(program, Operations::HLT);
+
+    SandBox sandbox;
     sandbox.load_program(program);
 
     std::cout << "# Start #" << std::endl;
-
     while(!sandbox.is_halted()) {
         Interpreter::run(sandbox);
         //std::cin.get();
     }
-
     std::cout << "# Halt #" << std::endl;
 /*
     Memory mem(256);

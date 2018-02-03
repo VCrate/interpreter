@@ -6,8 +6,21 @@
 
 namespace bytec { namespace program_ex {
 
-Program hello_world();
+struct hello_world_labels {
+    assembly::Label
+        func,
+        data;
+};
+
+hello_world_labels hello_world(Program& program);
+
 Program vector();
-Program print_number();
+
+struct print_number_labels {
+    assembly::Label
+        func;
+};
+
+print_number_labels print_number(Program& program);
 
 }}

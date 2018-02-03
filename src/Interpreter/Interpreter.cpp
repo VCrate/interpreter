@@ -328,6 +328,7 @@ void Interpreter::op_lve (SandBox& sandbox) {
 }
 
 void Interpreter::op_out (SandBox& sandbox, ui32 operand) {
+    //std::cout << operand << std::endl;
     sandbox.output(static_cast<ui8>(operand & 0xFF));
 }
 

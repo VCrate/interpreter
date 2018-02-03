@@ -21,6 +21,7 @@ struct Label {
 };
 
 void link_label(Program& program, Label& label);
+void reference_label(Label& reference, Label& to_copy);
 
 struct Argument {
     virtual ui32 as_24() const = 0;
