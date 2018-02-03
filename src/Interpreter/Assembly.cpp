@@ -114,7 +114,8 @@ ui16 DeferRegister::as_12() const {
 }
 
 #define DEF_DEFER_DISP_REG(__name) \
-    DeferRegisterDisp DeferDispRegister ## __name(ui32 value) { return DeferRegisterDisp(Register::__name.reg, value); }
+    DeferRegisterDisp DeferDispRegister ## __name(ui32 value) { return DeferRegisterDisp(Register::__name.reg, value); }\
+    DeferRegisterDisp DeferDispRegister ## __name(i32 value)  { return DeferRegisterDisp(Register::__name.reg, static_cast<ui32>(value)); }
 
     DEF_DEFER_DISP_REG(A)
     DEF_DEFER_DISP_REG(B)

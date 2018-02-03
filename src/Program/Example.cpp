@@ -22,7 +22,6 @@ hello_world_labels hello_world(Program& program) {
 
     /*
 
-        etr
         push %a
         push %b
         mov %a, data
@@ -40,7 +39,6 @@ hello_world_labels hello_world(Program& program) {
     end_loop:
         pop %b
         pop %a
-        lve
         ret
 
     */
@@ -58,12 +56,10 @@ hello_world_labels hello_world(Program& program) {
 
     assembly::link_label(program, labels.func); // entry point
     /*
-        etr
         push %a
         push %b
         mov %a, data
     */
-    assembly::append(program, Operations::ETR);
     assembly::append(program, Operations::PUSH, assembly::Register::A);
     assembly::append(program, Operations::PUSH, assembly::Register::B);
     assembly::append(program, Operations::MOV, labels.data, assembly::Register::A);
@@ -96,17 +92,139 @@ hello_world_labels hello_world(Program& program) {
     end_loop:
         pop %b
         pop %a
-        lve
         ret
     */
     assembly::link_label(program, end_loop);
     assembly::append(program, Operations::POP, assembly::Register::B);
     assembly::append(program, Operations::POP, assembly::Register::A);
-    assembly::append(program, Operations::LVE);
     assembly::append(program, Operations::RET);
 
     return labels;
 }
+
+print_number_labels print_number(Program& program) {
+    /* Number printing
+     *     Labels available : 
+     *         func : print the number
+     * 
+     * %a is use to store the number to print
+     * No return value
+     * 
+     * %a is modified
+     */
+
+    /*
+
+    func:
+        cmp 10, %a
+        jmpg end_func        # 10 > %a
+
+        push %a
+        div %a, 10
+        call func
+        pop %a
+
+    end_func:
+        mod %a, 10
+        add %a, '0'
+        out %a
+        ret
+
+    */
+
+    print_number_labels labels;
+
+    assembly::Label end_func;
+
+    assembly::link_label(program, labels.func);
+
+    /*
+        cmp 10, %a
+        jmpg end_func        # 10 > %a
+    */
+    assembly::append(program, Operations::CMP, assembly::Value{10}, assembly::Register::A);
+    assembly::append(program, Operations::JMPG, end_func);
+
+    /*
+        push %a
+        div %a, 10
+        call func
+        pop %a
+    */
+    assembly::append(program, Operations::PUSH, assembly::Register::A);
+    assembly::append(program, Operations::DIV, assembly::Value{10}, assembly::Register::A);
+    assembly::append(program, Operations::CALL, labels.func);
+    assembly::append(program, Operations::POP, assembly::Register::A);
+
+    /*
+    end_func:
+        mod %a, 10
+        add %a, '0'
+        out %a
+        ret
+    */
+    assembly::link_label(program, end_func);
+    assembly::append(program, Operations::MOD, assembly::Value{10}, assembly::Register::A);
+    assembly::append(program, Operations::ADD, assembly::Value{'0'}, assembly::Register::A);
+    assembly::append(program, Operations::OUT, assembly::Register::A);
+    assembly::append(program, Operations::RET);
+
+    return labels;
+}
+
+lerp_labels lerp(Program& program) {
+    /*  Lerp
+     *     Labels available : 
+     *         func : return the linear interpolation
+     * 
+     * 3 integers on the stack
+     * 1 and 2 are the bounds
+     * 3 is the a number in [0, 100]
+     * 
+     * return an integer in %a
+     * 
+     * Works only with signed numbers
+     */
+
+    /*
+
+    func:
+        etr
+        mov %a, [rbp - 12]
+        sub %a, [rbp - 16]
+        mul %a, [rbp - 8]
+        div %a, 100
+        add %a, [rbp - 16]
+        lve
+        ret
+
+    */
+
+    lerp_labels labels;
+
+    /* [rbp - 4] : old rbp (pushed buy ETR)
+     * [rbp - 8] : return address (pushed by CALL)
+     * [rbp - 12] : parameter 3 (alpha value)
+     * [rbp - 16] : parameter 2 (upper bounds)
+     * [rbp - 20] : parameter 1 (lower bounds)
+     */
+
+    assembly::link_label(program, labels.func);
+    assembly::append(program, Operations::ETR);
+
+    assembly::append(program, Operations::MOV, assembly::DeferDispRegisterBP(-16), assembly::Register::A);
+    assembly::append(program, Operations::SUB, assembly::DeferDispRegisterBP(-20), assembly::Register::A);
+    assembly::append(program, Operations::MUL, assembly::DeferDispRegisterBP(-12), assembly::Register::A);
+    assembly::append(program, Operations::DIV, assembly::Value{100}, assembly::Register::A);
+    assembly::append(program, Operations::ADD, assembly::DeferDispRegisterBP(-20), assembly::Register::A);
+
+    assembly::append(program, Operations::LVE);
+    assembly::append(program, Operations::RET);
+
+
+    return labels;
+}
+
 
 Program vector() {
     Program program;
@@ -412,33 +530,5 @@ Program vector() {
 
     return program;
 }
-
-print_number_labels print_number(Program& program) {
-    print_number_labels labels;
-
-    assembly::Label after_call;
-
-    assembly::link_label(program, labels.func);
-    assembly::append(program, Operations::MOV, assembly::Register::A, assembly::Register::B);
-    assembly::append(program, Operations::MOD, assembly::Value{10}, assembly::Register::B);
-    assembly::append(program, Operations::DIV, assembly::Value{10}, assembly::Register::A);
-
-    assembly::append(program, Operations::CMP, assembly::Value{0}, assembly::Register::A);
-    assembly::append(program, Operations::JMPE, after_call);
-
-    assembly::append(program, Operations::PUSH, assembly::Register::B);
-    assembly::append(program, Operations::CALL, labels.func);
-    assembly::append(program, Operations::POP, assembly::Register::B);
-
-    assembly::link_label(program, after_call);
-    assembly::append(program, Operations::MOV, assembly::Value{'0'}, assembly::Register::C);
-    assembly::append(program, Operations::ADD, assembly::Register::B, assembly::Register::C);
-    assembly::append(program, Operations::OUT, assembly::Register::C);
-
-    assembly::append(program, Operations::RET);
-
-    return labels;
-}
-
 
 }}

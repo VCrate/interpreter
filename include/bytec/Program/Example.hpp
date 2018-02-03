@@ -11,16 +11,20 @@ struct hello_world_labels {
         func,
         data;
 };
-
 hello_world_labels hello_world(Program& program);
-
-Program vector();
 
 struct print_number_labels {
     assembly::Label
         func;
 };
-
 print_number_labels print_number(Program& program);
+
+struct lerp_labels {
+    assembly::Label
+        func;
+};
+lerp_labels lerp(Program& program);
+
+Program vector();
 
 }}

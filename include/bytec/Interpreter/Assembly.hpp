@@ -111,22 +111,22 @@ struct DeferRegisterDisp : public Register {
     ui32 disp;
 };
 
-DeferRegisterDisp DeferDispRegisterA(ui32 value);
-DeferRegisterDisp DeferDispRegisterB(ui32 value);
-DeferRegisterDisp DeferDispRegisterC(ui32 value);
-DeferRegisterDisp DeferDispRegisterD(ui32 value);
-DeferRegisterDisp DeferDispRegisterE(ui32 value);
-DeferRegisterDisp DeferDispRegisterF(ui32 value);
-DeferRegisterDisp DeferDispRegisterG(ui32 value);
-DeferRegisterDisp DeferDispRegisterH(ui32 value);
-DeferRegisterDisp DeferDispRegisterI(ui32 value);
-DeferRegisterDisp DeferDispRegisterJ(ui32 value);
-DeferRegisterDisp DeferDispRegisterK(ui32 value);
-DeferRegisterDisp DeferDispRegisterL(ui32 value);
-DeferRegisterDisp DeferDispRegisterPC(ui32 value);
-DeferRegisterDisp DeferDispRegisterFG(ui32 value);
-DeferRegisterDisp DeferDispRegisterBP(ui32 value);
-DeferRegisterDisp DeferDispRegisterSP(ui32 value);
+DeferRegisterDisp DeferDispRegisterA(ui32 value);   DeferRegisterDisp DeferDispRegisterA(i32 value);
+DeferRegisterDisp DeferDispRegisterB(ui32 value);   DeferRegisterDisp DeferDispRegisterB(i32 value);
+DeferRegisterDisp DeferDispRegisterC(ui32 value);   DeferRegisterDisp DeferDispRegisterC(i32 value);
+DeferRegisterDisp DeferDispRegisterD(ui32 value);   DeferRegisterDisp DeferDispRegisterD(i32 value);
+DeferRegisterDisp DeferDispRegisterE(ui32 value);   DeferRegisterDisp DeferDispRegisterE(i32 value);
+DeferRegisterDisp DeferDispRegisterF(ui32 value);   DeferRegisterDisp DeferDispRegisterF(i32 value);
+DeferRegisterDisp DeferDispRegisterG(ui32 value);   DeferRegisterDisp DeferDispRegisterG(i32 value);
+DeferRegisterDisp DeferDispRegisterH(ui32 value);   DeferRegisterDisp DeferDispRegisterH(i32 value);
+DeferRegisterDisp DeferDispRegisterI(ui32 value);   DeferRegisterDisp DeferDispRegisterI(i32 value);
+DeferRegisterDisp DeferDispRegisterJ(ui32 value);   DeferRegisterDisp DeferDispRegisterJ(i32 value);
+DeferRegisterDisp DeferDispRegisterK(ui32 value);   DeferRegisterDisp DeferDispRegisterK(i32 value);
+DeferRegisterDisp DeferDispRegisterL(ui32 value);   DeferRegisterDisp DeferDispRegisterL(i32 value);
+DeferRegisterDisp DeferDispRegisterPC(ui32 value);  DeferRegisterDisp DeferDispRegisterPC(i32 value);
+DeferRegisterDisp DeferDispRegisterFG(ui32 value);  DeferRegisterDisp DeferDispRegisterFG(i32 value);
+DeferRegisterDisp DeferDispRegisterBP(ui32 value);  DeferRegisterDisp DeferDispRegisterBP(i32 value);
+DeferRegisterDisp DeferDispRegisterSP(ui32 value);  DeferRegisterDisp DeferDispRegisterSP(i32 value);
 
 void append(Program& program, Operations operation, Argument const& from, Argument const& to);
 void append(Program& program, Operations operation, Argument const& from, Label& to);
