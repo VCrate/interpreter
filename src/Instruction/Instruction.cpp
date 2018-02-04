@@ -7,12 +7,6 @@
 
 namespace bytec {
 
-Displacement::Displacement(Register reg, ui32 displacement) : reg(reg), displacement(displacement) {}
-Deferred::Deferred(Register reg) : reg(reg) {}
-Address::Address(ui32 address)  : address(address) {}
-Value::Value(ui32 value) : value(value) {}
-
-
 void Instruction::encode_operation(Operations operation) {
     first |= bin_repr::operation_encode(static_cast<ui32>(operation));
 }
@@ -47,24 +41,24 @@ void Instruction::encode24(Value value) {
 
 void Instruction::encode24(Register reg) {
     first |= bin_repr::arg24_type_encode(bin_repr::arg_type_register);
-    first |= bin_repr::arg24_register_encode(static_cast<ui32>(reg));
+    first |= bin_repr::arg24_register_encode(reg.reg);
 }
 
 void Instruction::encode24(Displacement disp) {
     if (disp.displacement > bin_repr::arg24_disp_max) {
         first |= bin_repr::arg24_type_encode(bin_repr::arg_type_defer_register_next_disp);
-        first |= bin_repr::arg24_register_encode(static_cast<ui32>(disp.reg));
+        first |= bin_repr::arg24_register_encode(disp.reg.reg);
         second = disp.displacement;
     } else {
         first |= bin_repr::arg24_type_encode(bin_repr::arg_type_defer_register_disp);
-        first |= bin_repr::arg24_register_encode(static_cast<ui32>(disp.reg));
+        first |= bin_repr::arg24_register_encode(disp.reg.reg);
         first |= bin_repr::arg24_disp_encode(disp.displacement);
     }
 }
 
 void Instruction::encode24(Deferred defer) {
     first |= bin_repr::arg24_type_encode(bin_repr::arg_type_defer_register);
-    first |= bin_repr::arg24_register_encode(static_cast<ui32>(defer.reg));
+    first |= bin_repr::arg24_register_encode(defer.reg.reg);
 }
 
 void Instruction::encode24(Address addr) {
@@ -96,7 +90,7 @@ void Instruction::encode12(Value value, bool arg0) {
 void Instruction::encode12(Register reg, bool arg0) {
     ui32 arg = 0;
     arg |= bin_repr::arg12_type_encode(bin_repr::arg_type_register);
-    arg |= bin_repr::arg12_register_encode(static_cast<ui32>(reg));
+    arg |= bin_repr::arg12_register_encode(reg.reg);
 
     first |= arg0 ? bin_repr::arg0_encode(arg) : bin_repr::arg1_encode(arg);
 }
@@ -105,7 +99,7 @@ void Instruction::encode12(Displacement disp, bool arg0) {
     ui32 arg = 0;
     if (disp.displacement > bin_repr::arg12_value_max) {
         arg |= bin_repr::arg12_type_encode(bin_repr::arg_type_defer_register_next_disp);
-        arg |= bin_repr::arg12_register_encode(static_cast<ui32>(disp.reg));
+        arg |= bin_repr::arg12_register_encode(disp.reg.reg);
         if(second)
             third = disp.displacement;
         else
@@ -113,7 +107,7 @@ void Instruction::encode12(Displacement disp, bool arg0) {
     } else {
         arg |= bin_repr::arg12_type_encode(bin_repr::arg_type_defer_register_disp);
         arg |= bin_repr::arg12_disp_encode(disp.displacement);
-        arg |= bin_repr::arg12_register_encode(static_cast<ui32>(disp.reg));
+        arg |= bin_repr::arg12_register_encode(disp.reg.reg);
     }
 
     first |= arg0 ? bin_repr::arg0_encode(arg) : bin_repr::arg1_encode(arg);
@@ -122,7 +116,7 @@ void Instruction::encode12(Displacement disp, bool arg0) {
 void Instruction::encode12(Deferred defer, bool arg0) {
     ui32 arg = 0;
     arg |= bin_repr::arg12_type_encode(bin_repr::arg_type_defer_register);
-    arg |= bin_repr::arg12_register_encode(static_cast<ui32>(defer.reg));
+    arg |= bin_repr::arg12_register_encode(defer.reg.reg);
 
     first |= arg0 ? bin_repr::arg0_encode(arg) : bin_repr::arg1_encode(arg);
 }

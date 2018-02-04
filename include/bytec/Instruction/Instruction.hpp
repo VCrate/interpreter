@@ -1,34 +1,12 @@
 #pragma once
 
 #include <bytec/Alias.hpp>
-#include <bytec/Instruction/Register.hpp>
+#include <bytec/Instruction/Argument.hpp>
 #include <bytec/Interpreter/Operations.hpp>
 
 #include <optional>
 
 namespace bytec {
-
-struct Displacement {
-    Displacement(Register reg, ui32 displacement);
-    Register reg;
-    ui32 displacement;
-};
-
-struct Deferred {
-    Deferred(Register reg);
-    Register reg;
-};
-
-struct Address {
-    Address(ui32 address);
-    ui32 address;
-};
-
-
-struct Value {
-    Value(ui32 value);
-    ui32 value;
-};
 
 class Instruction {
 public:
