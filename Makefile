@@ -2,7 +2,7 @@
 #                     SRC                    #
 ##############################################
 # All directories to build (inside src/)
-DIR := Interpreter Program Sandbox Instruction
+DIR := Interpreter Program Sandbox Instruction Instruction/Instruction
 # Directories with src/ prefix
 SRC_DIR := $(addprefix src/,$(DIR))
 # All .cpp files
