@@ -68,10 +68,13 @@ public:
     Deferred get_second_deferred() const;
     Address get_second_address() const;
 
+    ui32 get_main_instruction() const;
     ui32 get_first_extra() const;
     ui32 get_second_extra() const;
 
     ////////// ENCODING
+
+    Instruction(ui32 main, ui32 extra0 = 0, ui32 extra1 = 0);
 
     // HLT, ETR, LVE, RET
     Instruction(Operations ope); // no argument
