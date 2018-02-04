@@ -64,9 +64,12 @@ public:
     ArgType get_second_type() const;
     Value get_second_value() const;
     Register get_second_register() const;
-    Displacement get_secondt_displacement() const;
+    Displacement get_second_displacement() const;
     Deferred get_second_deferred() const;
     Address get_second_address() const;
+
+    ui32 get_first_extra() const;
+    ui32 get_second_extra() const;
 
     ////////// ENCODING
 
@@ -134,6 +137,9 @@ private:
     void encode12(Address value, bool arg0);
 
     void encode_operation(Operations operation);
+
+    ArgType get_corresponding_argtype(ui32 type) const;
+    bool require_complete_instruction(ui32 type) const;
 
     ui32 first = 0;
     std::optional<ui32> second = {};
