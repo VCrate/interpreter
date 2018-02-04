@@ -128,6 +128,69 @@ DeferRegisterDisp DeferDispRegisterFG(ui32 value);  DeferRegisterDisp DeferDispR
 DeferRegisterDisp DeferDispRegisterBP(ui32 value);  DeferRegisterDisp DeferDispRegisterBP(i32 value);
 DeferRegisterDisp DeferDispRegisterSP(ui32 value);  DeferRegisterDisp DeferDispRegisterSP(i32 value);
 
+template<ui32 N>
+void append_array(Program& program, std::array<ui32, N> const& ns) {
+    for(auto n : ns)
+        program.append_instruction(n);
+}
+
+template<ui32 N>
+void append_array(Program& program, std::array<i32, N> const& ns) {
+    for(auto n : ns)
+        program.append_instruction(static_cast<ui32>(n));
+}
+
+template<ui32 N>
+void append_array(Program& program, std::array<ui16, N> const& ns) {
+    for(ui32 i = 0; i < N; ++i) {
+        if (i + 1 < N)
+            program.append_instruction((ns[i] << 16) | ns[i+1]);
+        else
+            program.append_instruction(ns[i] << 16);
+    }
+}
+
+template<ui32 N>
+void append_array(Program& program, std::array<i16, N> const& ns) {
+    for(ui32 i = 0; i < N; ++i) {
+        if (i + 1 < N)
+            program.append_instruction((static_cast<ui16>(ns[i]) << 16) | static_cast<ui16>(ns[i+1]));
+        else
+            program.append_instruction(ns[i] << 16);
+    }
+}
+
+template<ui32 N>
+void append_array(Program& program, std::array<ui8, N> const& ns) {
+    for(ui32 i = 0; i < N; ++i) {
+        ui32 n = ns[i] << 24;
+        for (ui32 j = 1; j < 4 && (i+j) < N; ++j)
+            n |= ns[i+j] << ((3 - j) * 8);
+
+        program.append_instruction(n);
+    }
+}
+
+template<ui32 N>
+void append_array(Program& program, std::array<i8, N> const& ns) {
+    for(ui32 i = 0; i < N; ++i) {
+        ui32 n = static_cast<ui8>(ns[i]) << 24;
+        for (ui32 j = 1; j < 4 && (i+j) < N; ++j)
+            n |= static_cast<ui8>(ns[i+j]) << ((3 - j) * 8);
+
+        program.append_instruction(n);
+    }
+}
+
+void append(Program& program, std::string const& s);
+
+void append(Program& program, ui32 n);
+void append(Program& program, i32 n);
+void append(Program& program, ui16 n);
+void append(Program& program, i16 n);
+void append(Program& program, ui8 n);
+void append(Program& program, i8 n);
+
 void append(Program& program, Operations operation, Argument const& from, Argument const& to);
 void append(Program& program, Operations operation, Argument const& from, Label& to);
 void append(Program& program, Operations operation, Label& from, Argument const& to);

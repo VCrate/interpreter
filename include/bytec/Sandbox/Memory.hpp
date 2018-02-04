@@ -52,7 +52,6 @@ private:
     ui32 stack_pointer;
     std::vector<ui8> memory;
     std::vector<FreeBlock> free_blocks;
-
 };
 
 }

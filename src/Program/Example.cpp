@@ -16,10 +16,6 @@ hello_world_labels hello_world(Program& program) {
      * Let all registers untouched 
      */
 
-    auto chars_to_int = [] (ui8 a, ui8 b, ui8 c, ui8 d) {
-        return (d << 24) | (c << 16)| (b << 8) | a;
-    };
-
     /*
 
         push %a
@@ -49,10 +45,7 @@ hello_world_labels hello_world(Program& program) {
     assembly::Label end_loop;
 
     assembly::link_label(program, labels.data);
-    program.append_instruction(chars_to_int('H', 'e', 'l', 'l'));
-    program.append_instruction(chars_to_int('o', ' ', 'W', 'o'));
-    program.append_instruction(chars_to_int('r', 'l', 'd', ' '));
-    program.append_instruction(chars_to_int('!', '\n', '\0', '\0'));
+    assembly::append(program, "Hello World !\n");
 
     assembly::link_label(program, labels.func); // entry point
     /*
@@ -225,6 +218,175 @@ lerp_labels lerp(Program& program) {
     return labels;
 }
 
+sort_labels sort(Program& program) {
+    /*  Sort
+     *     Labels available : 
+     *         func : sort the array
+     * 
+     * %a is the address of the array
+     * %b is the size
+     *
+     * %a is not modify
+     * %b is comsumed
+     */
+
+    /*
+        [rsp - 4] is the flag to check if the array is sorted
+        [rsp - 8] is the inner loop counter
+
+    func:
+        push %e
+        push %d
+        etr
+        push 1                      # rbp - 4
+        push 0                      # rbp - 8
+
+    start_loop:
+        dec %b
+        cmp 1, %b
+        jmpg end_loop               # 1 > %b
+        mov [rsp - 4], 1
+        
+        mov [rsp - 8], 0
+    start_inner_loop:
+        cmp [rsp - 8], %b           # c > b
+        jmpg end_inner_loop
+
+        mov %d, %a
+        add %d, [rsp - 8]
+        mov %e, %d
+        inc %d
+        cmp [%e], [%d]
+        jmpge after_if              # [%e] >= [%d]
+
+        swp [%e], [%d]
+        mov [rsp - 4], 0
+
+    after_if:
+
+        inc [rsp - 8]
+        jmp start_inner_loop
+    
+    end_inner_loop:
+        cmp [rsp - 4], 1
+        jmpe end_loop
+
+        jmp start_loop
+
+    end_loop:
+        lve
+        pop %d
+        pop %e
+        ret
+
+    */
+
+    sort_labels labels;
+    assembly::Label start_loop, start_inner_loop, after_if, end_inner_loop, end_loop;
+
+    /*
+    func:
+        push %e
+        push %d
+        etr
+        push 1                      # rbp - 4
+        push 0                      # rbp - 8
+    */
+    assembly::link_label(program, labels.func);
+    assembly::append(program, Operations::OUT, assembly::Value{'^'});
+    assembly::append(program, Operations::PUSH, assembly::Register::E);
+    assembly::append(program, Operations::PUSH, assembly::Register::D);
+    assembly::append(program, Operations::ETR);
+    assembly::append(program, Operations::PUSH, assembly::Value{1});
+    assembly::append(program, Operations::PUSH, assembly::Value{0});
+
+    /*
+    start_loop:
+        dec %b
+        cmp 1, %b
+        jmpg end_loop               # 1 > %b
+        mov [rsp - 4], 1
+    */
+    assembly::link_label(program, start_loop);
+    assembly::append(program, Operations::OUT, assembly::Value{'%'});
+    assembly::append(program, Operations::DEC, assembly::Register::B);
+    assembly::append(program, Operations::CMP, assembly::Value{1}, assembly::Register::B);
+    assembly::append(program, Operations::JMPG, end_loop);
+    assembly::append(program, Operations::MOV, assembly::Value{1}, assembly::DeferDispRegisterSP(-4));
+
+    /*
+        mov [rsp - 8], 0
+    start_inner_loop:
+        cmp [rsp - 8], %b           # c > b
+        jmpg end_inner_loop
+    */
+    assembly::append(program, Operations::MOV, assembly::Value{0}, assembly::DeferDispRegisterSP(-8));
+    assembly::link_label(program, start_inner_loop);
+    assembly::append(program, Operations::OUT, assembly::Value{'$'});
+    assembly::append(program, Operations::CMP, assembly::DeferDispRegisterSP(-8), assembly::Register::B);
+    assembly::append(program, Operations::JMPG, end_inner_loop);
+
+    /*
+        mov %d, %a
+        add %d, [rsp - 8]
+        mov %e, %d
+        inc %d
+        cmp [%e], [%d]
+        jmpge after_if              # [%e] >= [%d]
+    */
+    assembly::append(program, Operations::MOV, assembly::Register::A, assembly::Register::D);
+    assembly::append(program, Operations::ADD, assembly::DeferDispRegisterSP(-8), assembly::Register::D);
+    assembly::append(program, Operations::MOV, assembly::Register::D, assembly::Register::E);
+    assembly::append(program, Operations::INC, assembly::Register::D);
+    assembly::append(program, Operations::CMP, assembly::DeferRegister::E, assembly::DeferRegister::D);
+    assembly::append(program, Operations::JMPGE, after_if);
+
+    /*
+        swp [%e], [%d]
+        mov [rsp - 4], 0
+    */
+    assembly::append(program, Operations::OUT, assembly::Register::D);
+    assembly::append(program, Operations::OUT, assembly::Register::E);
+    assembly::append(program, Operations::SWP, assembly::DeferRegister::E, assembly::DeferRegister::D);
+    assembly::append(program, Operations::MOV, assembly::Value{0}, assembly::DeferDispRegisterSP(-4));
+
+    /*
+    after_if:
+
+        inc [rsp - 8]
+        jmp start_inner_loop
+    */
+    assembly::link_label(program, after_if);
+    assembly::append(program, Operations::INC, assembly::DeferDispRegisterSP(-8));
+    assembly::append(program, Operations::JMP, start_inner_loop);
+
+    /*
+    end_inner_loop:
+        cmp [rsp - 4], 1
+        jmpe end_loop
+
+        jmp start_loop
+    */
+    assembly::link_label(program, end_inner_loop);
+    assembly::append(program, Operations::CMP, assembly::DeferDispRegisterSP(-4), assembly::Value{1});
+    assembly::append(program, Operations::JMPGE, end_loop);
+    assembly::append(program, Operations::JMP, start_loop);
+
+    /*
+    end_loop:
+        lve
+        pop %d
+        pop %e
+        ret
+    */
+    assembly::link_label(program, end_loop);
+    assembly::append(program, Operations::LVE);
+    assembly::append(program, Operations::POP, assembly::Register::D);
+    assembly::append(program, Operations::POP, assembly::Register::E);
+    assembly::append(program, Operations::RET);
+    
+    return labels;
+}
 
 Program vector() {
     Program program;

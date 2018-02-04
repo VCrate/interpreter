@@ -202,6 +202,39 @@ std::vector<ui32> arguments_for_ope = {
     1  // OUT
 };
 
+void append(Program& program, std::string const& s) {
+    auto get_char = [&s] (ui32 index) { return static_cast<ui8>(index >= s.size() ? '\0' : s[index]); };
+    for(ui32 i = 0; i < s.size() + 1; i+=4) {
+        ui32 n = (get_char(i+3) << 24) | (get_char(i+2) << 16)| (get_char(i+1) << 8) | get_char(i);
+        program.append_instruction(n);
+    }
+}
+
+void append(Program& program, ui32 n) {
+    program.append_instruction(n);
+}
+
+void append(Program& program, i32 n) {
+    program.append_instruction(static_cast<ui32>(n));
+}
+
+void append(Program& program, ui16 n) {
+    program.append_instruction(n << 16);
+}
+
+void append(Program& program, i16 n) {
+    program.append_instruction(static_cast<ui32>(n << 16));
+}
+
+void append(Program& program, ui8 n) {
+    program.append_instruction(n << 24);
+}
+
+void append(Program& program, i8 n) {
+    program.append_instruction(static_cast<ui32>(n << 24));
+}
+
+
 void append(Program& program, Operations operation, Argument const& from, Argument const& to) {
     if (arguments_for_ope[static_cast<ui32>(operation)] != 2) 
         throw std::runtime_error("Too many arguments for this operation");

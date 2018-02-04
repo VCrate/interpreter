@@ -81,7 +81,8 @@ ui16 Memory::get16(ui32 address) const {
 }
 
 ui8 Memory::get8(ui32 address) const {
-    return memory[address];
+    //return memory[address];
+    return memory.at(address);
 }
 
 void Memory::set32(ui32 address, ui32 value) {

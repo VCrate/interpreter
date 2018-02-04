@@ -7,11 +7,13 @@
 
 #include <iostream>
 #include <bitset>
+#include <cstdlib>
+#include <ctime>
 
 using namespace bytec;
 
 int main() {
-    
+    //std::srand(std::time(nullptr));
 
     Program program;
     assembly::Label entry_point;
@@ -28,6 +30,9 @@ int main() {
     // load lerp function
     auto lerp = program_ex::lerp(program);
 
+    // load sort function
+    auto sort = program_ex::sort(program);
+
     // entry point
     assembly::link_label(program, entry_point);
 
@@ -35,8 +40,8 @@ int main() {
     assembly::append(program, Operations::CALL, hello_world.func);
 
     // parameter in the A register
-    assembly::append(program, Operations::MOV, assembly::Value{123456}, assembly::Register::A);
-    // call void print_number( 123456 )
+    assembly::append(program, Operations::MOV, assembly::Register::SP, assembly::Register::A);
+    // call void print_number( SP )
     assembly::append(program, Operations::CALL, print_number.func);
     assembly::append(program, Operations::OUT, assembly::Value{'\n'});
 
@@ -46,7 +51,72 @@ int main() {
     assembly::append(program, Operations::CALL, lerp.func); // store result in %a
     assembly::append(program, Operations::SUB, assembly::Value{12}, assembly::Register::SP);
     assembly::append(program, Operations::CALL, print_number.func);
+/*
+    assembly::append(program, Operations::OUT, assembly::Value{'\n'});
+    assembly::append(program, Operations::OUT, assembly::Value{'\n'});
+
+    assembly::append(program, Operations::MOV, assembly::Register::SP, assembly::Register::A);
+    assembly::append(program, Operations::PUSH, assembly::Value{rand() % 1000});
+    assembly::append(program, Operations::PUSH, assembly::Value{rand() % 1000});
+    assembly::append(program, Operations::PUSH, assembly::Value{rand() % 1000});
+    assembly::append(program, Operations::PUSH, assembly::Value{rand() % 1000});
+    assembly::append(program, Operations::PUSH, assembly::Value{rand() % 1000});
     
+    assembly::append(program, Operations::MOV, assembly::DeferDispRegisterSP(-20), assembly::Register::A);
+    assembly::append(program, Operations::CALL, print_number.func);
+    assembly::append(program, Operations::OUT, assembly::Value{'\n'});
+
+    assembly::append(program, Operations::MOV, assembly::DeferDispRegisterSP(-16), assembly::Register::A);
+    assembly::append(program, Operations::CALL, print_number.func);
+    assembly::append(program, Operations::OUT, assembly::Value{'\n'});
+
+    assembly::append(program, Operations::MOV, assembly::DeferDispRegisterSP(-12), assembly::Register::A);
+    assembly::append(program, Operations::CALL, print_number.func);
+    assembly::append(program, Operations::OUT, assembly::Value{'\n'});
+
+    assembly::append(program, Operations::MOV, assembly::DeferDispRegisterSP(-8), assembly::Register::A);
+    assembly::append(program, Operations::CALL, print_number.func);
+    assembly::append(program, Operations::OUT, assembly::Value{'\n'});
+
+    assembly::append(program, Operations::MOV, assembly::DeferDispRegisterSP(-4), assembly::Register::A);
+    assembly::append(program, Operations::CALL, print_number.func);
+    assembly::append(program, Operations::OUT, assembly::Value{'\n'});
+
+    assembly::append(program, Operations::OUT, assembly::Value{'\n'});
+    assembly::append(program, Operations::OUT, assembly::Value{'.'});
+
+    assembly::append(program, Operations::OUT, assembly::Value{'!'});
+    assembly::append(program, Operations::MOV, assembly::Value{5}, assembly::Register::B);
+    assembly::append(program, Operations::OUT, assembly::Value{'.'});
+    assembly::append(program, Operations::OUT, assembly::Value{'.'});
+    assembly::append(program, Operations::OUT, assembly::Value{'.'});
+    assembly::append(program, Operations::CALL, sort.func);
+
+    assembly::append(program, Operations::OUT, assembly::Value{'\n'});
+    assembly::append(program, Operations::OUT, assembly::Value{'\n'});
+
+    assembly::append(program, Operations::MOV, assembly::DeferDispRegisterSP(-20), assembly::Register::A);
+    assembly::append(program, Operations::CALL, print_number.func);
+    assembly::append(program, Operations::OUT, assembly::Value{'\n'});
+
+    assembly::append(program, Operations::MOV, assembly::DeferDispRegisterSP(-16), assembly::Register::A);
+    assembly::append(program, Operations::CALL, print_number.func);
+    assembly::append(program, Operations::OUT, assembly::Value{'\n'});
+
+    assembly::append(program, Operations::MOV, assembly::DeferDispRegisterSP(-12), assembly::Register::A);
+    assembly::append(program, Operations::CALL, print_number.func);
+    assembly::append(program, Operations::OUT, assembly::Value{'\n'});
+
+    assembly::append(program, Operations::MOV, assembly::DeferDispRegisterSP(-8), assembly::Register::A);
+    assembly::append(program, Operations::CALL, print_number.func);
+    assembly::append(program, Operations::OUT, assembly::Value{'\n'});
+
+    assembly::append(program, Operations::MOV, assembly::DeferDispRegisterSP(-4), assembly::Register::A);
+    assembly::append(program, Operations::CALL, print_number.func);
+    assembly::append(program, Operations::OUT, assembly::Value{'\n'});
+
+    assembly::append(program, Operations::SUB, assembly::Value{20}, assembly::Register::SP);
+*/
     // new line and halt
     assembly::append(program, Operations::OUT, assembly::Value{'\n'});
     assembly::append(program, Operations::HLT);

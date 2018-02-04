@@ -25,6 +25,12 @@ struct lerp_labels {
 };
 lerp_labels lerp(Program& program);
 
+struct sort_labels {
+    assembly::Label
+        func;
+};
+sort_labels sort(Program& program);
+
 Program vector();
 
 }}
