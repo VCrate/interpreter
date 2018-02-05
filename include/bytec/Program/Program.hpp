@@ -2,6 +2,7 @@
 
 #include <bytec/Alias.hpp>
 #include <bytec/Instruction/Instruction.hpp>
+#include <bytec/Program/Label.hpp>
 
 #include <vector>
 #include <array>
@@ -18,6 +19,8 @@ public:
     void set_raw(ui32 value, ui32 address);
 
     ui32 size() const;
+
+    void link(Label& label);
 
     void append(Instruction const& instruction);
     void append(std::string const& s);
