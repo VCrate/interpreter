@@ -22,6 +22,14 @@ public:
 
     void link(Label& label);
 
+    void append_instruction(Operations ope);
+    void append_instruction(Operations ope, Argument const& arg);
+    void append_instruction(Operations ope, Label& label);
+    void append_instruction(Operations ope, Argument const& arg0, Argument const& arg1);
+    void append_instruction(Operations ope, Label& label, Argument const& arg1);
+    void append_instruction(Operations ope, Argument const& arg0, Label& label);
+    void append_instruction(Operations ope, Label& l0, Label& l1);
+
     void append(Instruction const& instruction);
     void append(std::string const& s);
     void append(ui32 n);

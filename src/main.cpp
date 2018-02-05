@@ -18,7 +18,7 @@ int main() {
     Label entry_point;
 
     // go to entry point
-    //program.append(Instruction(Operations::JMP, entry_point));
+    program.append_instruction(Operations::JMP, entry_point);
 
     // load hello_world function
     auto hello_world = program_ex::hello_world(program);
@@ -27,11 +27,11 @@ int main() {
     program.link(entry_point);
 
     // call void hello_world()
-    //program.append(Instruction(Operations::CALL, hello_world.func));
-    program.append(Instruction(Operations::OUT, Value('\n')));
+    program.append_instruction(Operations::CALL, hello_world.func);
+    program.append_instruction(Operations::OUT, Value('\n'));
 
     // new line and halt
-    program.append(Instruction(Operations::HLT));
+    program.append_instruction(Operations::HLT);
 /*
     SandBox sandbox;
     sandbox.load_program(program);

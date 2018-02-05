@@ -4,6 +4,7 @@
 
 #include <optional>
 #include <vector>
+#include <functional>
 
 namespace bytec {
 
@@ -32,7 +33,8 @@ protected:
         First, Second
     };
 
-    std::vector<std::pair<ui32/* Instruction Address */, Part>> hooks;
+    using action_hook_t = std::function<void()>;
+    std::vector<action_hook_t> hooks;
     std::optional<ui32> address;
     Size size;
 };
