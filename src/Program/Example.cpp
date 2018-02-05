@@ -53,9 +53,9 @@ hello_world_labels hello_world(Program& program) {
         push %b
         mov %a, data
     */
-    program.append(Instruction(Operations::PUSH, Register::A));
-    program.append(Instruction(Operations::PUSH, Register::B));
-    //program.append(Instruction(Operations::MOV, Register::A, labels.data));
+    program.append_instruction(Operations::PUSH, Register::A);
+    program.append_instruction(Operations::PUSH, Register::B);
+    program.append_instruction(Operations::MOV, Register::A, labels.data);
 
     /*
     start_loop:
@@ -66,19 +66,19 @@ hello_world_labels hello_world(Program& program) {
     */
 
     program.link(start_loop);
-    program.append(Instruction(Operations::MOV, Register::B, Deferred(Register::A)));
-    program.append(Instruction(Operations::AND, Register::B, Value(0xFF)));
-    program.append(Instruction(Operations::CMP, Register::B, Value('\0')));
-    //program.append(Instruction(Operations::JMPE, end_loop));
+    program.append_instruction(Operations::MOV, Register::B, Deferred(Register::A));
+    program.append_instruction(Operations::AND, Register::B, Value(0xFF));
+    program.append_instruction(Operations::CMP, Register::B, Value('\0'));
+    program.append_instruction(Operations::JMPE, end_loop);
 
     /*
         out [%a]
         inc %a
         jmp start_loop
     */
-    program.append(Instruction(Operations::OUT, Deferred(Register::A)));
-    program.append(Instruction(Operations::INC, Register::A));
-    //program.append(Instruction(Operations::JMP, start_loop));
+    program.append_instruction(Operations::OUT, Deferred(Register::A));
+    program.append_instruction(Operations::INC, Register::A);
+    program.append_instruction(Operations::JMP, start_loop);
 
     /*
     end_loop:
@@ -87,9 +87,9 @@ hello_world_labels hello_world(Program& program) {
         ret
     */
     program.link(end_loop);
-    program.append(Instruction(Operations::POP, Register::B));
-    program.append(Instruction(Operations::POP, Register::A));
-    program.append(Instruction(Operations::RET));
+    program.append_instruction(Operations::POP, Register::B);
+    program.append_instruction(Operations::POP, Register::A);
+    program.append_instruction(Operations::RET);
 
     return labels;
 }
