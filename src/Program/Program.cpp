@@ -40,7 +40,7 @@ void Program::set_raw(ui32 value, ui32 address) {
     instructions[address] = value;
 }
 
-void Program::link(Label& label) {
+void Program::link(Label& label) {/*
     if (label.is_linked())
         throw std::runtime_error("Label already linked");
 
@@ -87,7 +87,7 @@ void Program::link(Label& label) {
             }
         }
 
-    }
+    }*/
 }
 
 void Program::append(std::string const& s) {

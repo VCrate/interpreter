@@ -1,7 +1,9 @@
 #pragma once
 
 #include <bytec/Alias.hpp>
+
 #include <optional>
+#include <vector>
 
 namespace bytec {
 
@@ -20,17 +22,17 @@ public:
 
     bool is_linked() const;
     ui32 get_address() const; // can throw std::runtime_error
+    ui32 address_max() const;
+    Size size_type() const;
 
-private:
+protected:
     friend class Program;
 
-    enum class Part { // where to put the address
-        Full, // arg24 format
-        FirstHalf, SecondHalf, //arg12 format
-        Next0, Next1 // in extras arguments
+    enum class Part {
+        First, Second
     };
 
-    std::vector<std::pair<ui32/* Instruction Address */, Part>> instructions;
+    std::vector<std::pair<ui32/* Instruction Address */, Part>> hooks;
     std::optional<ui32> address;
     Size size;
 };

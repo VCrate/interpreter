@@ -2,6 +2,8 @@
 
 #include <bytec/Alias.hpp>
 
+#include <variant>
+
 namespace bytec {
 
 struct Register {
@@ -34,5 +36,7 @@ struct Value {
     Value(ui32 value);
     ui32 value;
 };
+
+using Argument = std::variant<Register, Displacement, Deferred, Address, Value>;
 
 }

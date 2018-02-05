@@ -3,6 +3,7 @@
 #include <bytec/Alias.hpp>
 #include <bytec/Instruction/Argument.hpp>
 #include <bytec/Interpreter/Operations.hpp>
+#include <bytec/Program/Label.hpp>
 
 #include <optional>
 
@@ -18,33 +19,12 @@ public:
     };
     Type type() const;
 
-    enum class ArgType {
-        Value, Address, Displacement, Register, Deferred
-    };
-
     ////////// DECODING
     Operations get_operation() const;
 
-    ArgType get_full_type() const;
-    Value get_full_value() const;
-    Register get_full_register() const;
-    Displacement get_full_displacement() const;
-    Deferred get_full_deferred() const;
-    Address get_full_address() const;
-
-    ArgType get_first_type() const;
-    Value get_first_value() const;
-    Register get_first_register() const;
-    Displacement get_first_displacement() const;
-    Deferred get_first_deferred() const;
-    Address get_first_address() const;
-
-    ArgType get_second_type() const;
-    Value get_second_value() const;
-    Register get_second_register() const;
-    Displacement get_second_displacement() const;
-    Deferred get_second_deferred() const;
-    Address get_second_address() const;
+    Argument get_complete_argument() const;
+    Argument get_first_argument() const;
+    Argument get_second_argument() const;
 
     ui32 get_main_instruction() const;
     ui32 get_first_extra() const;
@@ -54,72 +34,47 @@ public:
 
     Instruction(ui32 main, ui32 extra0 = 0, ui32 extra1 = 0);
 
-    // HLT, ETR, LVE, RET
-    Instruction(Operations ope); // no argument
+    Instruction(Operations ope);
+    Instruction(Operations ope, Argument const& arg);
+    Instruction(Operations ope, Argument const& arg0, Argument const& arg1);
 
-    // OUT, PUSH, CALL, DEL, JMP, JMPE, JMPNE, JMPG, JMPGE
-    Instruction(Operations ope, Value value); // single value
-
-    // OUT, PUSH, POP, CALL, DEL, INC, DEC, NEG, JMP, JMPE, JMPNE, JMPG, JMPGE
-    Instruction(Operations ope, Register reg); // register
-    Instruction(Operations ope, Displacement reg); // [register + disp]
-    Instruction(Operations ope, Deferred reg); // [register]
-    Instruction(Operations ope, Address addr); // [value]
-
-    // CMP
-    Instruction(Operations ope, Value v0, Value v1); // value, value
-
-    // MOV, ADD, SUB, MUL, MUL, DIV, DIVU, MOD, AND, XOR, OR, SHL, SHR, RTR, RTL, CMP, NEW
-    Instruction(Operations ope, Register r0, Value value); // register, value
-    Instruction(Operations ope, Displacement r0, Value value); // [register + disp], value
-    Instruction(Operations ope, Deferred r0, Value value); // [register], value
-    Instruction(Operations ope, Address addr, Value value); // [value], value
-
-    // SWP, MOV, ADD, SUB, MUL, MUL, DIV, DIVU, MOD, AND, XOR, OR, SHL, SHR, RTR, RTL, CMP, NEW
-    Instruction(Operations ope, Register r0, Register reg); // register, register
-    Instruction(Operations ope, Displacement r0, Register reg); // [register + disp], register
-    Instruction(Operations ope, Deferred r0, Register reg); // [register], register
-    Instruction(Operations ope, Address addr, Register reg); // [value], register
-
-    // SWP, MOV, ADD, SUB, MUL, MUL, DIV, DIVU, MOD, AND, XOR, OR, SHL, SHR, RTR, RTL, CMP, NEW
-    Instruction(Operations ope, Register r0, Displacement reg); // register, [register + disp]
-    Instruction(Operations ope, Displacement r0, Displacement reg); // [register + disp], [register + disp]
-    Instruction(Operations ope, Deferred r0, Displacement reg); // [register], [register + disp]
-    Instruction(Operations ope, Address addr, Displacement reg); // [value], [register + disp]
-
-    // SWP, MOV, ADD, SUB, MUL, MUL, DIV, DIVU, MOD, AND, XOR, OR, SHL, SHR, RTR, RTL, CMP, NEW
-    Instruction(Operations ope, Register r0, Deferred reg); // register, [register]
-    Instruction(Operations ope, Displacement r0, Deferred reg); // [register + disp], [register]
-    Instruction(Operations ope, Deferred r0, Deferred reg); // [register], [register]
-    Instruction(Operations ope, Address addr, Deferred reg); // [value], [register]
-
-    // SWP, MOV, ADD, SUB, MUL, MUL, DIV, DIVU, MOD, AND, XOR, OR, SHL, SHR, RTR, RTL, CMP, NEW
-    Instruction(Operations ope, Register r0, Address addr); // register, [value]
-    Instruction(Operations ope, Displacement r0, Address addr); // [register + disp], [value]
-    Instruction(Operations ope, Deferred r0, Address addr); // [register], [value]
-    Instruction(Operations ope, Address r0, Address r1); // [value], [value]
 
 private:
+
+    enum class ArgType {
+        Value, Address, Displacement, Register, Deferred
+    };
 
     void check_argument_count(Operations operation, ui32 count);
     void check_first_not_writable(Operations operation);
     void check_second_not_writable(Operations operation);
 
-    void encode24(Value value);
-    void encode24(Register value);
-    void encode24(Displacement value);
-    void encode24(Deferred value);
-    void encode24(Address value);
+    struct Encoder24 {
+        Encoder24(Instruction& is);
+        Instruction& is;
+        void operator()(Value value);
+        void operator()(Register value);
+        void operator()(Displacement value);
+        void operator()(Deferred value);
+        void operator()(Address value);
+    };
 
-    void encode12(Value value, bool arg0);
-    void encode12(Register value, bool arg0);
-    void encode12(Displacement value, bool arg0);
-    void encode12(Deferred value, bool arg0);
-    void encode12(Address value, bool arg0);
+    struct Encoder12 {
+        Encoder12(Instruction& is, bool is_first_arg);
+        Instruction& is;
+        bool is_first_arg;
+        void operator()(Value value);
+        void operator()(Register value);
+        void operator()(Displacement value);
+        void operator()(Deferred value);
+        void operator()(Address value);
+    };
 
     void encode_operation(Operations operation);
 
     ArgType get_corresponding_argtype(ui32 type) const;
+    ArgType get_corresponding_argtype(Argument const& arg) const;
+    bool is_writable(ArgType arg) const;
     bool require_complete_instruction(ui32 type) const;
 
     ui32 first = 0;
