@@ -20,7 +20,7 @@ int main() {
 
     {    
         Program program;
-        SecuredLabel entry_point;
+        Label entry_point;
 
         // go to entry point
         program.append_instruction(Operations::JMP, entry_point);
@@ -37,13 +37,14 @@ int main() {
         program.append_instruction(Operations::OUT, Value('\n'));
         program.append_instruction(Operations::HLT);
 
+        program.verify_labels();
         sandbox.load_program(program);
     }
 
     std::cout << "# Start #" << std::endl;
 
     while(!sandbox.is_halted()) {
-        auto is = sandbox.get_instruction();
+        //auto is = sandbox.get_instruction();
         //std::cout << "\033[31m\033[1m< " << is.to_string() << " >\033[0m"; 
         Interpreter::run_next_instruction(sandbox);
         //std::cout << '\n';

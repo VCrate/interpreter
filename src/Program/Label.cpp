@@ -33,11 +33,5 @@ ui32 Label::address_max() const {
     throw std::runtime_error("Label Size unknown");
 }
 
-SecuredLabel::~SecuredLabel() {
-    if(!is_linked() && hooks.size() > 0)
-        //throw std::runtime_error("Label never linked but used");
-        std::cerr << "Label never linked but used\n";
-}
-
     
 }

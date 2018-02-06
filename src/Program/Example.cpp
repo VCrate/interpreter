@@ -41,8 +41,8 @@ hello_world_labels hello_world(Program& program) {
 
     hello_world_labels labels;
 
-    SecuredLabel start_loop;
-    SecuredLabel end_loop;
+    Label start_loop;
+    Label end_loop;
 
     program.link(labels.data);
     program.append("Hello World !\n");

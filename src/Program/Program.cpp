@@ -2,6 +2,11 @@
 
 namespace bytec {
 
+void Program::verify_labels() const {
+    if (unlinked_label > 0)
+        throw std::runtime_error("Not all labels has been linked");
+}
+
 ui32 Program::size() const {
     return instructions.size() * 4;
 }
@@ -20,6 +25,8 @@ void Program::append_instruction(Operations ope, Argument const& arg0, Argument 
 
 void Program::append_instruction(Operations ope, Label& label) {
     if (!label.is_linked()) {
+        if (label.hooks.empty())
+            unlinked_label++;
         label.hooks.push_back([ope, this, &label, addr = size()] () {
             this->set_instruction(Instruction(ope, Value(label.get_address())), addr);
         });
@@ -31,6 +38,8 @@ void Program::append_instruction(Operations ope, Label& label) {
 
 void Program::append_instruction(Operations ope, Label& label, Argument const& arg1) {
     if (!label.is_linked()) {
+        if (label.hooks.empty())
+            unlinked_label++;
         label.hooks.push_back([ope, this, &label, arg1, addr = size()] () {
             this->set_instruction(Instruction(ope, Value(label.get_address()), arg1), addr);
         });
@@ -42,6 +51,8 @@ void Program::append_instruction(Operations ope, Label& label, Argument const& a
 
 void Program::append_instruction(Operations ope, Argument const& arg0, Label& label) {
     if (!label.is_linked()) {
+        if (label.hooks.empty())
+            unlinked_label++;
         label.hooks.push_back([ope, this, &label, arg0, addr = size()] () {
             this->set_instruction(Instruction(ope, arg0, Value(label.get_address())), addr);
         });
@@ -54,6 +65,10 @@ void Program::append_instruction(Operations ope, Argument const& arg0, Label& la
 void Program::append_instruction(Operations ope, Label& l0, Label& l1) {
     if (!l0.is_linked()) {
         if (!l1.is_linked()) {
+            if (l0.hooks.empty())
+                unlinked_label++;
+            if (l1.hooks.empty())
+                unlinked_label++;
             l0.hooks.push_back([ope, this, &l0, &l1, addr = size()] () {
                 if (l1.is_linked())
                     this->set_instruction(Instruction(ope, Value(l0.get_address()), Value(l1.get_address())), addr);
@@ -64,6 +79,8 @@ void Program::append_instruction(Operations ope, Label& l0, Label& l1) {
             });
             append(Instruction(ope, Value(l0.address_max()), Value(l1.address_max())));
         } else {
+            if (l0.hooks.empty())
+                unlinked_label++;
             l0.hooks.push_back([ope, this, &l0, &l1, addr = size()] () {
                 this->set_instruction(Instruction(ope, Value(l0.get_address()), Value(l1.get_address())), addr);
             });
@@ -71,6 +88,8 @@ void Program::append_instruction(Operations ope, Label& l0, Label& l1) {
         }
     } else {
         if (!l1.is_linked()) {
+            if (l1.hooks.empty())
+                unlinked_label++;
             l1.hooks.push_back([ope, this, &l0, &l1, addr = size()] () {
                 this->set_instruction(Instruction(ope, Value(l1.get_address()), Value(l1.get_address())), addr);
             });
@@ -133,6 +152,9 @@ void Program::set_raw(ui32 value, ui32 address) {
 void Program::link(Label& label) {
     if (label.is_linked())
         throw std::runtime_error("Label already linked");
+
+    if (!label.hooks.empty())
+        --unlinked_label;
 
     label.address = size();
 

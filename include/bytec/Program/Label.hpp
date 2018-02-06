@@ -39,10 +39,4 @@ protected:
     Size size;
 };
 
-// Throw an exception (at the end of the scope) if you have used a label without linked it
-class SecuredLabel : public Label { 
-public:
-    ~SecuredLabel();
-};
-
 }

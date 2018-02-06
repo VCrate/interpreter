@@ -39,9 +39,12 @@ public:
     void append(ui8 n);
     void append(i8 n);
 
+    void verify_labels() const;
+
 private:
 
     std::vector<ui32> instructions;
+    ui32 unlinked_label = 0;
 
 };
 
