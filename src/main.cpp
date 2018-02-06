@@ -10,6 +10,7 @@
 #include <bitset>
 #include <cstdlib>
 #include <ctime>
+#include <chrono>
 
 using namespace bytec;
 
@@ -53,7 +54,7 @@ int main() {
         program.append_instruction(Operations::MOV, Register::A, Register::SP);
 
         const ui32 array_size = 50;
-        const ui32 value_max = 100;
+        const ui32 value_max = 1000;
 
         for(ui32 i = 0; i < array_size; ++i)
             program.append_instruction(Operations::PUSH, Value(rand() % value_max));
@@ -88,6 +89,7 @@ int main() {
         sandbox.load_program(program);
     }
 
+    auto chrono_start = std::chrono::high_resolution_clock::now();
     std::cout << "# Start #" << std::endl;
 
     while(!sandbox.is_halted()) {
@@ -99,5 +101,8 @@ int main() {
     }
 
     std::cout << "# Halt #" << std::endl;
+    auto elapsed = std::chrono::high_resolution_clock::now() - chrono_start;
+    auto nanos = std::chrono::duration_cast<std::chrono::nanoseconds>(elapsed).count();
+    std::cout << "Duration : " << nanos / 1'000'000 << " ms (" << nanos / 1'000'000'000. << " s)\n";
 
 }
