@@ -51,53 +51,55 @@ int main() {
         program.append_instruction(Operations::OUT, Value('\n'));
 */
         program.append_instruction(Operations::MOV, Register::A, Register::SP);
-        program.append_instruction(Operations::PUSH, Value(rand() % 1000));
-        program.append_instruction(Operations::PUSH, Value(rand() % 1000));
-        program.append_instruction(Operations::PUSH, Value(rand() % 1000));
-        program.append_instruction(Operations::PUSH, Value(rand() % 1000));
-        program.append_instruction(Operations::PUSH, Value(rand() % 1000));
+        program.append_instruction(Operations::PUSH, Value(rand() % 100));
+        program.append_instruction(Operations::PUSH, Value(rand() % 100));
+        program.append_instruction(Operations::PUSH, Value(rand() % 100));
+        program.append_instruction(Operations::PUSH, Value(rand() % 100));
+        program.append_instruction(Operations::PUSH, Value(rand() % 100));
 
-        program.append_instruction(Operations::MOV, Register::C, Register::A);
         program.append_instruction(Operations::OUT, Value('>'));
         program.append_instruction(Operations::OUT, Value(' '));
         program.append_instruction(Operations::DBG, Register::A);
         program.append_instruction(Operations::OUT, Value('\n'));
 
-        program.append_instruction(Operations::MOV, Register::A, Displacement(Register::SP, -20));
-        program.append_instruction(Operations::CALL, printer.func);
-        program.append_instruction(Operations::OUT, Value('\n'));
-        program.append_instruction(Operations::MOV, Register::A, Displacement(Register::SP, -16));
-        program.append_instruction(Operations::CALL, printer.func);
-        program.append_instruction(Operations::OUT, Value('\n'));
-        program.append_instruction(Operations::MOV, Register::A, Displacement(Register::SP, -12));
-        program.append_instruction(Operations::CALL, printer.func);
-        program.append_instruction(Operations::OUT, Value('\n'));
-        program.append_instruction(Operations::MOV, Register::A, Displacement(Register::SP, -8));
-        program.append_instruction(Operations::CALL, printer.func);
-        program.append_instruction(Operations::OUT, Value('\n'));
-        program.append_instruction(Operations::MOV, Register::A, Displacement(Register::SP, -4));
-        program.append_instruction(Operations::CALL, printer.func);
+        program.append_instruction(Operations::OUT, Value('['));
+        program.append_instruction(Operations::DBG, Displacement(Register::A, 0));
+        program.append_instruction(Operations::OUT, Value(','));
+        program.append_instruction(Operations::OUT, Value(' '));
+        program.append_instruction(Operations::DBG, Displacement(Register::A, 4));
+        program.append_instruction(Operations::OUT, Value(','));
+        program.append_instruction(Operations::OUT, Value(' '));
+        program.append_instruction(Operations::DBG, Displacement(Register::A, 8));
+        program.append_instruction(Operations::OUT, Value(','));
+        program.append_instruction(Operations::OUT, Value(' '));
+        program.append_instruction(Operations::DBG, Displacement(Register::A, 12));
+        program.append_instruction(Operations::OUT, Value(','));
+        program.append_instruction(Operations::OUT, Value(' '));
+        program.append_instruction(Operations::DBG, Displacement(Register::A, 16));
+        program.append_instruction(Operations::OUT, Value(']'));
         program.append_instruction(Operations::OUT, Value('\n'));
 
-        program.append_instruction(Operations::MOV, Register::A, Register::C);
         program.append_instruction(Operations::MOV, Register::B, Value(5));
         program.append_instruction(Operations::CALL, sort.func);
 
-        program.append_instruction(Operations::MOV, Register::A, Displacement(Register::SP, -20));
-        program.append_instruction(Operations::CALL, printer.func);
+        program.append_instruction(Operations::OUT, Value('['));
+        program.append_instruction(Operations::DBG, Displacement(Register::A, 0));
+        program.append_instruction(Operations::OUT, Value(','));
+        program.append_instruction(Operations::OUT, Value(' '));
+        program.append_instruction(Operations::DBG, Displacement(Register::A, 4));
+        program.append_instruction(Operations::OUT, Value(','));
+        program.append_instruction(Operations::OUT, Value(' '));
+        program.append_instruction(Operations::DBG, Displacement(Register::A, 8));
+        program.append_instruction(Operations::OUT, Value(','));
+        program.append_instruction(Operations::OUT, Value(' '));
+        program.append_instruction(Operations::DBG, Displacement(Register::A, 12));
+        program.append_instruction(Operations::OUT, Value(','));
+        program.append_instruction(Operations::OUT, Value(' '));
+        program.append_instruction(Operations::DBG, Displacement(Register::A, 16));
+        program.append_instruction(Operations::OUT, Value(']'));
         program.append_instruction(Operations::OUT, Value('\n'));
-        program.append_instruction(Operations::MOV, Register::A, Displacement(Register::SP, -16));
-        program.append_instruction(Operations::CALL, printer.func);
-        program.append_instruction(Operations::OUT, Value('\n'));
-        program.append_instruction(Operations::MOV, Register::A, Displacement(Register::SP, -12));
-        program.append_instruction(Operations::CALL, printer.func);
-        program.append_instruction(Operations::OUT, Value('\n'));
-        program.append_instruction(Operations::MOV, Register::A, Displacement(Register::SP, -8));
-        program.append_instruction(Operations::CALL, printer.func);
-        program.append_instruction(Operations::OUT, Value('\n'));
-        program.append_instruction(Operations::MOV, Register::A, Displacement(Register::SP, -4));
-        program.append_instruction(Operations::CALL, printer.func);
-        program.append_instruction(Operations::OUT, Value('\n'));
+
+
         program.append_instruction(Operations::HLT);
 
         program.verify_labels();
