@@ -18,6 +18,8 @@ public:
         Triple  // 96 bits
     };
     Type type() const;
+    
+    std::string to_string() const;
 
     ////////// DECODING
     Operations get_operation() const;
@@ -40,10 +42,6 @@ public:
 
 
 private:
-
-    enum class ArgType {
-        Value, Address, Displacement, Register, Deferred
-    };
 
     void check_argument_count(Operations operation, ui32 count);
     void check_first_not_writable(Operations operation);
@@ -72,9 +70,8 @@ private:
 
     void encode_operation(Operations operation);
 
-    ArgType get_corresponding_argtype(ui32 type) const;
-    ArgType get_corresponding_argtype(Argument const& arg) const;
-    bool is_writable(ArgType arg) const;
+    ArgumentType get_corresponding_argtype(ui32 type) const;
+    bool is_writable(ArgumentType arg) const;
     bool require_complete_instruction(ui32 type) const;
 
     ui32 first = 0;

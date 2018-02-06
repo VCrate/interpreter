@@ -7,19 +7,8 @@
 
 namespace bytec {
 
-Instruction::ArgType Instruction::get_corresponding_argtype(Argument const& arg) const {
-    switch(arg.index()) {
-        case 0: return Instruction::ArgType::Register;
-        case 1: return Instruction::ArgType::Displacement;
-        case 2: return Instruction::ArgType::Deferred;
-        case 3: return Instruction::ArgType::Address;
-        case 4: return Instruction::ArgType::Value;
-    }
-    throw std::runtime_error("Argument type index in variant unknown");
-}
-
-bool Instruction::is_writable(Instruction::ArgType arg) const {
-    return arg != Instruction::ArgType::Value;
+bool Instruction::is_writable(ArgumentType arg) const {
+    return arg != ArgumentType::Value;
 }
 
 void Instruction::encode_operation(Operations operation) {
@@ -51,8 +40,7 @@ Instruction::Instruction(Operations ope) {
 
 Instruction::Instruction(Operations ope, Argument const& arg) {
     check_argument_count(ope, 1);
-    auto type = get_corresponding_argtype(arg);
-    if (!is_writable(type))
+    if (!is_writable(get_argument_type(arg)))
         check_first_not_writable(ope);
     encode_operation(ope);
     std::visit(Instruction::Encoder24(*this), arg);
@@ -60,11 +48,9 @@ Instruction::Instruction(Operations ope, Argument const& arg) {
 
 Instruction::Instruction(Operations ope, Argument const& arg0, Argument const& arg1) {
     check_argument_count(ope, 2);
-    auto type0 = get_corresponding_argtype(arg0);
-    auto type1 = get_corresponding_argtype(arg1);
-    if (!is_writable(type0))
+    if (!is_writable(get_argument_type(arg0)))
         check_first_not_writable(ope);
-    if (!is_writable(type1))
+    if (!is_writable(get_argument_type(arg1)))
         check_second_not_writable(ope);
     encode_operation(ope);
     std::visit(Instruction::Encoder12(*this, true), arg0);
