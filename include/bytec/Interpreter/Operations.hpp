@@ -43,7 +43,8 @@ enum class Operations : ui8 {
 
     HLT,  // Halt the program
 
-    OUT
+    OUT,
+    DBG
 };
 
 }

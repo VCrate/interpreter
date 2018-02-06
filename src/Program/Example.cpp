@@ -256,7 +256,7 @@ sort_labels sort(Program& program) {
         mov %d, %a
         add %d, [rsp - 8]
         mov %e, %d
-        inc %d
+        add %d, 4
         cmp [%e], [%d]
         jmpge after_if              # [%e] >= [%d]
 
@@ -269,8 +269,8 @@ sort_labels sort(Program& program) {
         jmp start_inner_loop
     
     end_inner_loop:
-        cmp [rsp - 4], 1
-        jmpe end_loop
+        cmp [rsp - 4], 0
+        jmpg end_loop
 
         jmp start_loop
 
@@ -283,7 +283,7 @@ sort_labels sort(Program& program) {
     */
 
     sort_labels labels;
-    //assembly::Label start_loop, start_inner_loop, after_if, end_inner_loop, end_loop;
+    Label start_loop, start_inner_loop, after_if, end_inner_loop, end_loop;
 
     /*
     func:
@@ -293,15 +293,14 @@ sort_labels sort(Program& program) {
         push 1                      # rbp - 4
         push 0                      # rbp - 8
     */
-/*
-    assembly::link_label(program, labels.func);
-    assembly::append(program, Operations::OUT, assembly::Value{'^'});
-    assembly::append(program, Operations::PUSH, assembly::Register::E);
-    assembly::append(program, Operations::PUSH, assembly::Register::D);
-    assembly::append(program, Operations::ETR);
-    assembly::append(program, Operations::PUSH, assembly::Value{1});
-    assembly::append(program, Operations::PUSH, assembly::Value{0});
-*/
+
+    program.link(labels.func);
+    program.append_instruction(Operations::PUSH, Register::E);
+    program.append_instruction(Operations::PUSH, Register::D);
+    program.append_instruction(Operations::ETR);
+    program.append_instruction(Operations::PUSH, Value(1));
+    program.append_instruction(Operations::PUSH, Value(0));
+
     /*
     start_loop:
         dec %b
@@ -309,77 +308,80 @@ sort_labels sort(Program& program) {
         jmpg end_loop               # 1 > %b
         mov [rsp - 4], 1
     */
-/*
-    assembly::link_label(program, start_loop);
-    assembly::append(program, Operations::OUT, assembly::Value{'%'});
-    assembly::append(program, Operations::DEC, assembly::Register::B);
-    assembly::append(program, Operations::CMP, assembly::Value{1}, assembly::Register::B);
-    assembly::append(program, Operations::JMPG, end_loop);
-    assembly::append(program, Operations::MOV, assembly::Value{1}, assembly::DeferDispRegisterSP(-4));
-*/
+
+    program.link(start_loop);
+    program.append_instruction(Operations::DEC, Register::B);
+    program.append_instruction(Operations::CMP, Value(1), Register::B);
+    program.append_instruction(Operations::JMPG, end_loop);
+    program.append_instruction(Operations::MOV, Displacement(Register::SP, -4), Value(1));
+
     /*
         mov [rsp - 8], 0
     start_inner_loop:
         cmp [rsp - 8], %b           # c > b
         jmpg end_inner_loop
     */
-/*
-    assembly::append(program, Operations::MOV, assembly::Value{0}, assembly::DeferDispRegisterSP(-8));
-    assembly::link_label(program, start_inner_loop);
-    assembly::append(program, Operations::OUT, assembly::Value{'$'});
-    assembly::append(program, Operations::CMP, assembly::DeferDispRegisterSP(-8), assembly::Register::B);
-    assembly::append(program, Operations::JMPG, end_inner_loop);
-*/
+
+    program.append_instruction(Operations::MOV, Displacement(Register::SP, -8), Value(0));
+    program.link(start_inner_loop);
+    program.append_instruction(Operations::CMP, Displacement(Register::SP, -8), Register::B);
+    program.append_instruction(Operations::JMPG, end_inner_loop);
+
     /*
         mov %d, %a
         add %d, [rsp - 8]
         mov %e, %d
-        inc %d
+        add %d, 4
         cmp [%e], [%d]
         jmpge after_if              # [%e] >= [%d]
     */
-/*
-    assembly::append(program, Operations::MOV, assembly::Register::A, assembly::Register::D);
-    assembly::append(program, Operations::ADD, assembly::DeferDispRegisterSP(-8), assembly::Register::D);
-    assembly::append(program, Operations::MOV, assembly::Register::D, assembly::Register::E);
-    assembly::append(program, Operations::INC, assembly::Register::D);
-    assembly::append(program, Operations::CMP, assembly::DeferRegister::E, assembly::DeferRegister::D);
-    assembly::append(program, Operations::JMPGE, after_if);
-*/
+
+    program.append_instruction(Operations::MOV, Register::D, Register::A);
+    program.append_instruction(Operations::ADD, Displacement(Register::SP, -8), Register::D);
+    program.append_instruction(Operations::MOV, Register::E, Register::D);
+    program.append_instruction(Operations::ADD, Register::D, Value(4));
+    program.append_instruction(Operations::CMP, Deferred(Register::E), Deferred(Register::D));
+    program.append_instruction(Operations::JMPGE, after_if);
+
     /*
         swp [%e], [%d]
         mov [rsp - 4], 0
     */
-/*
-    assembly::append(program, Operations::OUT, assembly::Register::D);
-    assembly::append(program, Operations::OUT, assembly::Register::E);
-    assembly::append(program, Operations::SWP, assembly::DeferRegister::E, assembly::DeferRegister::D);
-    assembly::append(program, Operations::MOV, assembly::Value{0}, assembly::DeferDispRegisterSP(-4));
-*/
+
+    program.append_instruction(Operations::OUT, Value('!'));
+    program.append_instruction(Operations::OUT, Value(' '));
+    program.append_instruction(Operations::DBG, Register::D);
+    program.append_instruction(Operations::OUT, Value(','));
+    program.append_instruction(Operations::OUT, Value(' '));
+    program.append_instruction(Operations::DBG, Register::E);
+    program.append_instruction(Operations::OUT, Value('\n'));
+    program.append_instruction(Operations::SWP, Deferred(Register::D), Deferred(Register::E));
+    program.append_instruction(Operations::MOV, Displacement(Register::SP, -4), Value(0));
+
     /*
     after_if:
 
         inc [rsp - 8]
         jmp start_inner_loop
     */
-/*
-    assembly::link_label(program, after_if);
-    assembly::append(program, Operations::INC, assembly::DeferDispRegisterSP(-8));
-    assembly::append(program, Operations::JMP, start_inner_loop);
-*/
+
+    program.link(after_if);
+    program.append_instruction(Operations::INC, Displacement(Register::SP, -8));
+    program.append_instruction(Operations::JMP, start_inner_loop);
+
     /*
     end_inner_loop:
-        cmp [rsp - 4], 1
-        jmpe end_loop
+        cmp [rsp - 4], 0
+        jmpg end_loop
 
         jmp start_loop
     */
-/*
-    assembly::link_label(program, end_inner_loop);
-    assembly::append(program, Operations::CMP, assembly::DeferDispRegisterSP(-4), assembly::Value{1});
-    assembly::append(program, Operations::JMPGE, end_loop);
-    assembly::append(program, Operations::JMP, start_loop);
-*/
+
+    program.link(end_inner_loop);
+    program.append_instruction(Operations::CMP, Displacement(Register::SP, -4), Value(0));
+    program.append_instruction(Operations::JMPG, end_loop);
+    program.append_instruction(Operations::JMP, start_loop);
+
     /*
     end_loop:
         lve
@@ -387,13 +389,13 @@ sort_labels sort(Program& program) {
         pop %e
         ret
     */
-/*
-    assembly::link_label(program, end_loop);
-    assembly::append(program, Operations::LVE);
-    assembly::append(program, Operations::POP, assembly::Register::D);
-    assembly::append(program, Operations::POP, assembly::Register::E);
-    assembly::append(program, Operations::RET);
-*/
+
+    program.link(end_loop);
+    program.append_instruction(Operations::LVE);
+    program.append_instruction(Operations::POP, Register::D);
+    program.append_instruction(Operations::POP, Register::E);
+    program.append_instruction(Operations::RET);
+
     return labels;
 }
 
@@ -419,48 +421,48 @@ Program vector() {
                     vec_grow,
                     vec_pop;
 
-    assembly::append(program, Operations::MOV, assembly::Value{10}, assembly::Register::A);
-    assembly::append(program, Operations::CALL, vec_constructor);
-    assembly::append(program, Operations::MOV, assembly::Register::A, assembly::Register::G);
+    program.append_instruction(Operations::MOV, Register::A, Value(10));
+    program.append_instruction(Operations::CALL, vec_constructor);
+    program.append_instruction(Operations::MOV, Register::A, Register::G);
 /*
-    assembly::append(program, Operations::CALL, vec_get_size);
-    assembly::append(program, Operations::OUT, assembly::Register::A);
+    program.append_instruction(Operations::CALL, vec_get_size);
+    program.append_instruction(Operations::OUT, Register::A);
 
-    assembly::append(program, Operations::MOV, assembly::Register::G, assembly::Register::A);
-    assembly::append(program, Operations::CALL, vec_get_capacity);
-    assembly::append(program, Operations::OUT, assembly::Register::A);
+    program.append_instruction(Operations::MOV, Register::A, Register::G);
+    program.append_instruction(Operations::CALL, vec_get_capacity);
+    program.append_instruction(Operations::OUT, Register::A);
 
-    assembly::append(program, Operations::MOV, assembly::Register::G, assembly::Register::A);
-    assembly::append(program, Operations::MOV, assembly::Value{0}, assembly::Register::B);
-    assembly::append(program, Operations::CALL, vec_at);
-    assembly::append(program, Operations::OUT, assembly::Register::A);
+    program.append_instruction(Operations::MOV, Register::A, Register::G);
+    program.append_instruction(Operations::MOV, Register::B, Value(0));
+    program.append_instruction(Operations::CALL, vec_at);
+    program.append_instruction(Operations::OUT, Register::A);
 *//*
-    assembly::append(program, Operations::OUT, assembly::DeferDispRegisterA(8));
-    assembly::append(program, Operations::OUT, assembly::Register::A);
+    program.append_instruction(Operations::OUT, Displacement(Register::A, 8));
+    program.append_instruction(Operations::OUT, Register::A);
 
 
-    assembly::append(program, Operations::MOV, assembly::Register::G, assembly::Register::A);
-    assembly::append(program, Operations::MOV, assembly::Value{1337}, assembly::Register::B);
-    assembly::append(program, Operations::CALL, vec_push);
+    program.append_instruction(Operations::MOV, Register::A, Register::G);
+    program.append_instruction(Operations::MOV, Register::B, Value(1337));
+    program.append_instruction(Operations::CALL, vec_push);
 
 
 
-    assembly::append(program, Operations::MOV, assembly::Register::G, assembly::Register::A);
-    assembly::append(program, Operations::CALL, vec_get_size);
-    assembly::append(program, Operations::OUT, assembly::Register::A);
+    program.append_instruction(Operations::MOV, Register::A, Register::G);
+    program.append_instruction(Operations::CALL, vec_get_size);
+    program.append_instruction(Operations::OUT, Register::A);
 
-    assembly::append(program, Operations::MOV, assembly::Register::G, assembly::Register::A);
-    assembly::append(program, Operations::CALL, vec_get_capacity);
-    assembly::append(program, Operations::OUT, assembly::Register::A);
+    program.append_instruction(Operations::MOV, Register::A, Register::G);
+    program.append_instruction(Operations::CALL, vec_get_capacity);
+    program.append_instruction(Operations::OUT, Register::A);
 
-    assembly::append(program, Operations::MOV, assembly::Register::G, assembly::Register::A);
-    assembly::append(program, Operations::MOV, assembly::Value{0}, assembly::Register::B);
-    assembly::append(program, Operations::CALL, vec_at);
-    assembly::append(program, Operations::OUT, assembly::Register::A);
+    program.append_instruction(Operations::MOV, Register::A, Register::G);
+    program.append_instruction(Operations::MOV, Register::B, Value(0));
+    program.append_instruction(Operations::CALL, vec_at);
+    program.append_instruction(Operations::OUT, Register::A);
 
-    assembly::append(program, Operations::MOV, assembly::Register::G, assembly::Register::A);
-    assembly::append(program, Operations::CALL, vec_destructor);
-    assembly::append(program, Operations::HLT);
+    program.append_instruction(Operations::MOV, Register::A, Register::G);
+    program.append_instruction(Operations::CALL, vec_destructor);
+    program.append_instruction(Operations::HLT);
 */
     /* Vector::Constructor
      * %a : initial size
@@ -475,36 +477,36 @@ Program vector() {
      * %a->capacity = b
      * %a->data = allocate(%a * 4)
      *//*
-    assembly::link_label(program, vec_constructor);
-    assembly::append(program, Operations::PUSH, assembly::Register::B);
-    assembly::append(program, Operations::MOV, assembly::Register::A, assembly::Register::B);
+    program.link(vec_constructor);
+    program.append_instruction(Operations::PUSH, Register::B);
+    program.append_instruction(Operations::MOV, Register::B, Register::A);
 
-    assembly::append(program, Operations::NEW, assembly::Value{12}, assembly::Register::A);
+    program.append_instruction(Operations::NEW, Register::A, Value(12));
 
-    assembly::append(program, Operations::OUT, assembly::Value{66});
-    assembly::append(program, Operations::OUT, assembly::Register::A);
+    program.append_instruction(Operations::OUT, Value(66));
+    program.append_instruction(Operations::OUT, Register::A);
 
-    assembly::append(program, Operations::MOV, assembly::Value{0}, assembly::DeferRegister::A);
+    program.append_instruction(Operations::MOV, Deferred(Register::A), Value(0));
 
-    assembly::append(program, Operations::PUSH, assembly::Register::A);
-    assembly::append(program, Operations::ADD, assembly::Value{4}, assembly::Register::A);
-    assembly::append(program, Operations::MOV, assembly::Register::B, assembly::DeferRegister::A);
-    assembly::append(program, Operations::POP, assembly::Register::A);
+    program.append_instruction(Operations::PUSH, Register::A);
+    program.append_instruction(Operations::ADD, Register::A, Value(4));
+    program.append_instruction(Operations::MOV, Register::B, Deferred(Register::A));
+    program.append_instruction(Operations::POP, Register::A);
 
-    assembly::append(program, Operations::MUL, assembly::Value{4}, assembly::Register::B);
-    assembly::append(program, Operations::NEW, assembly::Register::B, assembly::DeferDispRegisterA(8));
-    assembly::append(program, Operations::OUT, assembly::DeferDispRegisterA(8));
+    program.append_instruction(Operations::MUL, Register::B, Value(4));
+    program.append_instruction(Operations::NEW, Register::B, Displacement(Register::A, 8));
+    program.append_instruction(Operations::OUT, Displacement(Register::A, 8));
 
-    assembly::append(program, Operations::POP, assembly::Register::B);
-    assembly::append(program, Operations::RET);
+    program.append_instruction(Operations::POP, Register::B);
+    program.append_instruction(Operations::RET);
 */
     /* Vector::Destructor
      * %a : vector
      *//*
-    assembly::link_label(program, vec_destructor);
-    assembly::append(program, Operations::DEL, assembly::DeferDispRegisterA(8));
-    assembly::append(program, Operations::DEL, assembly::Register::A);
-    assembly::append(program, Operations::RET);*/
+    program.link(vec_destructor);
+    program.append_instruction(Operations::DEL, Displacement(Register::A, 8));
+    program.append_instruction(Operations::DEL, Register::A);
+    program.append_instruction(Operations::RET);*/
 
     /* Vector::get_size
      * %a : vector
@@ -512,9 +514,9 @@ Program vector() {
      * return
      * %a : vector's size
      *//*
-    assembly::link_label(program, vec_get_size);
-    assembly::append(program, Operations::MOV, assembly::DeferRegister::A, assembly::Register::A);
-    assembly::append(program, Operations::RET);*/
+    program.link(vec_get_size);
+    program.append_instruction(Operations::MOV, Register::A, Deferred(Register::A));
+    program.append_instruction(Operations::RET);*/
 
     /* Vector::vec_get_capacity
      * %a : vector
@@ -522,9 +524,9 @@ Program vector() {
      * return
      * %a : vector's capacity
      *//*
-    assembly::link_label(program, vec_get_capacity);
-    assembly::append(program, Operations::MOV, assembly::DeferDispRegisterA(4), assembly::Register::A);
-    assembly::append(program, Operations::RET);*/
+    program.link(vec_get_capacity);
+    program.append_instruction(Operations::MOV, Register::A, Displacement(Register::A, 4));
+    program.append_instruction(Operations::RET);*/
 
     /* Vector::vec_get_data
      * %a : vector
@@ -532,9 +534,9 @@ Program vector() {
      * return
      * %a : pointer to vector's data
      *//*
-    assembly::link_label(program, vec_get_data);
-    assembly::append(program, Operations::MOV, assembly::DeferDispRegisterA(8), assembly::Register::A);
-    assembly::append(program, Operations::RET);*/
+    program.link(vec_get_data);
+    program.append_instruction(Operations::MOV, Register::A, Displacement(Register::A, 8));
+    program.append_instruction(Operations::RET);*/
 
     /* Vector::vec_at
      * %a : vector
@@ -543,12 +545,12 @@ Program vector() {
      * return
      * %a : element
      *//*
-    assembly::link_label(program, vec_at);
-    assembly::append(program, Operations::MUL, assembly::Value{4}, assembly::Register::B);
-    assembly::append(program, Operations::MOV, assembly::DeferDispRegisterA(8), assembly::Register::A);
-    assembly::append(program, Operations::ADD, assembly::Register::B, assembly::Register::A);
-    assembly::append(program, Operations::MOV, assembly::DeferRegister::A, assembly::Register::A);
-    assembly::append(program, Operations::RET);*/
+    program.link(vec_at);
+    program.append_instruction(Operations::MUL, Register::B, Value(4));
+    program.append_instruction(Operations::MOV, Register::A, Displacement(Register::A, 8));
+    program.append_instruction(Operations::ADD, Register::A, Register::B);
+    program.append_instruction(Operations::MOV, Register::A, Deferred(Register::A));
+    program.append_instruction(Operations::RET);*/
 
     /* Vector::vec_grow
      * %a : vector
@@ -556,64 +558,64 @@ Program vector() {
     {
         assembly::Label for_loop_start, for_loop_end;
 
-        assembly::link_label(program, vec_grow);
-        assembly::append(program, Operations::PUSH, assembly::Register::B);
-        assembly::append(program, Operations::PUSH, assembly::Register::C);
-        assembly::append(program, Operations::PUSH, assembly::Register::D);
-        assembly::append(program, Operations::PUSH, assembly::Register::E);
+        program.link(vec_grow);
+        program.append_instruction(Operations::PUSH, Register::B);
+        program.append_instruction(Operations::PUSH, Register::C);
+        program.append_instruction(Operations::PUSH, Register::D);
+        program.append_instruction(Operations::PUSH, Register::E);
 
-        assembly::append(program, Operations::MOV, assembly::Register::A, assembly::Register::B);
-        assembly::append(program, Operations::ADD, assembly::Value{8}, assembly::Register::B); // get_data
-        assembly::append(program, Operations::CALL, vec_get_size);
+        program.append_instruction(Operations::MOV, Register::B, Register::A);
+        program.append_instruction(Operations::ADD, Register::B, Value(8)); // get_data
+        program.append_instruction(Operations::CALL, vec_get_size);
 
         // allocate a new block in %d
-        assembly::append(program, Operations::MOV, assembly::Register::A, assembly::Register::C);
-        assembly::append(program, Operations::MUL, assembly::Value{8}, assembly::Register::C);
-        assembly::append(program, Operations::NEW, assembly::Register::C, assembly::Register::D);
+        program.append_instruction(Operations::MOV, Register::C, Register::A);
+        program.append_instruction(Operations::MUL, Register::C, Value(8));
+        program.append_instruction(Operations::NEW, Register::D, Register::C);
 
-        assembly::append(program, Operations::MUL, assembly::Value{4}, assembly::Register::A);
+        program.append_instruction(Operations::MUL, Register::A, Value(4));
         // for loop
         // %e = 0
-        assembly::append(program, Operations::MOV, assembly::Register::A, assembly::Register::E);
+        program.append_instruction(Operations::MOV, Register::E, Register::A);
         // %e >= %a * 4 (size)
-        assembly::link_label(program, for_loop_start);
-        assembly::append(program, Operations::CMP, assembly::Register::E, assembly::Register::A);
+        program.link(for_loop_start);
+        program.append_instruction(Operations::CMP, Register::A, Register::E);
         // if true
         //      jump end
-        assembly::append(program, Operations::JMPGE, for_loop_end);
+        program.append_instruction(Operations::JMPGE, for_loop_end);
         // [%d + %e] = [%b + 8 + %e]
-        assembly::append(program, Operations::PUSH, assembly::Register::B);
-        assembly::append(program, Operations::PUSH, assembly::Register::D);
+        program.append_instruction(Operations::PUSH, Register::B);
+        program.append_instruction(Operations::PUSH, Register::D);
 
-        assembly::append(program, Operations::MOV, assembly::DeferRegister::B, assembly::Register::B);
-        assembly::append(program, Operations::ADD, assembly::Register::E, assembly::Register::B);
-        assembly::append(program, Operations::ADD, assembly::Register::E, assembly::Register::D);
-        assembly::append(program, Operations::MOV, assembly::DeferRegister::B, assembly::DeferRegister::D);
+        program.append_instruction(Operations::MOV, Register::B, Deferred(Register::B));
+        program.append_instruction(Operations::ADD, Register::B, Register::E);
+        program.append_instruction(Operations::ADD, Register::D, Register::E);
+        program.append_instruction(Operations::MOV, Deferred(Register::D), Deferred(Register::B));
 
-        assembly::append(program, Operations::POP, assembly::Register::D);
-        assembly::append(program, Operations::POP, assembly::Register::B);
+        program.append_instruction(Operations::POP, Register::D);
+        program.append_instruction(Operations::POP, Register::B);
 
         // %e += 4
-        assembly::append(program, Operations::ADD, assembly::Value{4}, assembly::Register::E);
+        program.append_instruction(Operations::ADD, Register::E, Value(4));
         // loop back
-        assembly::append(program, Operations::JMP, for_loop_start);
-        assembly::link_label(program, for_loop_end);
+        program.append_instruction(Operations::JMP, for_loop_start);
+        program.link(for_loop_end);
 
         // vector.data = %d
-        assembly::append(program, Operations::DEL, assembly::DeferRegister::B);
-        assembly::append(program, Operations::MOV, assembly::Register::D, assembly::DeferRegister::B);
+        program.append_instruction(Operations::DEL, Deferred(Register::B));
+        program.append_instruction(Operations::MOV, Register::D, Deferred(Register::B));
 
         // %b is &(vector + 8)
-        assembly::append(program, Operations::SUB, assembly::Value{4}, assembly::Register::B); // capacity
-        assembly::append(program, Operations::MUL, assembly::Value{2}, assembly::DeferRegister::B); // capacity *= 2
-        assembly::append(program, Operations::SUB, assembly::Value{4}, assembly::Register::B); 
-        assembly::append(program, Operations::MOV, assembly::Register::B, assembly::Register::A);
+        program.append_instruction(Operations::SUB, Register::B, Value(4)); // capacity
+        program.append_instruction(Operations::MUL, Deferred(Register::B), Value(2)); // capacity *= 2
+        program.append_instruction(Operations::SUB, Register::B, Value(4)); 
+        program.append_instruction(Operations::MOV, Register::A, Register::B);
 
-        assembly::append(program, Operations::POP, assembly::Register::E);
-        assembly::append(program, Operations::POP, assembly::Register::D);
-        assembly::append(program, Operations::POP, assembly::Register::C);
-        assembly::append(program, Operations::POP, assembly::Register::B);
-        assembly::append(program, Operations::RET);
+        program.append_instruction(Operations::POP, Register::E);
+        program.append_instruction(Operations::POP, Register::D);
+        program.append_instruction(Operations::POP, Register::C);
+        program.append_instruction(Operations::POP, Register::B);
+        program.append_instruction(Operations::RET);
 
     }
 */
@@ -624,80 +626,80 @@ Program vector() {
     {
         assembly::Label no_need_grow;
 
-        assembly::link_label(program, vec_push);
-        assembly::append(program, Operations::OUT, assembly::Value{1000000000});
-        assembly::append(program, Operations::PUSH, assembly::DeferDispRegisterA(8));
-        assembly::append(program, Operations::PUSH, assembly::Register::A);
-        assembly::append(program, Operations::MOV, assembly::Register::A, assembly::Register::H);
-        assembly::append(program, Operations::OUT, assembly::DeferDispRegisterH(8));
-        assembly::append(program, Operations::PUSH, assembly::Register::B);
+        program.link(vec_push);
+        program.append_instruction(Operations::OUT, Value(1000000000));
+        program.append_instruction(Operations::PUSH, Displacement(Register::A, 8));
+        program.append_instruction(Operations::PUSH, Register::A);
+        program.append_instruction(Operations::MOV, Register::H, Register::A);
+        program.append_instruction(Operations::OUT, Displacement(Register::H, 8));
+        program.append_instruction(Operations::PUSH, Register::B);
 
-        assembly::append(program, Operations::OUT, assembly::Value{123});
-        assembly::append(program, Operations::OUT, assembly::Register::A);
-        assembly::append(program, Operations::OUT, assembly::Register::B);
-        assembly::append(program, Operations::OUT, assembly::DeferDispRegisterSP(static_cast<ui32>(-8)));
-        assembly::append(program, Operations::OUT, assembly::DeferDispRegisterSP(static_cast<ui32>(-4)));
+        program.append_instruction(Operations::OUT, Value(123));
+        program.append_instruction(Operations::OUT, Register::A);
+        program.append_instruction(Operations::OUT, Register::B);
+        program.append_instruction(Operations::OUT, Displacement(Register::SP, static_cast<ui32>(-8)));
+        program.append_instruction(Operations::OUT, Displacement(Register::SP, static_cast<ui32>(-4)));
 
-        assembly::append(program, Operations::INC, assembly::DeferRegister::A); // size ++
-        assembly::append(program, Operations::CALL, vec_get_size);
-        assembly::append(program, Operations::MOV, assembly::Register::A, assembly::Register::B);
-        assembly::append(program, Operations::CALL, vec_get_capacity); // %a = capacity %b = size
+        program.append_instruction(Operations::INC, Deferred(Register::A)); // size ++
+        program.append_instruction(Operations::CALL, vec_get_size);
+        program.append_instruction(Operations::MOV, Register::B, Register::A);
+        program.append_instruction(Operations::CALL, vec_get_capacity); // %a = capacity %b = size
 
-        assembly::append(program, Operations::OUT, assembly::Value{222222222});
-        assembly::append(program, Operations::OUT, assembly::DeferDispRegisterSP(static_cast<ui32>(-8)));
-        assembly::append(program, Operations::OUT, assembly::DeferDispRegisterSP(static_cast<ui32>(-12)));
+        program.append_instruction(Operations::OUT, Value(222222222));
+        program.append_instruction(Operations::OUT, Displacement(Register::SP, static_cast<ui32>(-8)));
+        program.append_instruction(Operations::OUT, Displacement(Register::SP, static_cast<ui32>(-12)));
 
-        assembly::append(program, Operations::CMP, assembly::Register::A, assembly::Register::B);
-        assembly::append(program, Operations::JMPG, no_need_grow);
+        program.append_instruction(Operations::CMP, Register::B, Register::A);
+        program.append_instruction(Operations::JMPG, no_need_grow);
 
-        assembly::append(program, Operations::MOV, assembly::DeferDispRegisterSP(static_cast<ui32>(-8)), assembly::Register::A); // %a = [SP - 8] (vector)
-        assembly::append(program, Operations::CALL, vec_grow);
+        program.append_instruction(Operations::MOV, Displacement(Register::SP, static_cast<ui32>(-8)), Register::A); // %a = [SP - 8] (vector)
+        program.append_instruction(Operations::CALL, vec_grow);
 
-        assembly::link_label(program, no_need_grow);
+        program.link(no_need_grow);
 
-        assembly::append(program, Operations::OUT, assembly::Value{222222222});
-        assembly::append(program, Operations::OUT, assembly::DeferDispRegisterSP(static_cast<ui32>(-8)));
-        assembly::append(program, Operations::OUT, assembly::DeferDispRegisterSP(static_cast<ui32>(-12)));
+        program.append_instruction(Operations::OUT, Value(222222222));
+        program.append_instruction(Operations::OUT, Displacement(Register::SP, static_cast<ui32>(-8)));
+        program.append_instruction(Operations::OUT, Displacement(Register::SP, static_cast<ui32>(-12)));
 
-        assembly::append(program, Operations::OUT, assembly::Value{321});
-        assembly::append(program, Operations::OUT, assembly::Register::B);
-        assembly::append(program, Operations::DEC, assembly::Register::B);
-        assembly::append(program, Operations::OUT, assembly::Register::B);
-        assembly::append(program, Operations::MUL, assembly::Value{4}, assembly::Register::B); // %b = (size - 1) * 4
-        assembly::append(program, Operations::OUT, assembly::Register::B);
+        program.append_instruction(Operations::OUT, Value(321));
+        program.append_instruction(Operations::OUT, Register::B);
+        program.append_instruction(Operations::DEC, Register::B);
+        program.append_instruction(Operations::OUT, Register::B);
+        program.append_instruction(Operations::MUL, Register::B); // %b = (size - 1, Value(4)) * 4
+        program.append_instruction(Operations::OUT, Register::B);
 
-        assembly::append(program, Operations::OUT, assembly::Value{222222222});
-        assembly::append(program, Operations::OUT, assembly::DeferDispRegisterSP(static_cast<ui32>(-8)));
-        assembly::append(program, Operations::OUT, assembly::DeferDispRegisterSP(static_cast<ui32>(-12)));
+        program.append_instruction(Operations::OUT, Value(222222222));
+        program.append_instruction(Operations::OUT, Displacement(Register::SP, static_cast<ui32>(-8)));
+        program.append_instruction(Operations::OUT, Displacement(Register::SP, static_cast<ui32>(-12)));
 
-        assembly::append(program, Operations::MOV, assembly::DeferDispRegisterSP(static_cast<ui32>(-8)), assembly::Register::A); // %a = [SP - 8] (vector)
-        assembly::append(program, Operations::OUT, assembly::Register::A);
-        assembly::append(program, Operations::ADD, assembly::Value{8}, assembly::Register::A); // %a = &data
-        assembly::append(program, Operations::OUT, assembly::Value{222222222});
-        assembly::append(program, Operations::OUT, assembly::DeferDispRegisterSP(static_cast<ui32>(-8)));
-        assembly::append(program, Operations::OUT, assembly::DeferDispRegisterSP(static_cast<ui32>(-12)));
-        assembly::append(program, Operations::OUT, assembly::Register::A);
-        assembly::append(program, Operations::ADD, assembly::DeferRegister::A, assembly::Register::A); // %a = data
-        assembly::append(program, Operations::OUT, assembly::Value{222222222});
-        assembly::append(program, Operations::OUT, assembly::DeferDispRegisterSP(static_cast<ui32>(-8)));
-        assembly::append(program, Operations::OUT, assembly::DeferDispRegisterSP(static_cast<ui32>(-12)));
-        assembly::append(program, Operations::OUT, assembly::Register::A);
-        assembly::append(program, Operations::ADD, assembly::Register::A, assembly::Register::B); // %b = data + (size - 1)
+        program.append_instruction(Operations::MOV, Displacement(Register::SP, static_cast<ui32>(-8)), Register::A); // %a = [SP - 8] (vector)
+        program.append_instruction(Operations::OUT, Register::A);
+        program.append_instruction(Operations::ADD, Register::A, Value(8)); // %a = &data
+        program.append_instruction(Operations::OUT, Value(222222222));
+        program.append_instruction(Operations::OUT, Displacement(Register::SP, static_cast<ui32>(-8)));
+        program.append_instruction(Operations::OUT, Displacement(Register::SP, static_cast<ui32>(-12)));
+        program.append_instruction(Operations::OUT, Register::A);
+        program.append_instruction(Operations::ADD, Register::A, Deferred(Register::A)); // %a = data
+        program.append_instruction(Operations::OUT, Value(222222222));
+        program.append_instruction(Operations::OUT, Displacement(Register::SP, static_cast<ui32>(-8)));
+        program.append_instruction(Operations::OUT, Displacement(Register::SP, static_cast<ui32>(-12)));
+        program.append_instruction(Operations::OUT, Register::A);
+        program.append_instruction(Operations::ADD, Register::B); // %b = data + (size - 1, Register::A)
 
-        assembly::append(program, Operations::OUT, assembly::Register::B);
-        assembly::append(program, Operations::MOV, assembly::DeferDispRegisterSP(static_cast<ui32>(-4)), assembly::DeferRegister::B);
+        program.append_instruction(Operations::OUT, Register::B);
+        program.append_instruction(Operations::MOV, Displacement(Register::SP, static_cast<ui32>(-4)), Deferred(Register::B));
         
-        assembly::append(program, Operations::POP, assembly::Register::B);
-        assembly::append(program, Operations::POP, assembly::Register::A);
-        assembly::append(program, Operations::RET);
+        program.append_instruction(Operations::POP, Register::B);
+        program.append_instruction(Operations::POP, Register::A);
+        program.append_instruction(Operations::RET);
     }*/
 
     /* Vector::remove
      * %a : vector
      *//*
-    assembly::link_label(program, vec_pop);
-    assembly::append(program, Operations::DEC, assembly::DeferRegister::A); // size --
-    assembly::append(program, Operations::RET);
+    program.link(vec_pop);
+    program.append_instruction(Operations::DEC, Deferred(Register::A)); // size --
+    program.append_instruction(Operations::RET);
 */
     return program;
 }

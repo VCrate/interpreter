@@ -43,6 +43,7 @@ void Interpreter::run_next_instruction(SandBox& sandbox) {
         case Operations::LVE:   return Interpreter::instruction_LVE(sandbox, instruction);
         case Operations::HLT:   return Interpreter::instruction_HLT(sandbox, instruction);
         case Operations::OUT:   return Interpreter::instruction_OUT(sandbox, instruction);
+        case Operations::DBG:   return Interpreter::instruction_DBG(sandbox, instruction);
         default:
             throw std::runtime_error("Operations Unknown");
     }
@@ -334,6 +335,11 @@ void Interpreter::instruction_OUT(SandBox& sandbox, Instruction const& instructi
     auto arg = instruction.get_complete_argument();
     //std::cout << Interpreter::value_of(sandbox, arg) << std::endl;
     sandbox.output(static_cast<ui8>(Interpreter::value_of(sandbox, arg)));
+}
+
+void Interpreter::instruction_DBG(SandBox& sandbox, Instruction const& instruction) {
+    auto arg = instruction.get_complete_argument();
+    std::cout << Interpreter::value_of(sandbox, arg);
 }
 
 }

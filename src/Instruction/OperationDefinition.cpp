@@ -47,7 +47,8 @@ OperationDefinition OperationDefinition::get_definition(Operations operation) {
         { Operations::ETR,      OperationDefinition{ "ETR"                      }},
         { Operations::LVE,      OperationDefinition{ "LVE"                      }},
         { Operations::HLT,      OperationDefinition{ "HLT"                      }},
-        { Operations::OUT,      OperationDefinition{ "OUT",     false           }}
+        { Operations::OUT,      OperationDefinition{ "OUT",     false           }},
+        { Operations::DBG,      OperationDefinition{ "DBG",     false           }}
     };
 
     try {

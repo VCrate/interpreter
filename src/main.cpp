@@ -27,13 +27,13 @@ int main() {
     
         // load hello_world function
         auto hello_world = program_ex::hello_world(program);
-
         auto printer = program_ex::print_number(program);
         auto lerp = program_ex::lerp(program);
+        auto sort = program_ex::sort(program);
 
         // entry point
         program.link(entry_point);
-
+/*
         // call void hello_world()
         program.append_instruction(Operations::CALL, hello_world.func);
 
@@ -47,7 +47,56 @@ int main() {
         program.append_instruction(Operations::PUSH, Value(75));
         program.append_instruction(Operations::CALL, lerp.func);
         program.append_instruction(Operations::CALL, printer.func);
+        program.append_instruction(Operations::OUT, Value('\n'));
+        program.append_instruction(Operations::OUT, Value('\n'));
+*/
+        program.append_instruction(Operations::MOV, Register::A, Register::SP);
+        program.append_instruction(Operations::PUSH, Value(rand() % 1000));
+        program.append_instruction(Operations::PUSH, Value(rand() % 1000));
+        program.append_instruction(Operations::PUSH, Value(rand() % 1000));
+        program.append_instruction(Operations::PUSH, Value(rand() % 1000));
+        program.append_instruction(Operations::PUSH, Value(rand() % 1000));
 
+        program.append_instruction(Operations::MOV, Register::C, Register::A);
+        program.append_instruction(Operations::OUT, Value('>'));
+        program.append_instruction(Operations::OUT, Value(' '));
+        program.append_instruction(Operations::DBG, Register::A);
+        program.append_instruction(Operations::OUT, Value('\n'));
+
+        program.append_instruction(Operations::MOV, Register::A, Displacement(Register::SP, -20));
+        program.append_instruction(Operations::CALL, printer.func);
+        program.append_instruction(Operations::OUT, Value('\n'));
+        program.append_instruction(Operations::MOV, Register::A, Displacement(Register::SP, -16));
+        program.append_instruction(Operations::CALL, printer.func);
+        program.append_instruction(Operations::OUT, Value('\n'));
+        program.append_instruction(Operations::MOV, Register::A, Displacement(Register::SP, -12));
+        program.append_instruction(Operations::CALL, printer.func);
+        program.append_instruction(Operations::OUT, Value('\n'));
+        program.append_instruction(Operations::MOV, Register::A, Displacement(Register::SP, -8));
+        program.append_instruction(Operations::CALL, printer.func);
+        program.append_instruction(Operations::OUT, Value('\n'));
+        program.append_instruction(Operations::MOV, Register::A, Displacement(Register::SP, -4));
+        program.append_instruction(Operations::CALL, printer.func);
+        program.append_instruction(Operations::OUT, Value('\n'));
+
+        program.append_instruction(Operations::MOV, Register::A, Register::C);
+        program.append_instruction(Operations::MOV, Register::B, Value(5));
+        program.append_instruction(Operations::CALL, sort.func);
+
+        program.append_instruction(Operations::MOV, Register::A, Displacement(Register::SP, -20));
+        program.append_instruction(Operations::CALL, printer.func);
+        program.append_instruction(Operations::OUT, Value('\n'));
+        program.append_instruction(Operations::MOV, Register::A, Displacement(Register::SP, -16));
+        program.append_instruction(Operations::CALL, printer.func);
+        program.append_instruction(Operations::OUT, Value('\n'));
+        program.append_instruction(Operations::MOV, Register::A, Displacement(Register::SP, -12));
+        program.append_instruction(Operations::CALL, printer.func);
+        program.append_instruction(Operations::OUT, Value('\n'));
+        program.append_instruction(Operations::MOV, Register::A, Displacement(Register::SP, -8));
+        program.append_instruction(Operations::CALL, printer.func);
+        program.append_instruction(Operations::OUT, Value('\n'));
+        program.append_instruction(Operations::MOV, Register::A, Displacement(Register::SP, -4));
+        program.append_instruction(Operations::CALL, printer.func);
         program.append_instruction(Operations::OUT, Value('\n'));
         program.append_instruction(Operations::HLT);
 

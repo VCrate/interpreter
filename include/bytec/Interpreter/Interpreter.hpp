@@ -52,6 +52,7 @@ public:
     static void instruction_LVE(SandBox& sandbox, Instruction const& instruction);
     static void instruction_HLT(SandBox& sandbox, Instruction const& instruction);
     static void instruction_OUT(SandBox& sandbox, Instruction const& instruction);
+    static void instruction_DBG(SandBox& sandbox, Instruction const& instruction);
 
     static void op_add  (SandBox& sandbox, ui32 operand, ui32& target);
     static void op_sub  (SandBox& sandbox, ui32 operand, ui32& target); 
