@@ -14,8 +14,8 @@ public:
 
     SandBox(ui32 memory_initial_size = 1 << 16);
 
-    ui32 get_instruction();
-    ui32 get_instruction_and_move();
+    Instruction get_instruction();
+    Instruction get_instruction_and_move();
     ui32 get_pc() const;
     ui32 get_pc_increment();
     void set_pc(ui32 value);

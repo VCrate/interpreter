@@ -41,21 +41,21 @@ hello_world_labels hello_world(Program& program) {
 
     hello_world_labels labels;
 
-    assembly::Label start_loop;
-    assembly::Label end_loop;
+    SecuredLabel start_loop;
+    SecuredLabel end_loop;
 
-    assembly::link_label(program, labels.data);
-    assembly::append(program, "Hello World !\n");
+    program.link(labels.data);
+    program.append("Hello World !\n");
 
-    assembly::link_label(program, labels.func); // entry point
+    program.link(labels.func);
     /*
         push %a
         push %b
         mov %a, data
     */
-    assembly::append(program, Operations::PUSH, assembly::Register::A);
-    assembly::append(program, Operations::PUSH, assembly::Register::B);
-    assembly::append(program, Operations::MOV, labels.data, assembly::Register::A);
+    program.append_instruction(Operations::PUSH, Register::A);
+    program.append_instruction(Operations::PUSH, Register::B);
+    program.append_instruction(Operations::MOV, Register::A, labels.data);
 
     /*
     start_loop:
@@ -65,21 +65,20 @@ hello_world_labels hello_world(Program& program) {
         jmpe end_loop
     */
 
-    assembly::link_label(program, start_loop);
-
-    assembly::append(program, Operations::MOV, assembly::DeferRegister::A, assembly::Register::B);
-    assembly::append(program, Operations::AND, assembly::Value{0xFF}, assembly::Register::B);
-    assembly::append(program, Operations::CMP, assembly::Value{'\0'}, assembly::Register::B);
-    assembly::append(program, Operations::JMPE, end_loop);
+    program.link(start_loop);
+    program.append_instruction(Operations::MOV, Register::B, Deferred(Register::A));
+    program.append_instruction(Operations::AND, Register::B, Value(0xFF));
+    program.append_instruction(Operations::CMP, Register::B, Value('\0'));
+    program.append_instruction(Operations::JMPE, end_loop);
 
     /*
         out [%a]
         inc %a
         jmp start_loop
     */
-    assembly::append(program, Operations::OUT, assembly::DeferRegister::A);
-    assembly::append(program, Operations::INC, assembly::Register::A);
-    assembly::append(program, Operations::JMP, start_loop);
+    program.append_instruction(Operations::OUT, Deferred(Register::A));
+    program.append_instruction(Operations::INC, Register::A);
+    program.append_instruction(Operations::JMP, start_loop);
 
     /*
     end_loop:
@@ -87,10 +86,10 @@ hello_world_labels hello_world(Program& program) {
         pop %a
         ret
     */
-    assembly::link_label(program, end_loop);
-    assembly::append(program, Operations::POP, assembly::Register::B);
-    assembly::append(program, Operations::POP, assembly::Register::A);
-    assembly::append(program, Operations::RET);
+    program.link(end_loop);
+    program.append_instruction(Operations::POP, Register::B);
+    program.append_instruction(Operations::POP, Register::A);
+    program.append_instruction(Operations::RET);
 
     return labels;
 }
@@ -126,29 +125,31 @@ print_number_labels print_number(Program& program) {
     */
 
     print_number_labels labels;
-
+/*
     assembly::Label end_func;
 
     assembly::link_label(program, labels.func);
-
+*/
     /*
         cmp 10, %a
         jmpg end_func        # 10 > %a
     */
+/*
     assembly::append(program, Operations::CMP, assembly::Value{10}, assembly::Register::A);
     assembly::append(program, Operations::JMPG, end_func);
-
+*/
     /*
         push %a
         div %a, 10
         call func
         pop %a
     */
+/*
     assembly::append(program, Operations::PUSH, assembly::Register::A);
     assembly::append(program, Operations::DIV, assembly::Value{10}, assembly::Register::A);
     assembly::append(program, Operations::CALL, labels.func);
     assembly::append(program, Operations::POP, assembly::Register::A);
-
+*/
     /*
     end_func:
         mod %a, 10
@@ -156,12 +157,13 @@ print_number_labels print_number(Program& program) {
         out %a
         ret
     */
+/*
     assembly::link_label(program, end_func);
     assembly::append(program, Operations::MOD, assembly::Value{10}, assembly::Register::A);
     assembly::append(program, Operations::ADD, assembly::Value{'0'}, assembly::Register::A);
     assembly::append(program, Operations::OUT, assembly::Register::A);
     assembly::append(program, Operations::RET);
-
+*/
     return labels;
 }
 
@@ -201,7 +203,7 @@ lerp_labels lerp(Program& program) {
      * [rbp - 16] : parameter 2 (upper bounds)
      * [rbp - 20] : parameter 1 (lower bounds)
      */
-
+/*
     assembly::link_label(program, labels.func);
     assembly::append(program, Operations::ETR);
 
@@ -213,7 +215,7 @@ lerp_labels lerp(Program& program) {
 
     assembly::append(program, Operations::LVE);
     assembly::append(program, Operations::RET);
-
+*/
 
     return labels;
 }
@@ -282,7 +284,7 @@ sort_labels sort(Program& program) {
     */
 
     sort_labels labels;
-    assembly::Label start_loop, start_inner_loop, after_if, end_inner_loop, end_loop;
+    //assembly::Label start_loop, start_inner_loop, after_if, end_inner_loop, end_loop;
 
     /*
     func:
@@ -292,6 +294,7 @@ sort_labels sort(Program& program) {
         push 1                      # rbp - 4
         push 0                      # rbp - 8
     */
+/*
     assembly::link_label(program, labels.func);
     assembly::append(program, Operations::OUT, assembly::Value{'^'});
     assembly::append(program, Operations::PUSH, assembly::Register::E);
@@ -299,7 +302,7 @@ sort_labels sort(Program& program) {
     assembly::append(program, Operations::ETR);
     assembly::append(program, Operations::PUSH, assembly::Value{1});
     assembly::append(program, Operations::PUSH, assembly::Value{0});
-
+*/
     /*
     start_loop:
         dec %b
@@ -307,25 +310,27 @@ sort_labels sort(Program& program) {
         jmpg end_loop               # 1 > %b
         mov [rsp - 4], 1
     */
+/*
     assembly::link_label(program, start_loop);
     assembly::append(program, Operations::OUT, assembly::Value{'%'});
     assembly::append(program, Operations::DEC, assembly::Register::B);
     assembly::append(program, Operations::CMP, assembly::Value{1}, assembly::Register::B);
     assembly::append(program, Operations::JMPG, end_loop);
     assembly::append(program, Operations::MOV, assembly::Value{1}, assembly::DeferDispRegisterSP(-4));
-
+*/
     /*
         mov [rsp - 8], 0
     start_inner_loop:
         cmp [rsp - 8], %b           # c > b
         jmpg end_inner_loop
     */
+/*
     assembly::append(program, Operations::MOV, assembly::Value{0}, assembly::DeferDispRegisterSP(-8));
     assembly::link_label(program, start_inner_loop);
     assembly::append(program, Operations::OUT, assembly::Value{'$'});
     assembly::append(program, Operations::CMP, assembly::DeferDispRegisterSP(-8), assembly::Register::B);
     assembly::append(program, Operations::JMPG, end_inner_loop);
-
+*/
     /*
         mov %d, %a
         add %d, [rsp - 8]
@@ -334,32 +339,35 @@ sort_labels sort(Program& program) {
         cmp [%e], [%d]
         jmpge after_if              # [%e] >= [%d]
     */
+/*
     assembly::append(program, Operations::MOV, assembly::Register::A, assembly::Register::D);
     assembly::append(program, Operations::ADD, assembly::DeferDispRegisterSP(-8), assembly::Register::D);
     assembly::append(program, Operations::MOV, assembly::Register::D, assembly::Register::E);
     assembly::append(program, Operations::INC, assembly::Register::D);
     assembly::append(program, Operations::CMP, assembly::DeferRegister::E, assembly::DeferRegister::D);
     assembly::append(program, Operations::JMPGE, after_if);
-
+*/
     /*
         swp [%e], [%d]
         mov [rsp - 4], 0
     */
+/*
     assembly::append(program, Operations::OUT, assembly::Register::D);
     assembly::append(program, Operations::OUT, assembly::Register::E);
     assembly::append(program, Operations::SWP, assembly::DeferRegister::E, assembly::DeferRegister::D);
     assembly::append(program, Operations::MOV, assembly::Value{0}, assembly::DeferDispRegisterSP(-4));
-
+*/
     /*
     after_if:
 
         inc [rsp - 8]
         jmp start_inner_loop
     */
+/*
     assembly::link_label(program, after_if);
     assembly::append(program, Operations::INC, assembly::DeferDispRegisterSP(-8));
     assembly::append(program, Operations::JMP, start_inner_loop);
-
+*/
     /*
     end_inner_loop:
         cmp [rsp - 4], 1
@@ -367,11 +375,12 @@ sort_labels sort(Program& program) {
 
         jmp start_loop
     */
+/*
     assembly::link_label(program, end_inner_loop);
     assembly::append(program, Operations::CMP, assembly::DeferDispRegisterSP(-4), assembly::Value{1});
     assembly::append(program, Operations::JMPGE, end_loop);
     assembly::append(program, Operations::JMP, start_loop);
-
+*/
     /*
     end_loop:
         lve
@@ -379,12 +388,13 @@ sort_labels sort(Program& program) {
         pop %e
         ret
     */
+/*
     assembly::link_label(program, end_loop);
     assembly::append(program, Operations::LVE);
     assembly::append(program, Operations::POP, assembly::Register::D);
     assembly::append(program, Operations::POP, assembly::Register::E);
     assembly::append(program, Operations::RET);
-    
+*/
     return labels;
 }
 
@@ -399,7 +409,7 @@ Program vector() {
         }
 
     */
-
+/*
     assembly::Label vec_constructor,
                     vec_destructor,
                     vec_get_size,
@@ -425,7 +435,7 @@ Program vector() {
     assembly::append(program, Operations::MOV, assembly::Value{0}, assembly::Register::B);
     assembly::append(program, Operations::CALL, vec_at);
     assembly::append(program, Operations::OUT, assembly::Register::A);
-*/
+*//*
     assembly::append(program, Operations::OUT, assembly::DeferDispRegisterA(8));
     assembly::append(program, Operations::OUT, assembly::Register::A);
 
@@ -452,7 +462,7 @@ Program vector() {
     assembly::append(program, Operations::MOV, assembly::Register::G, assembly::Register::A);
     assembly::append(program, Operations::CALL, vec_destructor);
     assembly::append(program, Operations::HLT);
-
+*/
     /* Vector::Constructor
      * %a : initial size
      * 
@@ -465,7 +475,7 @@ Program vector() {
      * %a->size = 0
      * %a->capacity = b
      * %a->data = allocate(%a * 4)
-     */
+     *//*
     assembly::link_label(program, vec_constructor);
     assembly::append(program, Operations::PUSH, assembly::Register::B);
     assembly::append(program, Operations::MOV, assembly::Register::A, assembly::Register::B);
@@ -482,50 +492,50 @@ Program vector() {
     assembly::append(program, Operations::MOV, assembly::Register::B, assembly::DeferRegister::A);
     assembly::append(program, Operations::POP, assembly::Register::A);
 
-    assembly::append(program, Operations::MUL, assembly::Value{4 /* size of int */}, assembly::Register::B);
+    assembly::append(program, Operations::MUL, assembly::Value{4}, assembly::Register::B);
     assembly::append(program, Operations::NEW, assembly::Register::B, assembly::DeferDispRegisterA(8));
     assembly::append(program, Operations::OUT, assembly::DeferDispRegisterA(8));
 
     assembly::append(program, Operations::POP, assembly::Register::B);
     assembly::append(program, Operations::RET);
-
+*/
     /* Vector::Destructor
      * %a : vector
-     */
+     *//*
     assembly::link_label(program, vec_destructor);
     assembly::append(program, Operations::DEL, assembly::DeferDispRegisterA(8));
     assembly::append(program, Operations::DEL, assembly::Register::A);
-    assembly::append(program, Operations::RET);
+    assembly::append(program, Operations::RET);*/
 
     /* Vector::get_size
      * %a : vector
      * 
      * return
      * %a : vector's size
-     */
+     *//*
     assembly::link_label(program, vec_get_size);
     assembly::append(program, Operations::MOV, assembly::DeferRegister::A, assembly::Register::A);
-    assembly::append(program, Operations::RET);
+    assembly::append(program, Operations::RET);*/
 
     /* Vector::vec_get_capacity
      * %a : vector
      * 
      * return
      * %a : vector's capacity
-     */
+     *//*
     assembly::link_label(program, vec_get_capacity);
     assembly::append(program, Operations::MOV, assembly::DeferDispRegisterA(4), assembly::Register::A);
-    assembly::append(program, Operations::RET);
+    assembly::append(program, Operations::RET);*/
 
     /* Vector::vec_get_data
      * %a : vector
      * 
      * return
      * %a : pointer to vector's data
-     */
+     *//*
     assembly::link_label(program, vec_get_data);
     assembly::append(program, Operations::MOV, assembly::DeferDispRegisterA(8), assembly::Register::A);
-    assembly::append(program, Operations::RET);
+    assembly::append(program, Operations::RET);*/
 
     /* Vector::vec_at
      * %a : vector
@@ -533,17 +543,17 @@ Program vector() {
      * 
      * return
      * %a : element
-     */
+     *//*
     assembly::link_label(program, vec_at);
-    assembly::append(program, Operations::MUL, assembly::Value{4 /* size of int */}, assembly::Register::B);
+    assembly::append(program, Operations::MUL, assembly::Value{4}, assembly::Register::B);
     assembly::append(program, Operations::MOV, assembly::DeferDispRegisterA(8), assembly::Register::A);
     assembly::append(program, Operations::ADD, assembly::Register::B, assembly::Register::A);
     assembly::append(program, Operations::MOV, assembly::DeferRegister::A, assembly::Register::A);
-    assembly::append(program, Operations::RET);
+    assembly::append(program, Operations::RET);*/
 
     /* Vector::vec_grow
      * %a : vector
-     */
+     *//*
     {
         assembly::Label for_loop_start, for_loop_end;
 
@@ -559,7 +569,7 @@ Program vector() {
 
         // allocate a new block in %d
         assembly::append(program, Operations::MOV, assembly::Register::A, assembly::Register::C);
-        assembly::append(program, Operations::MUL, assembly::Value{8 /* size of int and size * 2 */}, assembly::Register::C);
+        assembly::append(program, Operations::MUL, assembly::Value{8}, assembly::Register::C);
         assembly::append(program, Operations::NEW, assembly::Register::C, assembly::Register::D);
 
         assembly::append(program, Operations::MUL, assembly::Value{4}, assembly::Register::A);
@@ -607,11 +617,11 @@ Program vector() {
         assembly::append(program, Operations::RET);
 
     }
-
+*/
     /* Vector::vec_push
      * %a : vector
      * %b : element
-     */
+     *//*
     {
         assembly::Label no_need_grow;
 
@@ -681,15 +691,15 @@ Program vector() {
         assembly::append(program, Operations::POP, assembly::Register::B);
         assembly::append(program, Operations::POP, assembly::Register::A);
         assembly::append(program, Operations::RET);
-    }
+    }*/
 
     /* Vector::remove
      * %a : vector
-     */
+     *//*
     assembly::link_label(program, vec_pop);
     assembly::append(program, Operations::DEC, assembly::DeferRegister::A); // size --
     assembly::append(program, Operations::RET);
-
+*/
     return program;
 }
 

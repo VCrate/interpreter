@@ -1,7 +1,8 @@
 #include <bytec/Program/Program.hpp>
 #include <bytec/Sandbox/SandBox.hpp>
 #include <bytec/Interpreter/Interpreter.hpp>
-#include <bytec/Interpreter/Assembly.hpp>
+#include <bytec/Instruction/OperationDefinition.hpp>
+#include <bytec/Interpreter/BinRepr.hpp>
 
 #include <bytec/Program/Example.hpp>
 
@@ -15,154 +16,40 @@ using namespace bytec;
 int main() {
     //std::srand(std::time(nullptr));
 
-    Program program;
-    assembly::Label entry_point;
-
-    // go to entry point
-    assembly::append(program, Operations::JMP, entry_point);
-
-    // load hello_world function
-    auto hello_world = program_ex::hello_world(program);
-
-    // load print_number function
-    auto print_number = program_ex::print_number(program);
-
-    // load lerp function
-    auto lerp = program_ex::lerp(program);
-
-    // load sort function
-    auto sort = program_ex::sort(program);
-
-    // entry point
-    assembly::link_label(program, entry_point);
-
-    // call void hello_world()
-    assembly::append(program, Operations::CALL, hello_world.func);
-
-    // parameter in the A register
-    assembly::append(program, Operations::MOV, assembly::Register::SP, assembly::Register::A);
-    // call void print_number( SP )
-    assembly::append(program, Operations::CALL, print_number.func);
-    assembly::append(program, Operations::OUT, assembly::Value{'\n'});
-
-    assembly::append(program, Operations::PUSH, assembly::Value{100});// lower bounds
-    assembly::append(program, Operations::PUSH, assembly::Value{150});// upper bound
-    assembly::append(program, Operations::PUSH, assembly::Value{66});// alpha value
-    assembly::append(program, Operations::CALL, lerp.func); // store result in %a
-    assembly::append(program, Operations::SUB, assembly::Value{12}, assembly::Register::SP);
-    assembly::append(program, Operations::CALL, print_number.func);
-/*
-    assembly::append(program, Operations::OUT, assembly::Value{'\n'});
-    assembly::append(program, Operations::OUT, assembly::Value{'\n'});
-
-    assembly::append(program, Operations::MOV, assembly::Register::SP, assembly::Register::A);
-    assembly::append(program, Operations::PUSH, assembly::Value{rand() % 1000});
-    assembly::append(program, Operations::PUSH, assembly::Value{rand() % 1000});
-    assembly::append(program, Operations::PUSH, assembly::Value{rand() % 1000});
-    assembly::append(program, Operations::PUSH, assembly::Value{rand() % 1000});
-    assembly::append(program, Operations::PUSH, assembly::Value{rand() % 1000});
-    
-    assembly::append(program, Operations::MOV, assembly::DeferDispRegisterSP(-20), assembly::Register::A);
-    assembly::append(program, Operations::CALL, print_number.func);
-    assembly::append(program, Operations::OUT, assembly::Value{'\n'});
-
-    assembly::append(program, Operations::MOV, assembly::DeferDispRegisterSP(-16), assembly::Register::A);
-    assembly::append(program, Operations::CALL, print_number.func);
-    assembly::append(program, Operations::OUT, assembly::Value{'\n'});
-
-    assembly::append(program, Operations::MOV, assembly::DeferDispRegisterSP(-12), assembly::Register::A);
-    assembly::append(program, Operations::CALL, print_number.func);
-    assembly::append(program, Operations::OUT, assembly::Value{'\n'});
-
-    assembly::append(program, Operations::MOV, assembly::DeferDispRegisterSP(-8), assembly::Register::A);
-    assembly::append(program, Operations::CALL, print_number.func);
-    assembly::append(program, Operations::OUT, assembly::Value{'\n'});
-
-    assembly::append(program, Operations::MOV, assembly::DeferDispRegisterSP(-4), assembly::Register::A);
-    assembly::append(program, Operations::CALL, print_number.func);
-    assembly::append(program, Operations::OUT, assembly::Value{'\n'});
-
-    assembly::append(program, Operations::OUT, assembly::Value{'\n'});
-    assembly::append(program, Operations::OUT, assembly::Value{'.'});
-
-    assembly::append(program, Operations::OUT, assembly::Value{'!'});
-    assembly::append(program, Operations::MOV, assembly::Value{5}, assembly::Register::B);
-    assembly::append(program, Operations::OUT, assembly::Value{'.'});
-    assembly::append(program, Operations::OUT, assembly::Value{'.'});
-    assembly::append(program, Operations::OUT, assembly::Value{'.'});
-    assembly::append(program, Operations::CALL, sort.func);
-
-    assembly::append(program, Operations::OUT, assembly::Value{'\n'});
-    assembly::append(program, Operations::OUT, assembly::Value{'\n'});
-
-    assembly::append(program, Operations::MOV, assembly::DeferDispRegisterSP(-20), assembly::Register::A);
-    assembly::append(program, Operations::CALL, print_number.func);
-    assembly::append(program, Operations::OUT, assembly::Value{'\n'});
-
-    assembly::append(program, Operations::MOV, assembly::DeferDispRegisterSP(-16), assembly::Register::A);
-    assembly::append(program, Operations::CALL, print_number.func);
-    assembly::append(program, Operations::OUT, assembly::Value{'\n'});
-
-    assembly::append(program, Operations::MOV, assembly::DeferDispRegisterSP(-12), assembly::Register::A);
-    assembly::append(program, Operations::CALL, print_number.func);
-    assembly::append(program, Operations::OUT, assembly::Value{'\n'});
-
-    assembly::append(program, Operations::MOV, assembly::DeferDispRegisterSP(-8), assembly::Register::A);
-    assembly::append(program, Operations::CALL, print_number.func);
-    assembly::append(program, Operations::OUT, assembly::Value{'\n'});
-
-    assembly::append(program, Operations::MOV, assembly::DeferDispRegisterSP(-4), assembly::Register::A);
-    assembly::append(program, Operations::CALL, print_number.func);
-    assembly::append(program, Operations::OUT, assembly::Value{'\n'});
-
-    assembly::append(program, Operations::SUB, assembly::Value{20}, assembly::Register::SP);
-*/
-    // new line and halt
-    assembly::append(program, Operations::OUT, assembly::Value{'\n'});
-    assembly::append(program, Operations::HLT);
-
     SandBox sandbox;
-    sandbox.load_program(program);
+
+    {    
+        Program program;
+        SecuredLabel entry_point;
+
+        // go to entry point
+        program.append_instruction(Operations::JMP, entry_point);
+    
+        // load hello_world function
+        auto hello_world = program_ex::hello_world(program);
+
+        // entry point
+        program.link(entry_point);
+
+        // call void hello_world()
+        program.append_instruction(Operations::CALL, hello_world.func);
+    
+        program.append_instruction(Operations::OUT, Value('\n'));
+        program.append_instruction(Operations::HLT);
+
+        sandbox.load_program(program);
+    }
 
     std::cout << "# Start #" << std::endl;
+
     while(!sandbox.is_halted()) {
-        Interpreter::run(sandbox);
+        auto is = sandbox.get_instruction();
+        //std::cout << "\033[31m\033[1m< " << is.to_string() << " >\033[0m"; 
+        Interpreter::run_next_instruction(sandbox);
+        //std::cout << '\n';
         //std::cin.get();
     }
+
     std::cout << "# Halt #" << std::endl;
-/*
-    Memory mem(256);
-
-    auto b0 = mem.allocate(4);
-    std::cout << b0 << std::endl;
-    auto b1 = mem.allocate(4);
-    std::cout << b1 << std::endl;
-    auto b2 = mem.allocate(4);
-    std::cout << b2 << std::endl;
-
-    mem.set32(b0, 0xF1F1F1F1);
-    mem.set32(b1, 0xB3B3B3B3);
-    mem.set32(b2, 0x85858585);
-
-    std::cout << mem.get32(b0) << " == " << 0xF1F1F1F1 << std::endl;
-    std::cout << mem.get32(b1) << " == " << 0xB3B3B3B3 << std::endl;
-    std::cout << mem.get32(b2) << " == " << 0x85858585 << std::endl;
-
-    mem.deallocate(b0);
-    mem.deallocate(b1);
-    mem.deallocate(b2);
-
-    b2 = mem.allocate(4);
-    std::cout << b2 << std::endl;
-    mem.set32(b2, 0x1F1F1F1F);
-
-    auto b3 = mem.allocate(4);
-    std::cout << b3 << std::endl;
-    mem.set32(b3, 0x3B3B3B3B);
-
-    std::cout << mem.get32(b0) << " == " << 0xF1F1F1F1 << std::endl;
-    std::cout << mem.get32(b1) << " == " << 0xB3B3B3B3 << std::endl;
-    std::cout << mem.get32(b2) << " == " << 0x1F1F1F1F << std::endl;
-    std::cout << mem.get32(b3) << " == " << 0x3B3B3B3B << std::endl;*/
 
 }

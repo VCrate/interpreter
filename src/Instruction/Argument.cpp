@@ -2,9 +2,54 @@
 
 #include <bytec/Interpreter/BinRepr.hpp>
 
+#include <stdexcept>
+
 namespace bytec {
 
-Register::Register(ui32 reg) : reg(reg) {}
+Register::Register(ui32 reg) : reg(reg) {
+    if(
+        reg != bin_repr::arg_register_A &&
+        reg != bin_repr::arg_register_B &&
+        reg != bin_repr::arg_register_C &&
+        reg != bin_repr::arg_register_D &&
+        reg != bin_repr::arg_register_E &&
+        reg != bin_repr::arg_register_F &&
+        reg != bin_repr::arg_register_G &&
+        reg != bin_repr::arg_register_H &&
+        reg != bin_repr::arg_register_I &&
+        reg != bin_repr::arg_register_J &&
+        reg != bin_repr::arg_register_K &&
+        reg != bin_repr::arg_register_L &&
+        reg != bin_repr::arg_register_PC &&
+        reg != bin_repr::arg_register_FG &&
+        reg != bin_repr::arg_register_BP &&
+        reg != bin_repr::arg_register_SP        
+    )
+        throw std::runtime_error("Register unknown");
+}
+
+std::string Register::to_string() const {
+    switch(reg) {
+        case bin_repr::arg_register_A: return "%A";
+        case bin_repr::arg_register_B: return "%B";
+        case bin_repr::arg_register_C: return "%C";
+        case bin_repr::arg_register_D: return "%D";
+        case bin_repr::arg_register_E: return "%E";
+        case bin_repr::arg_register_F: return "%F";
+        case bin_repr::arg_register_G: return "%G";
+        case bin_repr::arg_register_H: return "%H";
+        case bin_repr::arg_register_I: return "%I";
+        case bin_repr::arg_register_J: return "%J";
+        case bin_repr::arg_register_K: return "%K";
+        case bin_repr::arg_register_L: return "%L";
+        case bin_repr::arg_register_PC: return "%PC";
+        case bin_repr::arg_register_FG: return "%FG";
+        case bin_repr::arg_register_BP: return "%BP";
+        case bin_repr::arg_register_SP: return "%SP";
+        default:
+            throw std::runtime_error("Register unknown");
+    }
+}
 
 const Register Register::A = Register(bin_repr::arg_register_A);
 const Register Register::B = Register(bin_repr::arg_register_B);
@@ -25,10 +70,49 @@ const Register Register::SP = Register(bin_repr::arg_register_SP);
 
 Displacement::Displacement(Register reg, ui32 displacement) : reg(reg), displacement(displacement) {}
 
+std::string Displacement::to_string() const {
+    return "[" + reg.to_string() + " + " + std::to_string(displacement) + "]";
+}
+
 Deferred::Deferred(Register reg) : reg(reg) {}
+
+std::string Deferred::to_string() const {
+    return "[" + reg.to_string() + "]";
+}
 
 Address::Address(ui32 address)  : address(address) {}
 
+std::string Address::to_string() const {
+    return "[" + std::to_string(address) + "]";
+}
+
 Value::Value(ui32 value) : value(value) {}
+
+std::string Value::to_string() const {
+    return std::to_string(value);
+}
+
+ArgumentType get_argument_type(Argument const& arg) {
+    switch(arg.index()) {
+        case 0: return ArgumentType::Register;
+        case 1: return ArgumentType::Displacement;
+        case 2: return ArgumentType::Deferred;
+        case 3: return ArgumentType::Address;
+        case 4: return ArgumentType::Value;
+
+        default:
+            throw std::runtime_error("Argument type unknown");
+    }
+}
+
+std::string argument_to_string(Argument const& arg) {
+    return std::visit(Visitor {
+        [] (Value arg)          { return arg.to_string(); },
+        [] (Register arg)       { return arg.to_string(); },
+        [] (Displacement arg)   { return arg.to_string(); },
+        [] (Address arg)        { return arg.to_string(); },
+        [] (Deferred arg)       { return arg.to_string(); },
+    }, arg);
+}
 
 }

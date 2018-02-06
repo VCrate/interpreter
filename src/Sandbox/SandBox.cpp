@@ -19,9 +19,11 @@ bool SandBox::is_halted() const {
 void SandBox::load_program(Program const& program) {
     set_pc(0);
     set_fg(0);
-    set_bp((program.size() - 1) * 4);
-    for(ui32 i = 0; i < program.size(); ++i)
-        memory.push32(program.instruction_at(i));
+    set_bp(program.size() - 4);
+    for(ui32 i = 0; i < program.size(); i += 4) {
+        auto instruction = program.get_raw(i);
+        memory.push32(instruction);
+    }
 }
 
 ui32 SandBox::get_pc() const {
@@ -33,12 +35,27 @@ ui32 SandBox::get_pc_increment() {
     return get_pc() - 4;
 }
 
-ui32 SandBox::get_instruction() {
-    return get_memory_at(get_pc());
+Instruction SandBox::get_instruction() {
+    auto pc = get_pc();
+    return Instruction(get_memory_at(pc), get_memory_at(pc + 4), get_memory_at(pc + 8));
 }
 
-ui32 SandBox::get_instruction_and_move() {
-    return get_memory_at(get_pc_increment());
+Instruction SandBox::get_instruction_and_move() {
+    auto inst = get_instruction();
+    switch(inst.type()) {
+        case Instruction::Type::Triple:
+            set_pc(get_pc() + 12);
+            break;
+        case Instruction::Type::Double:
+            set_pc(get_pc() + 8);
+            break;
+        case Instruction::Type::Single:
+            set_pc(get_pc() + 4);
+            break;
+        default:
+            throw std::runtime_error("Instruction size not supported");
+    }
+    return inst;
 }
 
 void SandBox::set_pc(ui32 value) {
@@ -107,7 +124,7 @@ ui32 SandBox::get_register(ui32 reg) const {/*
         case bin_repr::arg_register_SP: std::cout << "SP"; break;
         default:                        std::cout << reg;  break;
     }
-    std::cout << " // " << registers[reg] << std::endl;*/
+    std::cout << " (" << registers[reg] << ")" << std::endl;*/
     if (reg == bin_repr::arg_register_SP)
         return memory.get_stack_pointer();
     return registers[reg];

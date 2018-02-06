@@ -3,10 +3,12 @@
 ##############################################
 # All directories to build (inside src/)
 DIR := Interpreter Program Sandbox Instruction Instruction/Instruction
+# Files to exclude
+EXCLUDED_FILE := src/Interpreter/Assembly.cpp src/Interpreter/Decoder.cpp
 # Directories with src/ prefix
 SRC_DIR := $(addprefix src/,$(DIR))
 # All .cpp files
-SRC := $(foreach d,$(SRC_DIR),$(wildcard $(d)/*.cpp))
+SRC := $(filter-out $(EXCLUDED_FILE),$(foreach d,$(SRC_DIR),$(wildcard $(d)/*.cpp)))
 
 ##############################################
 #                    MAIN                    #
