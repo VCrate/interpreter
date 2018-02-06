@@ -29,6 +29,7 @@ int main() {
         auto hello_world = program_ex::hello_world(program);
 
         auto printer = program_ex::print_number(program);
+        auto lerp = program_ex::lerp(program);
 
         // entry point
         program.link(entry_point);
@@ -39,7 +40,14 @@ int main() {
 
         program.append_instruction(Operations::MOV, Register::A, Value(1234));
         program.append_instruction(Operations::CALL, printer.func);
-    
+        program.append_instruction(Operations::OUT, Value('\n'));
+
+        program.append_instruction(Operations::PUSH, Value(50));
+        program.append_instruction(Operations::PUSH, Value(250));
+        program.append_instruction(Operations::PUSH, Value(75));
+        program.append_instruction(Operations::CALL, lerp.func);
+        program.append_instruction(Operations::CALL, printer.func);
+
         program.append_instruction(Operations::OUT, Value('\n'));
         program.append_instruction(Operations::HLT);
 

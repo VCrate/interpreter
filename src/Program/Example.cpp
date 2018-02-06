@@ -202,19 +202,19 @@ lerp_labels lerp(Program& program) {
      * [rbp - 16] : parameter 2 (upper bounds)
      * [rbp - 20] : parameter 1 (lower bounds)
      */
-/*
-    assembly::link_label(program, labels.func);
-    assembly::append(program, Operations::ETR);
 
-    assembly::append(program, Operations::MOV, assembly::DeferDispRegisterBP(-16), assembly::Register::A);
-    assembly::append(program, Operations::SUB, assembly::DeferDispRegisterBP(-20), assembly::Register::A);
-    assembly::append(program, Operations::MUL, assembly::DeferDispRegisterBP(-12), assembly::Register::A);
-    assembly::append(program, Operations::DIV, assembly::Value{100}, assembly::Register::A);
-    assembly::append(program, Operations::ADD, assembly::DeferDispRegisterBP(-20), assembly::Register::A);
+    program.link(labels.func);
+    program.append_instruction(Operations::ETR);
 
-    assembly::append(program, Operations::LVE);
-    assembly::append(program, Operations::RET);
-*/
+    program.append_instruction(Operations::MOV, Register::A, Displacement(Register::BP, -16));
+    program.append_instruction(Operations::SUB, Register::A, Displacement(Register::BP, -20));
+    program.append_instruction(Operations::MUL, Register::A, Displacement(Register::BP, -12));
+    program.append_instruction(Operations::DIV, Register::A, Value(100));
+    program.append_instruction(Operations::ADD, Register::A, Displacement(Register::BP, -20));
+
+    program.append_instruction(Operations::LVE);
+    program.append_instruction(Operations::RET);
+
 
     return labels;
 }
