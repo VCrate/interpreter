@@ -14,7 +14,7 @@
 using namespace bytec;
 
 int main() {
-    //std::srand(std::time(nullptr));
+    std::srand(std::time(nullptr));
 
     SandBox sandbox;
 
@@ -51,51 +51,33 @@ int main() {
         program.append_instruction(Operations::OUT, Value('\n'));
 */
         program.append_instruction(Operations::MOV, Register::A, Register::SP);
-        program.append_instruction(Operations::PUSH, Value(rand() % 100));
-        program.append_instruction(Operations::PUSH, Value(rand() % 100));
-        program.append_instruction(Operations::PUSH, Value(rand() % 100));
-        program.append_instruction(Operations::PUSH, Value(rand() % 100));
-        program.append_instruction(Operations::PUSH, Value(rand() % 100));
 
-        program.append_instruction(Operations::OUT, Value('>'));
-        program.append_instruction(Operations::OUT, Value(' '));
-        program.append_instruction(Operations::DBG, Register::A);
-        program.append_instruction(Operations::OUT, Value('\n'));
+        const ui32 array_size = 50;
+        const ui32 value_max = 100;
+
+        for(ui32 i = 0; i < array_size; ++i)
+            program.append_instruction(Operations::PUSH, Value(rand() % value_max));
 
         program.append_instruction(Operations::OUT, Value('['));
         program.append_instruction(Operations::DBG, Displacement(Register::A, 0));
-        program.append_instruction(Operations::OUT, Value(','));
-        program.append_instruction(Operations::OUT, Value(' '));
-        program.append_instruction(Operations::DBG, Displacement(Register::A, 4));
-        program.append_instruction(Operations::OUT, Value(','));
-        program.append_instruction(Operations::OUT, Value(' '));
-        program.append_instruction(Operations::DBG, Displacement(Register::A, 8));
-        program.append_instruction(Operations::OUT, Value(','));
-        program.append_instruction(Operations::OUT, Value(' '));
-        program.append_instruction(Operations::DBG, Displacement(Register::A, 12));
-        program.append_instruction(Operations::OUT, Value(','));
-        program.append_instruction(Operations::OUT, Value(' '));
-        program.append_instruction(Operations::DBG, Displacement(Register::A, 16));
+        for(ui32 i = 1; i < array_size; i++) {
+            program.append_instruction(Operations::OUT, Value(','));
+            program.append_instruction(Operations::OUT, Value(' '));
+            program.append_instruction(Operations::DBG, Displacement(Register::A, i*4));
+        }
         program.append_instruction(Operations::OUT, Value(']'));
         program.append_instruction(Operations::OUT, Value('\n'));
 
-        program.append_instruction(Operations::MOV, Register::B, Value(5));
+        program.append_instruction(Operations::MOV, Register::B, Value(array_size));
         program.append_instruction(Operations::CALL, sort.func);
 
         program.append_instruction(Operations::OUT, Value('['));
         program.append_instruction(Operations::DBG, Displacement(Register::A, 0));
-        program.append_instruction(Operations::OUT, Value(','));
-        program.append_instruction(Operations::OUT, Value(' '));
-        program.append_instruction(Operations::DBG, Displacement(Register::A, 4));
-        program.append_instruction(Operations::OUT, Value(','));
-        program.append_instruction(Operations::OUT, Value(' '));
-        program.append_instruction(Operations::DBG, Displacement(Register::A, 8));
-        program.append_instruction(Operations::OUT, Value(','));
-        program.append_instruction(Operations::OUT, Value(' '));
-        program.append_instruction(Operations::DBG, Displacement(Register::A, 12));
-        program.append_instruction(Operations::OUT, Value(','));
-        program.append_instruction(Operations::OUT, Value(' '));
-        program.append_instruction(Operations::DBG, Displacement(Register::A, 16));
+        for(ui32 i = 1; i < array_size; i++) {
+            program.append_instruction(Operations::OUT, Value(','));
+            program.append_instruction(Operations::OUT, Value(' '));
+            program.append_instruction(Operations::DBG, Displacement(Register::A, i*4));
+        }
         program.append_instruction(Operations::OUT, Value(']'));
         program.append_instruction(Operations::OUT, Value('\n'));
 

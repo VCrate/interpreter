@@ -232,168 +232,201 @@ sort_labels sort(Program& program) {
      */
 
     /*
-        [rsp - 4] is the flag to check if the array is sorted
-        [rsp - 8] is the inner loop counter
 
-    func:
-        push %e
-        push %d
-        etr
-        push 1                      # rbp - 4
-        push 0                      # rbp - 8
+        FOR (var = init; var < bound; var ++) =>
+            MOV var, init
+        begin:
+            CMP bound, var
+            JMPGE end
 
-    start_loop:
-        dec %b
-        cmp 1, %b
-        jmpg end_loop               # 1 > %b
-        mov [rsp - 4], 1
-        
-        mov [rsp - 8], 0
-    start_inner_loop:
-        cmp [rsp - 8], %b           # c > b
-        jmpg end_inner_loop
+            ...
 
-        mov %d, %a
-        add %d, [rsp - 8]
-        mov %e, %d
-        add %d, 4
-        cmp [%e], [%d]
-        jmpge after_if              # [%e] >= [%d]
+            INC var
+            JMP begin
+        end:
 
-        swp [%e], [%d]
-        mov [rsp - 4], 0
+        for (b = size - 1; 0 < b; b--)
+            flag_is_sorted = true
+            for (c = 0; c <= b; c++)
+                d = [a + c]
+                e = [a + c + 4]     # sizeof int = 4
+                if (e < d)
+                    swap(d, e)
+                    flag_is_sorted = false
+            if flag_is_sorted
+                return
 
-    after_if:
 
-        inc [rsp - 8]
-        jmp start_inner_loop
-    
-    end_inner_loop:
-        cmp [rsp - 4], 0
-        jmpg end_loop
+            PUSH c
+            PUSH d
+            PUSH e
+            PUSH f
 
-        jmp start_loop
+            DEC b
+        begin_outer:
+            CMP 0, b
+            JMPGE end_outer
 
-    end_loop:
-        lve
-        pop %d
-        pop %e
-        ret
+                MOV f, 1
+
+                MOV c, 0
+        begin_inner:
+                CMP c, b
+                JMPG end_inner
+
+                    MOV d, a
+                    MOV e, c
+                    MUL e, 4
+                    ADD d, e
+                    MOV e, d
+                    ADD d, 4
+
+                    CMP [d], [e]
+                    JMPGE dont_swap
+
+                        SWP [d], [e]
+                        MOV f, 0
+
+        dont_swap:
+
+                INC c
+                JMP begin_inner
+        end_inner:
+
+            CMP f, 1
+            JMPGE end_outer
+
+            DEC b
+            JMP begin_outer
+        end_outer:
+
+            POP f
+            POP e
+            POP d
+            POP c
+            RET
 
     */
 
     sort_labels labels;
-    Label start_loop, start_inner_loop, after_if, end_inner_loop, end_loop;
+    Label begin_outer, end_outer, begin_inner, end_inner, dont_swap;
 
     /*
     func:
-        push %e
-        push %d
-        etr
-        push 1                      # rbp - 4
-        push 0                      # rbp - 8
+        PUSH c
+        PUSH d
+        PUSH e
+        PUSH f
     */
 
     program.link(labels.func);
-    program.append_instruction(Operations::PUSH, Register::E);
+    program.append_instruction(Operations::PUSH, Register::C);
     program.append_instruction(Operations::PUSH, Register::D);
-    program.append_instruction(Operations::ETR);
-    program.append_instruction(Operations::PUSH, Value(1));
-    program.append_instruction(Operations::PUSH, Value(0));
+    program.append_instruction(Operations::PUSH, Register::E);
+    program.append_instruction(Operations::PUSH, Register::F);
 
     /*
-    start_loop:
-        dec %b
-        cmp 1, %b
-        jmpg end_loop               # 1 > %b
-        mov [rsp - 4], 1
+        DEC b
+    begin_outer:
+        CMP 0, b
+        JMPGE end_outer
     */
 
-    program.link(start_loop);
     program.append_instruction(Operations::DEC, Register::B);
-    program.append_instruction(Operations::CMP, Value(1), Register::B);
-    program.append_instruction(Operations::JMPG, end_loop);
-    program.append_instruction(Operations::MOV, Displacement(Register::SP, -4), Value(1));
+    program.link(begin_outer);
+    program.append_instruction(Operations::CMP, Value(0), Register::B);
+    program.append_instruction(Operations::JMPG, end_outer);
 
     /*
-        mov [rsp - 8], 0
-    start_inner_loop:
-        cmp [rsp - 8], %b           # c > b
-        jmpg end_inner_loop
+        MOV f, 1
+    */
+    program.append_instruction(Operations::MOV, Register::F, Value(1));
+
+    /*
+            MOV c, 0
+    begin_inner:
+            CMP c, b
+            JMPG end_inner
     */
 
-    program.append_instruction(Operations::MOV, Displacement(Register::SP, -8), Value(0));
-    program.link(start_inner_loop);
-    program.append_instruction(Operations::CMP, Displacement(Register::SP, -8), Register::B);
-    program.append_instruction(Operations::JMPG, end_inner_loop);
+    program.append_instruction(Operations::MOV, Register::C, Value(0));
+    program.link(begin_inner);
+    program.append_instruction(Operations::CMP, Register::C, Register::B);
+    program.append_instruction(Operations::JMPG, end_inner);
 
     /*
-        mov %d, %a
-        add %d, [rsp - 8]
-        mov %e, %d
-        add %d, 4
-        cmp [%e], [%d]
-        jmpge after_if              # [%e] >= [%d]
+        MOV d, a
+        MOV e, c
+        MUL e, 4
+        ADD d, e
+        MOV e, d
+        ADD d, 4
     */
 
     program.append_instruction(Operations::MOV, Register::D, Register::A);
-    program.append_instruction(Operations::ADD, Displacement(Register::SP, -8), Register::D);
+    program.append_instruction(Operations::MOV, Register::E, Register::C);
+    program.append_instruction(Operations::MUL, Register::E, Value(4));
+    program.append_instruction(Operations::ADD, Register::D, Register::E);
     program.append_instruction(Operations::MOV, Register::E, Register::D);
     program.append_instruction(Operations::ADD, Register::D, Value(4));
-    program.append_instruction(Operations::CMP, Deferred(Register::E), Deferred(Register::D));
-    program.append_instruction(Operations::JMPGE, after_if);
 
     /*
-        swp [%e], [%d]
-        mov [rsp - 4], 0
+        CMP [d], [e]
+        JMPGE dont_swap
+    */
+    program.append_instruction(Operations::CMP, Deferred(Register::D), Deferred(Register::E));
+    program.append_instruction(Operations::JMPGE, dont_swap);
+
+    /*
+        SWP [d], [e]
+        MOV f, 0
     */
 
-    program.append_instruction(Operations::OUT, Value('!'));
-    program.append_instruction(Operations::OUT, Value(' '));
-    program.append_instruction(Operations::DBG, Register::D);
-    program.append_instruction(Operations::OUT, Value(','));
-    program.append_instruction(Operations::OUT, Value(' '));
-    program.append_instruction(Operations::DBG, Register::E);
-    program.append_instruction(Operations::OUT, Value('\n'));
     program.append_instruction(Operations::SWP, Deferred(Register::D), Deferred(Register::E));
-    program.append_instruction(Operations::MOV, Displacement(Register::SP, -4), Value(0));
+    program.append_instruction(Operations::MOV, Register::F, Value(0));
 
     /*
-    after_if:
+    dont_swap:
 
-        inc [rsp - 8]
-        jmp start_inner_loop
+            INC c
+            JMP begin_inner
     */
 
-    program.link(after_if);
-    program.append_instruction(Operations::INC, Displacement(Register::SP, -8));
-    program.append_instruction(Operations::JMP, start_inner_loop);
+    program.link(dont_swap);
+    program.append_instruction(Operations::INC, Register::C);
+    program.append_instruction(Operations::JMP, begin_inner);
 
     /*
-    end_inner_loop:
-        cmp [rsp - 4], 0
-        jmpg end_loop
+    end_inner:
 
-        jmp start_loop
+        CMP f, 1
+        JMPGE end_outer
+
+        DEC b
+        JMP begin_outer
     */
 
-    program.link(end_inner_loop);
-    program.append_instruction(Operations::CMP, Displacement(Register::SP, -4), Value(0));
-    program.append_instruction(Operations::JMPG, end_loop);
-    program.append_instruction(Operations::JMP, start_loop);
+    program.link(end_inner);
+    program.append_instruction(Operations::CMP, Register::F, Value(1));
+    program.append_instruction(Operations::JMPGE, end_outer);
+    program.append_instruction(Operations::DEC, Register::B);
+    program.append_instruction(Operations::JMP, begin_outer);
 
     /*
-    end_loop:
-        lve
-        pop %d
-        pop %e
-        ret
+    end_outer:
+
+        POP f
+        POP e
+        POP d
+        POP c
+        RET
     */
 
-    program.link(end_loop);
-    program.append_instruction(Operations::LVE);
-    program.append_instruction(Operations::POP, Register::D);
+    program.link(end_outer);
+    program.append_instruction(Operations::POP, Register::F);
     program.append_instruction(Operations::POP, Register::E);
+    program.append_instruction(Operations::POP, Register::D);
+    program.append_instruction(Operations::POP, Register::C);
     program.append_instruction(Operations::RET);
 
     return labels;
