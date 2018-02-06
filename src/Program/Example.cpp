@@ -125,31 +125,30 @@ print_number_labels print_number(Program& program) {
     */
 
     print_number_labels labels;
-/*
-    assembly::Label end_func;
 
-    assembly::link_label(program, labels.func);
-*/
+    Label end_func;
+
     /*
         cmp 10, %a
         jmpg end_func        # 10 > %a
     */
-/*
-    assembly::append(program, Operations::CMP, assembly::Value{10}, assembly::Register::A);
-    assembly::append(program, Operations::JMPG, end_func);
-*/
+
+    program.link(labels.func);
+    program.append_instruction(Operations::CMP, Value(10), Register::A);
+    program.append_instruction(Operations::JMPG, end_func);
+
     /*
         push %a
         div %a, 10
         call func
         pop %a
     */
-/*
-    assembly::append(program, Operations::PUSH, assembly::Register::A);
-    assembly::append(program, Operations::DIV, assembly::Value{10}, assembly::Register::A);
-    assembly::append(program, Operations::CALL, labels.func);
-    assembly::append(program, Operations::POP, assembly::Register::A);
-*/
+
+    program.append_instruction(Operations::PUSH, Register::A);
+    program.append_instruction(Operations::DIV, Register::A, Value(10));
+    program.append_instruction(Operations::CALL, labels.func);
+    program.append_instruction(Operations::POP, Register::A);
+
     /*
     end_func:
         mod %a, 10
@@ -157,13 +156,13 @@ print_number_labels print_number(Program& program) {
         out %a
         ret
     */
-/*
-    assembly::link_label(program, end_func);
-    assembly::append(program, Operations::MOD, assembly::Value{10}, assembly::Register::A);
-    assembly::append(program, Operations::ADD, assembly::Value{'0'}, assembly::Register::A);
-    assembly::append(program, Operations::OUT, assembly::Register::A);
-    assembly::append(program, Operations::RET);
-*/
+
+    program.link(end_func);
+    program.append_instruction(Operations::MOD, Register::A, Value(10));
+    program.append_instruction(Operations::ADD, Register::A, Value('0'));
+    program.append_instruction(Operations::OUT, Register::A);
+    program.append_instruction(Operations::RET);
+
     return labels;
 }
 

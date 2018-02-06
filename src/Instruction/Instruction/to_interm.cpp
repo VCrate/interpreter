@@ -145,12 +145,13 @@ Argument Instruction::get_first_argument() const {
 }
 
 Argument Instruction::get_second_argument() const {
+    bool first_required_extra = require_complete_instruction(bin_repr::arg12_type_decode(bin_repr::arg0_decode(first)));
     auto type = bin_repr::arg12_type_decode(bin_repr::arg1_decode(first));
     switch(get_corresponding_argtype(type)) {
         case ArgumentType::Value:
         {
             if (require_complete_instruction(type))
-                return Value{ *second };
+                return Value{ *(first_required_extra ? third : second) };
             return Value(bin_repr::arg12_value_decode(bin_repr::arg1_decode(first)));
         }
         case ArgumentType::Register:
@@ -164,7 +165,7 @@ Argument Instruction::get_second_argument() const {
         case ArgumentType::Address:
         {
             if (require_complete_instruction(type))
-                return Address{ *second };
+                return Address{ *(first_required_extra ? third : second) };
             return Address(bin_repr::arg12_value_decode(bin_repr::arg1_decode(first)));
         }
         case ArgumentType::Displacement:
@@ -172,7 +173,7 @@ Argument Instruction::get_second_argument() const {
             if (require_complete_instruction(type))
                 return Displacement(
                     Register(bin_repr::arg12_register_decode(bin_repr::arg1_decode(first))),
-                    *second
+                    *(first_required_extra ? third : second)
                 );
             return Displacement(
                 Register(bin_repr::arg12_register_decode(bin_repr::arg1_decode(first))),

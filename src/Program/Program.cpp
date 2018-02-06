@@ -30,7 +30,7 @@ void Program::append_instruction(Operations ope, Label& label) {
         label.hooks.push_back([ope, this, &label, addr = size()] () {
             this->set_instruction(Instruction(ope, Value(label.get_address())), addr);
         });
-        append(Instruction(ope, Value(label.address_max())));
+        append(Instruction(ope, Value(label.address_max() -1)));
     } else {
         append(Instruction(ope, Value(label.get_address())));
     }
@@ -43,7 +43,7 @@ void Program::append_instruction(Operations ope, Label& label, Argument const& a
         label.hooks.push_back([ope, this, &label, arg1, addr = size()] () {
             this->set_instruction(Instruction(ope, Value(label.get_address()), arg1), addr);
         });
-        append(Instruction(ope, Value(label.address_max()), arg1));
+        append(Instruction(ope, Value(label.address_max() -1), arg1));
     } else {
         append(Instruction(ope, Value(label.get_address()), arg1));
     }
@@ -56,7 +56,7 @@ void Program::append_instruction(Operations ope, Argument const& arg0, Label& la
         label.hooks.push_back([ope, this, &label, arg0, addr = size()] () {
             this->set_instruction(Instruction(ope, arg0, Value(label.get_address())), addr);
         });
-        append(Instruction(ope, arg0, Value(label.address_max())));
+        append(Instruction(ope, arg0, Value(label.address_max() -1)));
     } else {
         append(Instruction(ope, arg0, Value(label.get_address())));
     }
@@ -77,14 +77,14 @@ void Program::append_instruction(Operations ope, Label& l0, Label& l1) {
                 if (l0.is_linked())
                     this->set_instruction(Instruction(ope, Value(l0.get_address()), Value(l1.get_address())), addr);
             });
-            append(Instruction(ope, Value(l0.address_max()), Value(l1.address_max())));
+            append(Instruction(ope, Value(l0.address_max()-1), Value(l1.address_max() -1)));
         } else {
             if (l0.hooks.empty())
                 unlinked_label++;
             l0.hooks.push_back([ope, this, &l0, &l1, addr = size()] () {
                 this->set_instruction(Instruction(ope, Value(l0.get_address()), Value(l1.get_address())), addr);
             });
-            append(Instruction(ope, Value(l0.address_max()), Value(l1.get_address())));
+            append(Instruction(ope, Value(l0.address_max()-1), Value(l1.get_address())));
         }
     } else {
         if (!l1.is_linked()) {
@@ -93,7 +93,7 @@ void Program::append_instruction(Operations ope, Label& l0, Label& l1) {
             l1.hooks.push_back([ope, this, &l0, &l1, addr = size()] () {
                 this->set_instruction(Instruction(ope, Value(l1.get_address()), Value(l1.get_address())), addr);
             });
-            append(Instruction(ope, Value(l0.get_address()), Value(l1.address_max())));
+            append(Instruction(ope, Value(l0.get_address()), Value(l1.address_max()-1)));
         } else {
             append(Instruction(ope, Value(l0.get_address()), Value(l1.get_address())));
         }
@@ -119,17 +119,16 @@ Instruction Program::get_instruction(ui32 address) const {
 }
 
 void Program::set_instruction(Instruction const& instruction, ui32 address) {
-    if(address % 4 > 0)
-        throw std::runtime_error("The address is always 4-byte aligned");
-    address /= 4;
-
     auto type = instruction.type();
-    instructions[address] = instruction.get_main_instruction();
+
+    set_raw(instruction.get_main_instruction(), address);
+
     if (type == Instruction::Type::Double) {
-        instructions[address + 1] = instruction.get_first_extra();
+        set_raw(instruction.get_first_extra(), address + 1);
+
     } else if (type == Instruction::Type::Triple) {
-        instructions[address + 1] = instruction.get_first_extra();
-        instructions[address + 2] = instruction.get_second_extra();
+        set_raw(instruction.get_first_extra(), address + 1);
+        set_raw(instruction.get_second_extra(), address + 2);
     }
 }
 
@@ -145,7 +144,6 @@ void Program::set_raw(ui32 value, ui32 address) {
     if(address % 4 > 0)
         throw std::runtime_error("The address is always 4-byte aligned");
     address /= 4;
-
     instructions[address] = value;
 }
 
@@ -155,7 +153,7 @@ void Program::link(Label& label) {
 
     if (!label.hooks.empty())
         --unlinked_label;
-
+    
     label.address = size();
 
     for(auto action : label.hooks)

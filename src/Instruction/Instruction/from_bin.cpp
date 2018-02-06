@@ -32,7 +32,7 @@ Instruction::Instruction(ui32 main, ui32 extra0, ui32 extra1) {
                     third = extra1;
             } else {
                 if (require_complete_instruction(type1))
-                    third = extra1;
+                    second = extra0;
             }
             first = main;
             return;

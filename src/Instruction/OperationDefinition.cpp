@@ -1,6 +1,7 @@
 #include <bytec/Instruction/OperationDefinition.hpp>
 
 #include <map>
+#include <iostream>
 
 namespace bytec {
 
@@ -49,7 +50,13 @@ OperationDefinition OperationDefinition::get_definition(Operations operation) {
         { Operations::OUT,      OperationDefinition{ "OUT",     false           }}
     };
 
-    return defs.at(operation);
+    try {
+        return defs.at(operation);
+    } catch(...) {
+        std::cout << "Operation unknown : " << static_cast<ui32>(operation) << std::endl;
+        throw;
+        //return { "???" };
+    }
 }
 
 }

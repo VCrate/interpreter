@@ -28,11 +28,17 @@ int main() {
         // load hello_world function
         auto hello_world = program_ex::hello_world(program);
 
+        auto printer = program_ex::print_number(program);
+
         // entry point
         program.link(entry_point);
 
         // call void hello_world()
         program.append_instruction(Operations::CALL, hello_world.func);
+
+
+        program.append_instruction(Operations::MOV, Register::A, Value(1234));
+        program.append_instruction(Operations::CALL, printer.func);
     
         program.append_instruction(Operations::OUT, Value('\n'));
         program.append_instruction(Operations::HLT);
@@ -45,7 +51,7 @@ int main() {
 
     while(!sandbox.is_halted()) {
         //auto is = sandbox.get_instruction();
-        //std::cout << "\033[31m\033[1m< " << is.to_string() << " >\033[0m"; 
+        //std::cout << "\033[31m\033[1m< " << sandbox.get_pc() << " : " << is.to_string() << " >\033[0m"; 
         Interpreter::run_next_instruction(sandbox);
         //std::cout << '\n';
         //std::cin.get();
