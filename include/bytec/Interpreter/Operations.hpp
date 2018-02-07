@@ -13,6 +13,7 @@ enum class Operations : ui8 {
     DIV,  // Divide (RRW)
     DIVU, // Divide unsigned (RRW)
     MOV,  // Move (RW)
+    LEA,  // Load effective address
     POP,  // Pop from stack (W)
     PUSH, // Push to stack (R)
     JMP,  // Jump to (R)
@@ -30,6 +31,7 @@ enum class Operations : ui8 {
     RTR,  // Rotate right (RRW)
     SWP,  // Swap (WW)
     CMP,  // set zero/greater flags
+    CMPU, // Comapre unsigned
     INC,  // Increment (RW)
     DEC,  // Decrement (RW)
 

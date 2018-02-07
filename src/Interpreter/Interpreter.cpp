@@ -16,6 +16,7 @@ void Interpreter::run_next_instruction(SandBox& sandbox) {
         case Operations::DIV:   return Interpreter::instruction_DIV(sandbox, instruction);
         case Operations::DIVU:  return Interpreter::instruction_DIVU(sandbox, instruction);
         case Operations::MOV:   return Interpreter::instruction_MOV(sandbox, instruction);
+        case Operations::LEA:   return Interpreter::instruction_LEA(sandbox, instruction);
         case Operations::POP:   return Interpreter::instruction_POP(sandbox, instruction);
         case Operations::PUSH:  return Interpreter::instruction_PUSH(sandbox, instruction);
         case Operations::JMP:   return Interpreter::instruction_JMP(sandbox, instruction);
@@ -33,6 +34,7 @@ void Interpreter::run_next_instruction(SandBox& sandbox) {
         case Operations::RTR:   return Interpreter::instruction_RTR(sandbox, instruction);
         case Operations::SWP:   return Interpreter::instruction_SWP(sandbox, instruction);
         case Operations::CMP:   return Interpreter::instruction_CMP(sandbox, instruction);
+        case Operations::CMPU:   return Interpreter::instruction_CMPU(sandbox, instruction);
         case Operations::INC:   return Interpreter::instruction_INC(sandbox, instruction);
         case Operations::DEC:   return Interpreter::instruction_DEC(sandbox, instruction);
         case Operations::NEW:   return Interpreter::instruction_NEW(sandbox, instruction);
@@ -149,6 +151,14 @@ void Interpreter::instruction_MOV(SandBox& sandbox, Instruction const& instructi
     Interpreter::write_to(sandbox, 
         a0,
         Interpreter::value_of(sandbox, a1)
+    );
+}
+void Interpreter::instruction_LEA(SandBox& sandbox, Instruction const& instruction) {
+    auto a0 = instruction.get_first_argument();
+    auto a1 = instruction.get_second_argument();
+    Interpreter::write_to(sandbox, 
+        a0,
+        Interpreter::address_of(sandbox, a1)
     );
 }
 
@@ -269,6 +279,15 @@ void Interpreter::instruction_SWP(SandBox& sandbox, Instruction const& instructi
 }
 
 void Interpreter::instruction_CMP(SandBox& sandbox, Instruction const& instruction) {
+    auto a0 = instruction.get_first_argument();
+    auto a1 = instruction.get_second_argument();
+    ui32 v0 = static_cast<i32>(Interpreter::value_of(sandbox, a0));
+    ui32 v1 = static_cast<i32>(Interpreter::value_of(sandbox, a1));
+    sandbox.set_flag_zero(v0 == v1);
+    sandbox.set_flag_greater(v0 > v1);
+}
+
+void Interpreter::instruction_CMPU(SandBox& sandbox, Instruction const& instruction) {
     auto a0 = instruction.get_first_argument();
     auto a1 = instruction.get_second_argument();
     ui32 v0 = Interpreter::value_of(sandbox, a0);

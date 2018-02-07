@@ -25,6 +25,7 @@ private:
     static void instruction_DIV(SandBox& sandbox, Instruction const& instruction);
     static void instruction_DIVU(SandBox& sandbox, Instruction const& instruction);
     static void instruction_MOV(SandBox& sandbox, Instruction const& instruction);
+    static void instruction_LEA(SandBox& sandbox, Instruction const& instruction);
     static void instruction_POP(SandBox& sandbox, Instruction const& instruction);
     static void instruction_PUSH(SandBox& sandbox, Instruction const& instruction);
     static void instruction_JMP(SandBox& sandbox, Instruction const& instruction);
@@ -42,6 +43,7 @@ private:
     static void instruction_RTR(SandBox& sandbox, Instruction const& instruction);
     static void instruction_SWP(SandBox& sandbox, Instruction const& instruction);
     static void instruction_CMP(SandBox& sandbox, Instruction const& instruction);
+    static void instruction_CMPU(SandBox& sandbox, Instruction const& instruction);
     static void instruction_INC(SandBox& sandbox, Instruction const& instruction);
     static void instruction_DEC(SandBox& sandbox, Instruction const& instruction);
     static void instruction_NEW(SandBox& sandbox, Instruction const& instruction);
