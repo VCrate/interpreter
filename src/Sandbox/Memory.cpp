@@ -46,7 +46,7 @@ void Memory::push16(ui16 value) {
 }
 
 void Memory::push8(ui8 value) {
-    memory[stack_pointer] = value;
+    set8(stack_pointer, value);
     set_stack_pointer(stack_pointer + 1);
     if (!free_blocks.empty()) {
         auto& block = free_blocks.back();
@@ -81,8 +81,7 @@ ui16 Memory::get16(ui32 address) const {
 }
 
 ui8 Memory::get8(ui32 address) const {
-    //return memory[address];
-    return memory.at(address);
+    return memory[address];
 }
 
 void Memory::set32(ui32 address, ui32 value) {
@@ -183,8 +182,8 @@ ui32 Memory::allocate(ui32 size) {
             //std::cout << "Address = " << address << std::endl;
             //std::cout << "Size write at &" << block.address - size - 2 << std::endl;
 
-            memory[block.address - size - 2] = (size & 0xFF00) >> 8;
-            memory[block.address - size - 1] = size & 0x00FF;
+            set8(block.address - size - 2, (size & 0xFF00) >> 8);
+            set8(block.address - size - 1, size & 0x00FF);
 
             block.address -= real_size;
             block.size -= real_size;

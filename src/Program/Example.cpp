@@ -247,7 +247,7 @@ sort_labels sort(Program& program) {
 
         for (b = size - 1; 0 < b; b--)
             flag_is_sorted = true
-            for (c = 0; c <= b; c++)
+            for (c = 0; c < b; c++)
                 d = [a + c]
                 e = [a + c + 4]     # sizeof int = 4
                 if (e < d)
@@ -346,13 +346,13 @@ sort_labels sort(Program& program) {
             MOV c, 0
     begin_inner:
             CMP c, b
-            JMPG end_inner
+            JMPGE end_inner
     */
 
     program.append_instruction(Operations::MOV, Register::C, Value(0));
     program.link(begin_inner);
     program.append_instruction(Operations::CMP, Register::C, Register::B);
-    program.append_instruction(Operations::JMPG, end_inner);
+    program.append_instruction(Operations::JMPGE, end_inner);
 
     /*
         MOV d, a

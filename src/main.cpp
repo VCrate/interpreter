@@ -17,7 +17,7 @@ using namespace bytec;
 int main() {
     std::srand(std::time(nullptr));
 
-    SandBox sandbox;
+    SandBox sandbox(1 << 24);
 
     {    
         Program program;
@@ -53,8 +53,8 @@ int main() {
 */
         program.append_instruction(Operations::MOV, Register::A, Register::SP);
 
-        const ui32 array_size = 50;
-        const ui32 value_max = 1000;
+        const ui32 array_size = 10000;
+        const ui32 value_max = 10000;
 
         for(ui32 i = 0; i < array_size; ++i)
             program.append_instruction(Operations::PUSH, Value(rand() % value_max));
