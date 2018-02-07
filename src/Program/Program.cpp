@@ -1,5 +1,7 @@
 #include <bytec/Program/Program.hpp>
 
+#include <iostream>
+
 namespace bytec {
 
 void Program::verify_labels() const {
@@ -267,6 +269,18 @@ void Program::link(Label& label) {
 
     for(auto action : label.hooks)
         action();
+}
+
+void Program::save(std::ostream& os) const {
+    os.write(reinterpret_cast<const char*>(instructions.data()), instructions.size() * sizeof(ui32) / sizeof(char));
+}
+
+void Program::load(std::istream& is) {
+    is.seekg(0, std::ios::end);
+    ui64 size = is.tellg();
+    is.seekg (0, std::ios::beg);
+    instructions.resize(size / sizeof(ui32) * sizeof(char));
+    is.read(reinterpret_cast<char*>(instructions.data()), size);
 }
 
 void Program::append(std::string const& s) {

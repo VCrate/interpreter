@@ -41,6 +41,9 @@ public:
 
     void verify_labels() const;
 
+    void save(std::ostream& os) const;
+    void load(std::istream& is);
+
 private:
 
     std::vector<ui32> instructions;

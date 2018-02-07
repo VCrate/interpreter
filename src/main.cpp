@@ -21,6 +21,7 @@ int main() {
 
     {    
         Program program;
+        
         Label entry_point;
 
         // go to entry point
@@ -86,6 +87,7 @@ int main() {
         program.append_instruction(Operations::HLT);
 
         program.verify_labels();
+
         sandbox.load_program(program);
     }
 
