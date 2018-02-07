@@ -431,8 +431,7 @@ sort_labels sort(Program& program) {
     return labels;
 }
 
-Program vector() {
-    Program program;
+vector_labels vector(Program& program) {
 
     /*
         struct vector {
@@ -442,298 +441,36 @@ Program vector() {
         }
 
     */
-/*
-    assembly::Label vec_constructor,
-                    vec_destructor,
-                    vec_get_size,
-                    vec_get_data,
-                    vec_get_capacity,
-                    vec_at,
-                    vec_push,
-                    vec_grow,
-                    vec_pop;
-
-    program.append_instruction(Operations::MOV, Register::A, Value(10));
-    program.append_instruction(Operations::CALL, vec_constructor);
-    program.append_instruction(Operations::MOV, Register::A, Register::G);
-/*
-    program.append_instruction(Operations::CALL, vec_get_size);
-    program.append_instruction(Operations::OUT, Register::A);
-
-    program.append_instruction(Operations::MOV, Register::A, Register::G);
-    program.append_instruction(Operations::CALL, vec_get_capacity);
-    program.append_instruction(Operations::OUT, Register::A);
-
-    program.append_instruction(Operations::MOV, Register::A, Register::G);
-    program.append_instruction(Operations::MOV, Register::B, Value(0));
-    program.append_instruction(Operations::CALL, vec_at);
-    program.append_instruction(Operations::OUT, Register::A);
-*//*
-    program.append_instruction(Operations::OUT, Displacement(Register::A, 8));
-    program.append_instruction(Operations::OUT, Register::A);
-
-
-    program.append_instruction(Operations::MOV, Register::A, Register::G);
-    program.append_instruction(Operations::MOV, Register::B, Value(1337));
-    program.append_instruction(Operations::CALL, vec_push);
-
-
-
-    program.append_instruction(Operations::MOV, Register::A, Register::G);
-    program.append_instruction(Operations::CALL, vec_get_size);
-    program.append_instruction(Operations::OUT, Register::A);
-
-    program.append_instruction(Operations::MOV, Register::A, Register::G);
-    program.append_instruction(Operations::CALL, vec_get_capacity);
-    program.append_instruction(Operations::OUT, Register::A);
-
-    program.append_instruction(Operations::MOV, Register::A, Register::G);
-    program.append_instruction(Operations::MOV, Register::B, Value(0));
-    program.append_instruction(Operations::CALL, vec_at);
-    program.append_instruction(Operations::OUT, Register::A);
-
-    program.append_instruction(Operations::MOV, Register::A, Register::G);
-    program.append_instruction(Operations::CALL, vec_destructor);
-    program.append_instruction(Operations::HLT);
-*/
-    /* Vector::Constructor
-     * %a : initial size
-     * 
-     * return
-     * %a : vector
-     */
-
-    /* %b = %a
-     * %a = allocate (12)
-     * %a->size = 0
-     * %a->capacity = b
-     * %a->data = allocate(%a * 4)
-     *//*
-    program.link(vec_constructor);
-    program.append_instruction(Operations::PUSH, Register::B);
-    program.append_instruction(Operations::MOV, Register::B, Register::A);
-
-    program.append_instruction(Operations::NEW, Register::A, Value(12));
-
-    program.append_instruction(Operations::OUT, Value(66));
-    program.append_instruction(Operations::OUT, Register::A);
-
-    program.append_instruction(Operations::MOV, Deferred(Register::A), Value(0));
-
-    program.append_instruction(Operations::PUSH, Register::A);
-    program.append_instruction(Operations::ADD, Register::A, Value(4));
-    program.append_instruction(Operations::MOV, Register::B, Deferred(Register::A));
-    program.append_instruction(Operations::POP, Register::A);
-
-    program.append_instruction(Operations::MUL, Register::B, Value(4));
-    program.append_instruction(Operations::NEW, Register::B, Displacement(Register::A, 8));
-    program.append_instruction(Operations::OUT, Displacement(Register::A, 8));
-
-    program.append_instruction(Operations::POP, Register::B);
+    vector_labels labels;
+    
+    /*
+        A : this            # unchanged
+        B : initial size    # unchanged
+    */
+    program.link(labels.constructor);
+    program.append_instruction(Operations::MOV, Displacement(Register::A, vector_labels::offset_size), Value(0));
+    program.append_instruction(Operations::MOV, Displacement(Register::A, vector_labels::offset_capacity), Register::B);
+    program.append_instruction(Operations::NEW, Displacement(Register::A, vector_labels::offset_data), Register::B);
     program.append_instruction(Operations::RET);
-*/
-    /* Vector::Destructor
-     * %a : vector
-     *//*
-    program.link(vec_destructor);
-    program.append_instruction(Operations::DEL, Displacement(Register::A, 8));
-    program.append_instruction(Operations::DEL, Register::A);
-    program.append_instruction(Operations::RET);*/
 
-    /* Vector::get_size
-     * %a : vector
-     * 
-     * return
-     * %a : vector's size
-     *//*
-    program.link(vec_get_size);
-    program.append_instruction(Operations::MOV, Register::A, Deferred(Register::A));
-    program.append_instruction(Operations::RET);*/
-
-    /* Vector::vec_get_capacity
-     * %a : vector
-     * 
-     * return
-     * %a : vector's capacity
-     *//*
-    program.link(vec_get_capacity);
-    program.append_instruction(Operations::MOV, Register::A, Displacement(Register::A, 4));
-    program.append_instruction(Operations::RET);*/
-
-    /* Vector::vec_get_data
-     * %a : vector
-     * 
-     * return
-     * %a : pointer to vector's data
-     *//*
-    program.link(vec_get_data);
-    program.append_instruction(Operations::MOV, Register::A, Displacement(Register::A, 8));
-    program.append_instruction(Operations::RET);*/
-
-    /* Vector::vec_at
-     * %a : vector
-     * %b : index
-     * 
-     * return
-     * %a : element
-     *//*
-    program.link(vec_at);
-    program.append_instruction(Operations::MUL, Register::B, Value(4));
-    program.append_instruction(Operations::MOV, Register::A, Displacement(Register::A, 8));
-    program.append_instruction(Operations::ADD, Register::A, Register::B);
-    program.append_instruction(Operations::MOV, Register::A, Deferred(Register::A));
-    program.append_instruction(Operations::RET);*/
-
-    /* Vector::vec_grow
-     * %a : vector
-     *//*
-    {
-        assembly::Label for_loop_start, for_loop_end;
-
-        program.link(vec_grow);
-        program.append_instruction(Operations::PUSH, Register::B);
-        program.append_instruction(Operations::PUSH, Register::C);
-        program.append_instruction(Operations::PUSH, Register::D);
-        program.append_instruction(Operations::PUSH, Register::E);
-
-        program.append_instruction(Operations::MOV, Register::B, Register::A);
-        program.append_instruction(Operations::ADD, Register::B, Value(8)); // get_data
-        program.append_instruction(Operations::CALL, vec_get_size);
-
-        // allocate a new block in %d
-        program.append_instruction(Operations::MOV, Register::C, Register::A);
-        program.append_instruction(Operations::MUL, Register::C, Value(8));
-        program.append_instruction(Operations::NEW, Register::D, Register::C);
-
-        program.append_instruction(Operations::MUL, Register::A, Value(4));
-        // for loop
-        // %e = 0
-        program.append_instruction(Operations::MOV, Register::E, Register::A);
-        // %e >= %a * 4 (size)
-        program.link(for_loop_start);
-        program.append_instruction(Operations::CMP, Register::A, Register::E);
-        // if true
-        //      jump end
-        program.append_instruction(Operations::JMPGE, for_loop_end);
-        // [%d + %e] = [%b + 8 + %e]
-        program.append_instruction(Operations::PUSH, Register::B);
-        program.append_instruction(Operations::PUSH, Register::D);
-
-        program.append_instruction(Operations::MOV, Register::B, Deferred(Register::B));
-        program.append_instruction(Operations::ADD, Register::B, Register::E);
-        program.append_instruction(Operations::ADD, Register::D, Register::E);
-        program.append_instruction(Operations::MOV, Deferred(Register::D), Deferred(Register::B));
-
-        program.append_instruction(Operations::POP, Register::D);
-        program.append_instruction(Operations::POP, Register::B);
-
-        // %e += 4
-        program.append_instruction(Operations::ADD, Register::E, Value(4));
-        // loop back
-        program.append_instruction(Operations::JMP, for_loop_start);
-        program.link(for_loop_end);
-
-        // vector.data = %d
-        program.append_instruction(Operations::DEL, Deferred(Register::B));
-        program.append_instruction(Operations::MOV, Register::D, Deferred(Register::B));
-
-        // %b is &(vector + 8)
-        program.append_instruction(Operations::SUB, Register::B, Value(4)); // capacity
-        program.append_instruction(Operations::MUL, Deferred(Register::B), Value(2)); // capacity *= 2
-        program.append_instruction(Operations::SUB, Register::B, Value(4)); 
-        program.append_instruction(Operations::MOV, Register::A, Register::B);
-
-        program.append_instruction(Operations::POP, Register::E);
-        program.append_instruction(Operations::POP, Register::D);
-        program.append_instruction(Operations::POP, Register::C);
-        program.append_instruction(Operations::POP, Register::B);
-        program.append_instruction(Operations::RET);
-
-    }
-*/
-    /* Vector::vec_push
-     * %a : vector
-     * %b : element
-     *//*
-    {
-        assembly::Label no_need_grow;
-
-        program.link(vec_push);
-        program.append_instruction(Operations::OUT, Value(1000000000));
-        program.append_instruction(Operations::PUSH, Displacement(Register::A, 8));
-        program.append_instruction(Operations::PUSH, Register::A);
-        program.append_instruction(Operations::MOV, Register::H, Register::A);
-        program.append_instruction(Operations::OUT, Displacement(Register::H, 8));
-        program.append_instruction(Operations::PUSH, Register::B);
-
-        program.append_instruction(Operations::OUT, Value(123));
-        program.append_instruction(Operations::OUT, Register::A);
-        program.append_instruction(Operations::OUT, Register::B);
-        program.append_instruction(Operations::OUT, Displacement(Register::SP, static_cast<ui32>(-8)));
-        program.append_instruction(Operations::OUT, Displacement(Register::SP, static_cast<ui32>(-4)));
-
-        program.append_instruction(Operations::INC, Deferred(Register::A)); // size ++
-        program.append_instruction(Operations::CALL, vec_get_size);
-        program.append_instruction(Operations::MOV, Register::B, Register::A);
-        program.append_instruction(Operations::CALL, vec_get_capacity); // %a = capacity %b = size
-
-        program.append_instruction(Operations::OUT, Value(222222222));
-        program.append_instruction(Operations::OUT, Displacement(Register::SP, static_cast<ui32>(-8)));
-        program.append_instruction(Operations::OUT, Displacement(Register::SP, static_cast<ui32>(-12)));
-
-        program.append_instruction(Operations::CMP, Register::B, Register::A);
-        program.append_instruction(Operations::JMPG, no_need_grow);
-
-        program.append_instruction(Operations::MOV, Displacement(Register::SP, static_cast<ui32>(-8)), Register::A); // %a = [SP - 8] (vector)
-        program.append_instruction(Operations::CALL, vec_grow);
-
-        program.link(no_need_grow);
-
-        program.append_instruction(Operations::OUT, Value(222222222));
-        program.append_instruction(Operations::OUT, Displacement(Register::SP, static_cast<ui32>(-8)));
-        program.append_instruction(Operations::OUT, Displacement(Register::SP, static_cast<ui32>(-12)));
-
-        program.append_instruction(Operations::OUT, Value(321));
-        program.append_instruction(Operations::OUT, Register::B);
-        program.append_instruction(Operations::DEC, Register::B);
-        program.append_instruction(Operations::OUT, Register::B);
-        program.append_instruction(Operations::MUL, Register::B); // %b = (size - 1, Value(4)) * 4
-        program.append_instruction(Operations::OUT, Register::B);
-
-        program.append_instruction(Operations::OUT, Value(222222222));
-        program.append_instruction(Operations::OUT, Displacement(Register::SP, static_cast<ui32>(-8)));
-        program.append_instruction(Operations::OUT, Displacement(Register::SP, static_cast<ui32>(-12)));
-
-        program.append_instruction(Operations::MOV, Displacement(Register::SP, static_cast<ui32>(-8)), Register::A); // %a = [SP - 8] (vector)
-        program.append_instruction(Operations::OUT, Register::A);
-        program.append_instruction(Operations::ADD, Register::A, Value(8)); // %a = &data
-        program.append_instruction(Operations::OUT, Value(222222222));
-        program.append_instruction(Operations::OUT, Displacement(Register::SP, static_cast<ui32>(-8)));
-        program.append_instruction(Operations::OUT, Displacement(Register::SP, static_cast<ui32>(-12)));
-        program.append_instruction(Operations::OUT, Register::A);
-        program.append_instruction(Operations::ADD, Register::A, Deferred(Register::A)); // %a = data
-        program.append_instruction(Operations::OUT, Value(222222222));
-        program.append_instruction(Operations::OUT, Displacement(Register::SP, static_cast<ui32>(-8)));
-        program.append_instruction(Operations::OUT, Displacement(Register::SP, static_cast<ui32>(-12)));
-        program.append_instruction(Operations::OUT, Register::A);
-        program.append_instruction(Operations::ADD, Register::B); // %b = data + (size - 1, Register::A)
-
-        program.append_instruction(Operations::OUT, Register::B);
-        program.append_instruction(Operations::MOV, Displacement(Register::SP, static_cast<ui32>(-4)), Deferred(Register::B));
-        
-        program.append_instruction(Operations::POP, Register::B);
-        program.append_instruction(Operations::POP, Register::A);
-        program.append_instruction(Operations::RET);
-    }*/
-
-    /* Vector::remove
-     * %a : vector
-     *//*
-    program.link(vec_pop);
-    program.append_instruction(Operations::DEC, Deferred(Register::A)); // size --
+    /*
+        A : this            # unchanged
+    */
+    program.link(labels.destructor);
+    program.append_instruction(Operations::DEL, Displacement(Register::A, vector_labels::offset_data));
     program.append_instruction(Operations::RET);
-*/
-    return program;
+
+    /*
+        A : this            # unchanged
+        B : index
+
+        B : address of the element
+    */
+    program.link(labels.at);
+    program.append_instruction(Operations::ADD, Register::B, Displacement(Register::A, vector_labels::offset_data));
+    program.append_instruction(Operations::RET);
+
+    return labels;
 }
 
 }}

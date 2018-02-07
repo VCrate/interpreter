@@ -32,10 +32,11 @@ int main() {
         auto printer = program_ex::print_number(program);
         auto lerp = program_ex::lerp(program);
         auto sort = program_ex::sort(program);
+        auto vector = program_ex::vector(program);
 
         // entry point
         program.link(entry_point.as_value());
-
+/*
         // call void hello_world()
         program.append_instruction(Operations::CALL, hello_world.func);
 
@@ -83,7 +84,38 @@ int main() {
         program.append_instruction(Operations::OUT, Value(']'));
         program.append_instruction(Operations::OUT, Value('\n'));
 
+*/
 
+        using program_ex::vector_labels;
+
+        program.append_instruction(Operations::MOV, Register::A, Register::SP);
+        program.append_instruction(Operations::ADD, Register::SP, Value(vector_labels::struct_size));
+
+        program.append_instruction(Operations::MOV, Register::B, Value(10));
+        program.append_instruction(Operations::CALL, vector.constructor.as_value());
+
+        program.append_instruction(Operations::DBG, Displacement(Register::A, vector_labels::offset_size));
+        program.append_instruction(Operations::OUT, Value('\n'));
+        program.append_instruction(Operations::DBG, Displacement(Register::A, vector_labels::offset_capacity));
+        program.append_instruction(Operations::OUT, Value('\n'));
+        program.append_instruction(Operations::DBG, Displacement(Register::A, vector_labels::offset_data));
+        program.append_instruction(Operations::OUT, Value('\n'));
+
+        program.append_instruction(Operations::MOV, Register::B, Value(5));
+        program.append_instruction(Operations::CALL, vector.at.as_value());
+
+        program.append_instruction(Operations::DBG, Deferred(Register::B));
+        program.append_instruction(Operations::OUT, Value('\n'));
+        program.append_instruction(Operations::MOV, Deferred(Register::B), Value(1337));
+        program.append_instruction(Operations::DBG, Deferred(Register::B));
+        program.append_instruction(Operations::OUT, Value('\n'));
+
+        program.append_instruction(Operations::MOV, Register::B, Value(5));
+        program.append_instruction(Operations::CALL, vector.at.as_value());
+        program.append_instruction(Operations::DBG, Deferred(Register::B));
+        program.append_instruction(Operations::OUT, Value('\n'));
+
+        program.append_instruction(Operations::CALL, vector.destructor.as_value());
         program.append_instruction(Operations::HLT);
 
         program.verify_labels();

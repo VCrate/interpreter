@@ -32,6 +32,18 @@ struct sort_labels {
 };
 sort_labels sort(Program& program);
 
-Program vector();
+struct vector_labels {
+    Label
+        constructor,
+        destructor,
+        at;
+
+    static constexpr ui32 struct_size = sizeof(ui32) * 3; // size, capacity, ptr to data
+    static constexpr ui32 offset_size = 0;
+    static constexpr ui32 offset_capacity = sizeof(ui32);
+    static constexpr ui32 offset_data = sizeof(ui32) * 2;
+
+};
+vector_labels vector(Program& program);
 
 }}
