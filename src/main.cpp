@@ -25,8 +25,15 @@ int main() {
         Label entry_point;
 
         // go to entry point
+        program.append_instruction(Operations::OUT, Value('0'));
+        program.append_instruction(Operations::OUT, Value('0'));
+        program.link(entry_point.as_value());
+        program.append_instruction(Operations::OUT, Value('0'));
         program.append_instruction(Operations::JMP, entry_point);
-    
+        program.append_instruction(Operations::OUT, Value('0'));
+        program.append_instruction(Operations::OUT, Value('0'));
+        program.append_instruction(Operations::HLT);
+    /*
         // load hello_world function
         auto hello_world = program_ex::hello_world(program);
         auto printer = program_ex::print_number(program);
@@ -36,7 +43,8 @@ int main() {
 
         // entry point
         program.link(entry_point.as_value());
-/*
+        std::cout << "Entry point should be " << program.size() << std::endl;
+
         // call void hello_world()
         program.append_instruction(Operations::CALL, hello_world.func);
 
@@ -84,7 +92,7 @@ int main() {
         program.append_instruction(Operations::OUT, Value(']'));
         program.append_instruction(Operations::OUT, Value('\n'));
 
-*/
+
 
         using program_ex::vector_labels;
 
@@ -117,7 +125,7 @@ int main() {
 
         program.append_instruction(Operations::CALL, vector.destructor.as_value());
         program.append_instruction(Operations::HLT);
-
+*/
         program.verify_labels();
 
         sandbox.load_program(program);
@@ -127,11 +135,11 @@ int main() {
     std::cout << "# Start #" << std::endl;
 
     while(!sandbox.is_halted()) {
-        //auto is = sandbox.get_instruction();
-        //std::cout << "\033[31m\033[1m< " << sandbox.get_pc() << " : " << is.to_string() << " >\033[0m"; 
+        auto is = sandbox.get_instruction();
+        std::cout << "\033[31m\033[1m< " << sandbox.get_pc() << " : " << is.to_string() << " >\033[0m"; 
         Interpreter::run_next_instruction(sandbox);
         //std::cout << '\n';
-        //std::cin.get();
+        std::cin.get();
     }
 
     std::cout << "# Halt #" << std::endl;

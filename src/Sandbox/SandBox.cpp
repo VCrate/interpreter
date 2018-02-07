@@ -44,12 +44,15 @@ Instruction SandBox::get_instruction_and_move() {
     auto inst = get_instruction();
     switch(inst.type()) {
         case Instruction::Type::Triple:
+            std::cout << "Move +12" << std::endl;
             set_pc(get_pc() + 12);
             break;
         case Instruction::Type::Double:
+            std::cout << "Move +8" << std::endl;
             set_pc(get_pc() + 8);
             break;
         case Instruction::Type::Single:
+            std::cout << "Move +4" << std::endl;
             set_pc(get_pc() + 4);
             break;
         default:

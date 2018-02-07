@@ -171,27 +171,34 @@ void Interpreter::instruction_PUSH(SandBox& sandbox, Instruction const& instruct
 }
 
 void Interpreter::instruction_JMP(SandBox& sandbox, Instruction const& instruction) {
-    sandbox.set_pc(Interpreter::value_of(sandbox, instruction.get_complete_argument()));
+    std::cout << "offset " << static_cast<i32>(Interpreter::value_of(sandbox, instruction.get_complete_argument()) - 4) << std::endl;
+    std::cout << sandbox.get_pc();
+    sandbox.set_pc(sandbox.get_pc() + Interpreter::value_of(sandbox, instruction.get_complete_argument()) - 4);
+    std::cout << " > " << sandbox.get_pc() << std::endl;
 }
 
 void Interpreter::instruction_JMPE(SandBox& sandbox, Instruction const& instruction) {
+    std::cout << "offset " << static_cast<i32>(Interpreter::value_of(sandbox, instruction.get_complete_argument()) - 4) << std::endl;
     if (sandbox.get_flag_zero())
-        sandbox.set_pc(Interpreter::value_of(sandbox, instruction.get_complete_argument()));
+        sandbox.set_pc(sandbox.get_pc() + Interpreter::value_of(sandbox, instruction.get_complete_argument()) - 4);
 }
 
 void Interpreter::instruction_JMPNE(SandBox& sandbox, Instruction const& instruction) {
+    std::cout << "offset " << static_cast<i32>(Interpreter::value_of(sandbox, instruction.get_complete_argument()) - 4) << std::endl;
     if (!sandbox.get_flag_zero())
-        sandbox.set_pc(Interpreter::value_of(sandbox, instruction.get_complete_argument()));
+        sandbox.set_pc(sandbox.get_pc() + Interpreter::value_of(sandbox, instruction.get_complete_argument()) - 4);
 }
 
 void Interpreter::instruction_JMPG(SandBox& sandbox, Instruction const& instruction) {
+    std::cout << "offset " << static_cast<i32>(Interpreter::value_of(sandbox, instruction.get_complete_argument()) - 4) << std::endl;
     if (sandbox.get_flag_greater())
-        sandbox.set_pc(Interpreter::value_of(sandbox, instruction.get_complete_argument()));
+        sandbox.set_pc(sandbox.get_pc() + Interpreter::value_of(sandbox, instruction.get_complete_argument()) - 4);
 }
 
 void Interpreter::instruction_JMPGE(SandBox& sandbox, Instruction const& instruction) {
+    std::cout << "offset " << static_cast<i32>(Interpreter::value_of(sandbox, instruction.get_complete_argument()) - 4) << std::endl;
     if (sandbox.get_flag_greater() || sandbox.get_flag_zero())
-        sandbox.set_pc(Interpreter::value_of(sandbox, instruction.get_complete_argument()));
+        sandbox.set_pc(sandbox.get_pc() + Interpreter::value_of(sandbox, instruction.get_complete_argument()) - 4);
 }
 
 void Interpreter::instruction_AND(SandBox& sandbox, Instruction const& instruction) {
@@ -328,8 +335,9 @@ void Interpreter::instruction_DEL(SandBox& sandbox, Instruction const& instructi
 
 void Interpreter::instruction_CALL(SandBox& sandbox, Instruction const& instruction) {
     auto arg = instruction.get_complete_argument();
+    std::cout << "offset " << static_cast<i32>(Interpreter::value_of(sandbox, instruction.get_complete_argument()) - 4) << std::endl;
     sandbox.push_32(sandbox.get_pc());
-    sandbox.set_pc(Interpreter::value_of(sandbox, arg));
+    sandbox.set_pc(sandbox.get_pc() + Interpreter::value_of(sandbox, arg) - 4);
 }
 
 void Interpreter::instruction_RET(SandBox& sandbox, Instruction const&) {
