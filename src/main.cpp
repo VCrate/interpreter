@@ -33,8 +33,8 @@ int main() {
         auto sort = program_ex::sort(program);
 
         // entry point
-        program.link(entry_point);
-/*
+        program.link(entry_point.as_value());
+
         // call void hello_world()
         program.append_instruction(Operations::CALL, hello_world.func);
 
@@ -50,10 +50,10 @@ int main() {
         program.append_instruction(Operations::CALL, printer.func);
         program.append_instruction(Operations::OUT, Value('\n'));
         program.append_instruction(Operations::OUT, Value('\n'));
-*/
+
         program.append_instruction(Operations::MOV, Register::A, Register::SP);
 
-        const ui32 array_size = 10000;
+        const ui32 array_size = 20;
         const ui32 value_max = 10000;
 
         for(ui32 i = 0; i < array_size; ++i)
@@ -70,7 +70,7 @@ int main() {
         program.append_instruction(Operations::OUT, Value('\n'));
 
         program.append_instruction(Operations::MOV, Register::B, Value(array_size));
-        program.append_instruction(Operations::CALL, sort.func);
+        program.append_instruction(Operations::CALL, sort.func.as_value());
 
         program.append_instruction(Operations::OUT, Value('['));
         program.append_instruction(Operations::DBG, Displacement(Register::A, 0));

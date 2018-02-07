@@ -33,5 +33,17 @@ ui32 Label::address_max() const {
     throw std::runtime_error("Label Size unknown");
 }
 
-    
+Label& Label::as_value(ui32 offset) {
+    is_deferred = false;
+    this->offset = offset;
+    return *this;
+}
+
+Label& Label::as_address(ui32 offset) {
+    is_deferred = true;
+    this->offset = offset;
+    return *this;
+}
+
+
 }

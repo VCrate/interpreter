@@ -55,7 +55,7 @@ hello_world_labels hello_world(Program& program) {
     */
     program.append_instruction(Operations::PUSH, Register::A);
     program.append_instruction(Operations::PUSH, Register::B);
-    program.append_instruction(Operations::MOV, Register::A, labels.data);
+    program.append_instruction(Operations::MOV, Register::A, labels.data.as_value());
 
     /*
     start_loop:
@@ -69,7 +69,7 @@ hello_world_labels hello_world(Program& program) {
     program.append_instruction(Operations::MOV, Register::B, Deferred(Register::A));
     program.append_instruction(Operations::AND, Register::B, Value(0xFF));
     program.append_instruction(Operations::CMP, Register::B, Value('\0'));
-    program.append_instruction(Operations::JMPE, end_loop);
+    program.append_instruction(Operations::JMPE, end_loop.as_value());
 
     /*
         out [%a]
@@ -78,7 +78,7 @@ hello_world_labels hello_world(Program& program) {
     */
     program.append_instruction(Operations::OUT, Deferred(Register::A));
     program.append_instruction(Operations::INC, Register::A);
-    program.append_instruction(Operations::JMP, start_loop);
+    program.append_instruction(Operations::JMP, start_loop.as_value());
 
     /*
     end_loop:
@@ -135,7 +135,7 @@ print_number_labels print_number(Program& program) {
 
     program.link(labels.func);
     program.append_instruction(Operations::CMP, Value(10), Register::A);
-    program.append_instruction(Operations::JMPG, end_func);
+    program.append_instruction(Operations::JMPG, end_func.as_value());
 
     /*
         push %a
@@ -146,7 +146,7 @@ print_number_labels print_number(Program& program) {
 
     program.append_instruction(Operations::PUSH, Register::A);
     program.append_instruction(Operations::DIV, Register::A, Value(10));
-    program.append_instruction(Operations::CALL, labels.func);
+    program.append_instruction(Operations::CALL, labels.func.as_value());
     program.append_instruction(Operations::POP, Register::A);
 
     /*
@@ -335,7 +335,7 @@ sort_labels sort(Program& program) {
     program.append_instruction(Operations::DEC, Register::B);
     program.link(begin_outer);
     program.append_instruction(Operations::CMP, Value(0), Register::B);
-    program.append_instruction(Operations::JMPG, end_outer);
+    program.append_instruction(Operations::JMPG, end_outer.as_value());
 
     /*
         MOV f, 1
@@ -352,7 +352,7 @@ sort_labels sort(Program& program) {
     program.append_instruction(Operations::MOV, Register::C, Value(0));
     program.link(begin_inner);
     program.append_instruction(Operations::CMP, Register::C, Register::B);
-    program.append_instruction(Operations::JMPGE, end_inner);
+    program.append_instruction(Operations::JMPGE, end_inner.as_value());
 
     /*
         MOV d, a
@@ -375,7 +375,7 @@ sort_labels sort(Program& program) {
         JMPGE dont_swap
     */
     program.append_instruction(Operations::CMP, Deferred(Register::D), Deferred(Register::E));
-    program.append_instruction(Operations::JMPGE, dont_swap);
+    program.append_instruction(Operations::JMPGE, dont_swap.as_value());
 
     /*
         SWP [d], [e]
@@ -394,7 +394,7 @@ sort_labels sort(Program& program) {
 
     program.link(dont_swap);
     program.append_instruction(Operations::INC, Register::C);
-    program.append_instruction(Operations::JMP, begin_inner);
+    program.append_instruction(Operations::JMP, begin_inner.as_value());
 
     /*
     end_inner:
@@ -408,9 +408,9 @@ sort_labels sort(Program& program) {
 
     program.link(end_inner);
     program.append_instruction(Operations::CMP, Register::F, Value(1));
-    program.append_instruction(Operations::JMPGE, end_outer);
+    program.append_instruction(Operations::JMPGE, end_outer.as_value());
     program.append_instruction(Operations::DEC, Register::B);
-    program.append_instruction(Operations::JMP, begin_outer);
+    program.append_instruction(Operations::JMP, begin_outer.as_value());
 
     /*
     end_outer:
