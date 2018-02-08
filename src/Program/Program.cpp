@@ -258,7 +258,7 @@ void Program::set_raw(ui32 value, ui32 address) {
     instructions[address] = value;
 }
 
-void Program::link(Label& label) {
+void Program::link(Label& label, std::string const& symbol) {
     if (label.is_linked())
         throw std::runtime_error("Label already linked");
 
@@ -269,7 +269,21 @@ void Program::link(Label& label) {
 
     for(auto action : label.hooks)
         action();
+
+    if (!symbol.empty()) {
+        if (symbols.find(symbol) != symbols.end())
+            throw std::runtime_error("This symbol already exists");
+        symbols.insert({symbol, *label.address});
+    }
 }
+
+std::optional<ui32> Program::get_symbol(std::string const& symbol) const {
+    auto it = symbols.find(symbol);
+    if (it != symbols.end())
+        return it->second;
+    return {};
+}
+
 
 void Program::save(std::ostream& os) const {
     os.write(reinterpret_cast<const char*>(instructions.data()), instructions.size() * sizeof(ui32) / sizeof(char));

@@ -28,11 +28,11 @@ int main() {
         program.append_instruction(Operations::JMP, entry_point);
     
         // load hello_world function
-        auto hello_world = program_ex::hello_world(program);
-        auto printer = program_ex::print_number(program);
-        auto lerp = program_ex::lerp(program);
-        auto sort = program_ex::sort(program);
-        auto vector = program_ex::vector(program);
+        program_ex::hello_world(program);
+        program_ex::print_number(program);
+        program_ex::lerp(program);
+        program_ex::sort(program);
+        program_ex::vector(program);
 
         // entry point
         program.link(entry_point.as_value());
@@ -92,7 +92,7 @@ int main() {
         program.append_instruction(Operations::ADD, Register::SP, Value(vector_labels::struct_size));
 
         program.append_instruction(Operations::MOV, Register::B, Value(2));
-        program.append_instruction(Operations::CALL, vector.constructor.as_value());
+        program.append_instruction(Operations::CALL, Value(*program.get_symbol("vector::constructor(a=this,b=uint)")));
 
         program.append_instruction(Operations::DBG, Displacement(Register::A, vector_labels::offset_size));
         program.append_instruction(Operations::OUT, Value('\n'));
@@ -101,15 +101,11 @@ int main() {
         program.append_instruction(Operations::DBG, Displacement(Register::A, vector_labels::offset_data));
         program.append_instruction(Operations::OUT, Value('\n'));
 
-        program.append_instruction(Operations::MOV, Register::B, Value(rand() % 1000));
-        program.append_instruction(Operations::CALL, vector.push_back.as_value());
-        program.append_instruction(Operations::MOV, Register::B, Value(rand() % 1000));
-        program.append_instruction(Operations::CALL, vector.push_back.as_value());
-        program.append_instruction(Operations::MOV, Register::B, Value(rand() % 1000));
-        program.append_instruction(Operations::CALL, vector.push_back.as_value());
-        program.append_instruction(Operations::MOV, Register::B, Value(rand() % 1000));
-        program.append_instruction(Operations::CALL, vector.push_back.as_value());
-
+        for(uint _ = 0; _ < 4; _++) {
+            program.append_instruction(Operations::MOV, Register::B, Value(rand() % 1000));
+            program.append_instruction(Operations::CALL, Value(*program.get_symbol("vector::push_back(a=this,b=uint)")));
+        }
+        
         program.append_instruction(Operations::DBG, Displacement(Register::A, vector_labels::offset_size));
         program.append_instruction(Operations::OUT, Value('\n'));
         program.append_instruction(Operations::DBG, Displacement(Register::A, vector_labels::offset_capacity));
@@ -119,13 +115,13 @@ int main() {
 
         program.append_instruction(Operations::OUT, Value('['));
         program.append_instruction(Operations::MOV, Register::B, Value(0));
-            program.append_instruction(Operations::CALL, vector.at.as_value());
+            program.append_instruction(Operations::CALL, Value(*program.get_symbol("vector::at(a=this,b=uint)->b=uint*")));
             program.append_instruction(Operations::DBG, Deferred(Register::B));
         for(ui32 i = 1; i < 4; i++) {
             program.append_instruction(Operations::OUT, Value(','));
             program.append_instruction(Operations::OUT, Value(' '));
             program.append_instruction(Operations::MOV, Register::B, Value(i));
-            program.append_instruction(Operations::CALL, vector.at.as_value());
+            program.append_instruction(Operations::CALL, Value(*program.get_symbol("vector::at(a=this,b=uint)->b=uint*")));
             program.append_instruction(Operations::DBG, Deferred(Register::B));
         }
         program.append_instruction(Operations::OUT, Value(']'));
@@ -134,18 +130,18 @@ int main() {
         program.append_instruction(Operations::PUSH, Register::A);
         program.append_instruction(Operations::MOV, Register::B, Displacement(Register::A, vector_labels::offset_size));
         program.append_instruction(Operations::MOV, Register::A, Displacement(Register::A, vector_labels::offset_data));
-        program.append_instruction(Operations::CALL, sort.func.as_value());
+        program.append_instruction(Operations::CALL, Value(*program.get_symbol("sort(a=uint*,b=uint)")));
         program.append_instruction(Operations::POP, Register::A);
 
         program.append_instruction(Operations::OUT, Value('['));
         program.append_instruction(Operations::MOV, Register::B, Value(0));
-            program.append_instruction(Operations::CALL, vector.at.as_value());
+            program.append_instruction(Operations::CALL, Value(*program.get_symbol("vector::at(a=this,b=uint)->b=uint*")));
             program.append_instruction(Operations::DBG, Deferred(Register::B));
         for(ui32 i = 1; i < 4; i++) {
             program.append_instruction(Operations::OUT, Value(','));
             program.append_instruction(Operations::OUT, Value(' '));
             program.append_instruction(Operations::MOV, Register::B, Value(i));
-            program.append_instruction(Operations::CALL, vector.at.as_value());
+            program.append_instruction(Operations::CALL, Value(*program.get_symbol("vector::at(a=this,b=uint)->b=uint*")));
             program.append_instruction(Operations::DBG, Deferred(Register::B));
         }
         program.append_instruction(Operations::OUT, Value(']'));
@@ -153,7 +149,7 @@ int main() {
 
 
 
-        program.append_instruction(Operations::CALL, vector.destructor.as_value());
+        program.append_instruction(Operations::CALL, Value(*program.get_symbol("vector::destructor(a=this)")));
         program.append_instruction(Operations::HLT);
 
         program.verify_labels();

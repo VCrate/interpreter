@@ -4,7 +4,7 @@
 
 namespace bytec { namespace program_ex {
 
-hello_world_labels hello_world(Program& program) {
+void hello_world(Program& program) {
     /* Hello World
      *     Labels available : 
      *         data : contain the value "Hello World\n", 0
@@ -39,15 +39,15 @@ hello_world_labels hello_world(Program& program) {
 
     */
 
-    hello_world_labels labels;
+    Label data, func;
 
     Label start_loop;
     Label end_loop;
 
-    program.link(labels.data);
+    program.link(data, "data.hello_world");
     program.append("Hello World !\n");
 
-    program.link(labels.func);
+    program.link(func, "hello_world()");
     /*
         push %a
         push %b
@@ -55,7 +55,7 @@ hello_world_labels hello_world(Program& program) {
     */
     program.append_instruction(Operations::PUSH, Register::A);
     program.append_instruction(Operations::PUSH, Register::B);
-    program.append_instruction(Operations::MOV, Register::A, labels.data.as_value());
+    program.append_instruction(Operations::MOV, Register::A, data.as_value());
 
     /*
     start_loop:
@@ -90,11 +90,9 @@ hello_world_labels hello_world(Program& program) {
     program.append_instruction(Operations::POP, Register::B);
     program.append_instruction(Operations::POP, Register::A);
     program.append_instruction(Operations::RET);
-
-    return labels;
 }
 
-print_number_labels print_number(Program& program) {
+void print_number(Program& program) {
     /* Number printing
      *     Labels available : 
      *         func : print the number
@@ -124,7 +122,7 @@ print_number_labels print_number(Program& program) {
 
     */
 
-    print_number_labels labels;
+    Label func;
 
     Label end_func;
 
@@ -133,7 +131,7 @@ print_number_labels print_number(Program& program) {
         jmpg end_func        # 10 > %a
     */
 
-    program.link(labels.func);
+    program.link(func, "print_num(a=uint)");
     program.append_instruction(Operations::CMPU, Value(10), Register::A);
     program.append_instruction(Operations::JMPG, end_func.as_value());
 
@@ -146,7 +144,7 @@ print_number_labels print_number(Program& program) {
 
     program.append_instruction(Operations::PUSH, Register::A);
     program.append_instruction(Operations::DIV, Register::A, Value(10));
-    program.append_instruction(Operations::CALL, labels.func.as_value());
+    program.append_instruction(Operations::CALL, func.as_value());
     program.append_instruction(Operations::POP, Register::A);
 
     /*
@@ -162,11 +160,9 @@ print_number_labels print_number(Program& program) {
     program.append_instruction(Operations::ADD, Register::A, Value('0'));
     program.append_instruction(Operations::OUT, Register::A);
     program.append_instruction(Operations::RET);
-
-    return labels;
 }
 
-lerp_labels lerp(Program& program) {
+void lerp(Program& program) {
     /*  Lerp
      *     Labels available : 
      *         func : return the linear interpolation
@@ -194,7 +190,7 @@ lerp_labels lerp(Program& program) {
 
     */
 
-    lerp_labels labels;
+    Label func;
 
     /* [rbp - 4] : old rbp (pushed buy ETR)
      * [rbp - 8] : return address (pushed by CALL)
@@ -203,7 +199,7 @@ lerp_labels lerp(Program& program) {
      * [rbp - 20] : parameter 1 (lower bounds)
      */
 
-    program.link(labels.func);
+    program.link(func, "lerp(stack[3])->a=uint");
     program.append_instruction(Operations::ETR);
 
     program.append_instruction(Operations::MOV, Register::A, Displacement(Register::BP, -16));
@@ -215,11 +211,9 @@ lerp_labels lerp(Program& program) {
     program.append_instruction(Operations::LVE);
     program.append_instruction(Operations::RET);
 
-
-    return labels;
 }
 
-sort_labels sort(Program& program) {
+void sort(Program& program) {
     /*  Sort
      *     Labels available : 
      *         func : sort the array
@@ -308,8 +302,7 @@ sort_labels sort(Program& program) {
 
     */
 
-    sort_labels labels;
-    Label begin_outer, end_outer, begin_inner, end_inner, dont_swap;
+    Label func, begin_outer, end_outer, begin_inner, end_inner, dont_swap;
 
     /*
     func:
@@ -319,7 +312,7 @@ sort_labels sort(Program& program) {
         PUSH f
     */
 
-    program.link(labels.func);
+    program.link(func, "sort(a=uint*,b=uint)");
     program.append_instruction(Operations::PUSH, Register::C);
     program.append_instruction(Operations::PUSH, Register::D);
     program.append_instruction(Operations::PUSH, Register::E);
@@ -428,10 +421,9 @@ sort_labels sort(Program& program) {
     program.append_instruction(Operations::POP, Register::C);
     program.append_instruction(Operations::RET);
 
-    return labels;
 }
 
-vector_labels vector(Program& program) {
+void vector(Program& program) {
 
     /*
         struct vector {
@@ -441,13 +433,13 @@ vector_labels vector(Program& program) {
         }
 
     */
-    vector_labels labels;
+    Label constructor, destructor, at, reserve, push_back;
     
     /*
         A : this            # unchanged
         B : initial size    # unchanged
     */
-    program.link(labels.constructor);
+    program.link(constructor, "vector::constructor(a=this,b=uint)");
     program.append_instruction(Operations::MOV, Displacement(Register::A, vector_labels::offset_size), Value(0));
     program.append_instruction(Operations::MOV, Displacement(Register::A, vector_labels::offset_capacity), Register::B);
     program.append_instruction(Operations::MUL, Register::B, Value(4));
@@ -457,7 +449,7 @@ vector_labels vector(Program& program) {
     /*
         A : this            # unchanged
     */
-    program.link(labels.destructor);
+    program.link(destructor, "vector::destructor(a=this)");
     program.append_instruction(Operations::DEL, Displacement(Register::A, vector_labels::offset_data));
     program.append_instruction(Operations::RET);
 
@@ -467,7 +459,7 @@ vector_labels vector(Program& program) {
 
         B : address of the element
     */
-    program.link(labels.at);
+    program.link(at, "vector::at(a=this,b=uint)->b=uint*");
     program.append_instruction(Operations::MUL, Register::B, Value(4));
     program.append_instruction(Operations::ADD, Register::B, Displacement(Register::A, vector_labels::offset_data));
     program.append_instruction(Operations::RET);
@@ -479,7 +471,7 @@ vector_labels vector(Program& program) {
 
     Label ret, begin_loop, end_loop;
 
-    program.link(labels.reserve);
+    program.link(reserve, "vector::reserve(a=this,b=uint)");
     program.append_instruction(Operations::CMP, Displacement(Register::A, vector_labels::offset_capacity), Register::B);
     program.append_instruction(Operations::JMPGE, ret.as_value()); // capacity >= new_capacity
     
@@ -525,7 +517,7 @@ vector_labels vector(Program& program) {
     */
     Label dont_grow;
 
-    program.link(labels.push_back);
+    program.link(push_back, "vector::push_back(a=this,b=uint)");
     program.append_instruction(Operations::ADD, Displacement(Register::A, vector_labels::offset_size), Value(1));
     program.append_instruction(Operations::CMP, 
         Displacement(Register::A, vector_labels::offset_capacity),
@@ -536,7 +528,7 @@ vector_labels vector(Program& program) {
 
     program.append_instruction(Operations::MOV, Register::B, Displacement(Register::A, vector_labels::offset_capacity));
     program.append_instruction(Operations::MUL, Register::B, Value(2)); // double capacity
-    program.append_instruction(Operations::CALL, labels.reserve.as_value());
+    program.append_instruction(Operations::CALL, reserve.as_value());
 
     program.append_instruction(Operations::POP, Register::B);
 
@@ -556,7 +548,6 @@ vector_labels vector(Program& program) {
     program.append_instruction(Operations::POP, Register::C);
     program.append_instruction(Operations::RET);
 
-    return labels;
 }
 
 }}

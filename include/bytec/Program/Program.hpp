@@ -5,7 +5,8 @@
 #include <bytec/Program/Label.hpp>
 
 #include <vector>
-#include <array>
+#include <map>
+#include <optional>
 
 namespace bytec {
 
@@ -20,7 +21,8 @@ public:
 
     ui32 size() const;
 
-    void link(Label& label);
+    void link(Label& label, std::string const& symbol = "");
+    std::optional<ui32> get_symbol(std::string const& symbol) const;
 
     void append_instruction(Operations ope);
     void append_instruction(Operations ope, Argument const& arg);
@@ -47,6 +49,7 @@ public:
 private:
 
     std::vector<ui32> instructions;
+    std::map<std::string, ui32> symbols;
     ui32 unlinked_label = 0;
 
 };
