@@ -450,6 +450,7 @@ vector_labels vector(Program& program) {
     program.link(labels.constructor);
     program.append_instruction(Operations::MOV, Displacement(Register::A, vector_labels::offset_size), Value(0));
     program.append_instruction(Operations::MOV, Displacement(Register::A, vector_labels::offset_capacity), Register::B);
+    program.append_instruction(Operations::MUL, Register::B, Value(4));
     program.append_instruction(Operations::NEW, Displacement(Register::A, vector_labels::offset_data), Register::B);
     program.append_instruction(Operations::RET);
 
@@ -467,7 +468,92 @@ vector_labels vector(Program& program) {
         B : address of the element
     */
     program.link(labels.at);
+    program.append_instruction(Operations::MUL, Register::B, Value(4));
     program.append_instruction(Operations::ADD, Register::B, Displacement(Register::A, vector_labels::offset_data));
+    program.append_instruction(Operations::RET);
+
+    /*
+        A : this            # unchanged
+        B : new capacity
+    */
+
+    Label ret, begin_loop, end_loop;
+
+    program.link(labels.reserve);
+    program.append_instruction(Operations::CMP, Displacement(Register::A, vector_labels::offset_capacity), Register::B);
+    program.append_instruction(Operations::JMPGE, ret.as_value()); // capacity >= new_capacity
+    
+    program.append_instruction(Operations::MOV, Displacement(Register::A, vector_labels::offset_capacity), Register::B);
+
+    program.append_instruction(Operations::PUSH, Register::C);
+    program.append_instruction(Operations::PUSH, Register::D);
+    program.append_instruction(Operations::PUSH, Register::E);
+    program.append_instruction(Operations::MUL, Register::B, Value(4));
+    program.append_instruction(Operations::NEW, Register::C, Register::B); // c = new int[B]
+
+    // copy
+    // for(; b >= 0; b -= 4)
+    program.link(begin_loop);
+    program.append_instruction(Operations::CMP, Value(0), Register::B);
+    program.append_instruction(Operations::JMPGE, end_loop.as_value()); // 0 >= B
+    program.append_instruction(Operations::SUB, Register::B, Value(4));
+
+    program.append_instruction(Operations::MOV, Register::D, Register::C);
+    program.append_instruction(Operations::MOV, Register::E, Displacement(Register::A, vector_labels::offset_data));
+
+    program.append_instruction(Operations::ADD, Register::D, Register::B);
+    program.append_instruction(Operations::ADD, Register::E, Register::B);
+
+    program.append_instruction(Operations::MOV, Deferred(Register::D), Deferred(Register::E));
+
+    program.append_instruction(Operations::JMP, begin_loop.as_value());
+    program.link(end_loop);
+
+    program.append_instruction(Operations::DEL, Displacement(Register::A, vector_labels::offset_data));
+    program.append_instruction(Operations::MOV, Displacement(Register::A, vector_labels::offset_data), Register::C);
+
+    program.append_instruction(Operations::POP, Register::E);
+    program.append_instruction(Operations::POP, Register::D);
+    program.append_instruction(Operations::POP, Register::C);
+
+    program.link(ret);
+    program.append_instruction(Operations::RET);
+
+    /*
+        A : this        # unchanged
+        B : value       # unchanged
+    */
+    Label dont_grow;
+
+    program.link(labels.push_back);
+    program.append_instruction(Operations::ADD, Displacement(Register::A, vector_labels::offset_size), Value(1));
+    program.append_instruction(Operations::CMP, 
+        Displacement(Register::A, vector_labels::offset_capacity),
+        Displacement(Register::A, vector_labels::offset_size));
+    program.append_instruction(Operations::JMPGE, dont_grow.as_value()); // 0 >= B
+
+    program.append_instruction(Operations::PUSH, Register::B);
+
+    program.append_instruction(Operations::MOV, Register::B, Displacement(Register::A, vector_labels::offset_capacity));
+    program.append_instruction(Operations::MUL, Register::B, Value(2)); // double capacity
+    program.append_instruction(Operations::CALL, labels.reserve.as_value());
+
+    program.append_instruction(Operations::POP, Register::B);
+
+
+    program.link(dont_grow);
+    program.append_instruction(Operations::SUB, Displacement(Register::A, vector_labels::offset_size), Value(1));
+
+    program.append_instruction(Operations::PUSH, Register::C);
+
+    program.append_instruction(Operations::MOV, Register::C, Displacement(Register::A, vector_labels::offset_size));
+    program.append_instruction(Operations::MUL, Register::C, Value(4)); // index
+    program.append_instruction(Operations::ADD, Register::C, Displacement(Register::A, vector_labels::offset_data));
+    program.append_instruction(Operations::MOV, Deferred(Register::C), Register::B);
+
+    program.append_instruction(Operations::ADD, Displacement(Register::A, vector_labels::offset_size), Value(1));
+
+    program.append_instruction(Operations::POP, Register::C);
     program.append_instruction(Operations::RET);
 
     return labels;

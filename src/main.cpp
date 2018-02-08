@@ -91,7 +91,7 @@ int main() {
         program.append_instruction(Operations::MOV, Register::A, Register::SP);
         program.append_instruction(Operations::ADD, Register::SP, Value(vector_labels::struct_size));
 
-        program.append_instruction(Operations::MOV, Register::B, Value(10));
+        program.append_instruction(Operations::MOV, Register::B, Value(2));
         program.append_instruction(Operations::CALL, vector.constructor.as_value());
 
         program.append_instruction(Operations::DBG, Displacement(Register::A, vector_labels::offset_size));
@@ -101,19 +101,57 @@ int main() {
         program.append_instruction(Operations::DBG, Displacement(Register::A, vector_labels::offset_data));
         program.append_instruction(Operations::OUT, Value('\n'));
 
-        program.append_instruction(Operations::MOV, Register::B, Value(5));
-        program.append_instruction(Operations::CALL, vector.at.as_value());
+        program.append_instruction(Operations::MOV, Register::B, Value(rand() % 1000));
+        program.append_instruction(Operations::CALL, vector.push_back.as_value());
+        program.append_instruction(Operations::MOV, Register::B, Value(rand() % 1000));
+        program.append_instruction(Operations::CALL, vector.push_back.as_value());
+        program.append_instruction(Operations::MOV, Register::B, Value(rand() % 1000));
+        program.append_instruction(Operations::CALL, vector.push_back.as_value());
+        program.append_instruction(Operations::MOV, Register::B, Value(rand() % 1000));
+        program.append_instruction(Operations::CALL, vector.push_back.as_value());
 
-        program.append_instruction(Operations::DBG, Deferred(Register::B));
+        program.append_instruction(Operations::DBG, Displacement(Register::A, vector_labels::offset_size));
         program.append_instruction(Operations::OUT, Value('\n'));
-        program.append_instruction(Operations::MOV, Deferred(Register::B), Value(1337));
-        program.append_instruction(Operations::DBG, Deferred(Register::B));
+        program.append_instruction(Operations::DBG, Displacement(Register::A, vector_labels::offset_capacity));
+        program.append_instruction(Operations::OUT, Value('\n'));
+        program.append_instruction(Operations::DBG, Displacement(Register::A, vector_labels::offset_data));
         program.append_instruction(Operations::OUT, Value('\n'));
 
-        program.append_instruction(Operations::MOV, Register::B, Value(5));
-        program.append_instruction(Operations::CALL, vector.at.as_value());
-        program.append_instruction(Operations::DBG, Deferred(Register::B));
+        program.append_instruction(Operations::OUT, Value('['));
+        program.append_instruction(Operations::MOV, Register::B, Value(0));
+            program.append_instruction(Operations::CALL, vector.at.as_value());
+            program.append_instruction(Operations::DBG, Deferred(Register::B));
+        for(ui32 i = 1; i < 4; i++) {
+            program.append_instruction(Operations::OUT, Value(','));
+            program.append_instruction(Operations::OUT, Value(' '));
+            program.append_instruction(Operations::MOV, Register::B, Value(i));
+            program.append_instruction(Operations::CALL, vector.at.as_value());
+            program.append_instruction(Operations::DBG, Deferred(Register::B));
+        }
+        program.append_instruction(Operations::OUT, Value(']'));
         program.append_instruction(Operations::OUT, Value('\n'));
+
+        program.append_instruction(Operations::PUSH, Register::A);
+        program.append_instruction(Operations::MOV, Register::B, Displacement(Register::A, vector_labels::offset_size));
+        program.append_instruction(Operations::MOV, Register::A, Displacement(Register::A, vector_labels::offset_data));
+        program.append_instruction(Operations::CALL, sort.func.as_value());
+        program.append_instruction(Operations::POP, Register::A);
+
+        program.append_instruction(Operations::OUT, Value('['));
+        program.append_instruction(Operations::MOV, Register::B, Value(0));
+            program.append_instruction(Operations::CALL, vector.at.as_value());
+            program.append_instruction(Operations::DBG, Deferred(Register::B));
+        for(ui32 i = 1; i < 4; i++) {
+            program.append_instruction(Operations::OUT, Value(','));
+            program.append_instruction(Operations::OUT, Value(' '));
+            program.append_instruction(Operations::MOV, Register::B, Value(i));
+            program.append_instruction(Operations::CALL, vector.at.as_value());
+            program.append_instruction(Operations::DBG, Deferred(Register::B));
+        }
+        program.append_instruction(Operations::OUT, Value(']'));
+        program.append_instruction(Operations::OUT, Value('\n'));
+
+
 
         program.append_instruction(Operations::CALL, vector.destructor.as_value());
         program.append_instruction(Operations::HLT);

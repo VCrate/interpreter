@@ -36,7 +36,9 @@ struct vector_labels {
     Label
         constructor,
         destructor,
-        at;
+        at,
+        reserve,
+        push_back;
 
     static constexpr ui32 struct_size = sizeof(ui32) * 3; // size, capacity, ptr to data
     static constexpr ui32 offset_size = 0;
