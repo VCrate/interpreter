@@ -73,7 +73,7 @@ Argument Instruction::get_complete_argument() const {
         {
             if (require_complete_instruction(type))
                 return Value{ *second };
-            return Value(bin_repr::arg24_value_decode(first));
+            return Value(bin_repr::arg24_value_signed_decode(first));
         }
         case ArgumentType::Register:
         {
@@ -87,7 +87,7 @@ Argument Instruction::get_complete_argument() const {
         {
             if (require_complete_instruction(type))
                 return Address{ *second };
-            return Address(bin_repr::arg24_value_decode(first));
+            return Address(bin_repr::arg24_value_signed_decode(first));
         }
         case ArgumentType::Displacement:
         {
@@ -98,7 +98,7 @@ Argument Instruction::get_complete_argument() const {
                 );
             return Displacement(
                 Register(bin_repr::arg24_register_decode(first)),
-                bin_repr::arg24_disp_decode(first)
+                bin_repr::arg24_disp_signed_decode(first)
             );
         }
     }
@@ -112,7 +112,7 @@ Argument Instruction::get_first_argument() const {
         {
             if (require_complete_instruction(type))
                 return Value{ *second };
-            return Value(bin_repr::arg12_value_decode(bin_repr::arg0_decode(first)));
+            return Value(bin_repr::arg12_value_signed_decode(bin_repr::arg0_decode(first)));
         }
         case ArgumentType::Register:
         {
@@ -126,7 +126,7 @@ Argument Instruction::get_first_argument() const {
         {
             if (require_complete_instruction(type))
                 return Address{ *second };
-            return Address(bin_repr::arg12_value_decode(bin_repr::arg0_decode(first)));
+            return Address(bin_repr::arg12_value_signed_decode(bin_repr::arg0_decode(first)));
         }
         case ArgumentType::Displacement:
         {
@@ -137,7 +137,7 @@ Argument Instruction::get_first_argument() const {
                 );
             return Displacement(
                 Register(bin_repr::arg12_register_decode(bin_repr::arg0_decode(first))),
-                bin_repr::arg12_disp_decode(bin_repr::arg0_decode(first))
+                bin_repr::arg12_disp_signed_decode(bin_repr::arg0_decode(first))
             );
         }
     }
@@ -152,7 +152,7 @@ Argument Instruction::get_second_argument() const {
         {
             if (require_complete_instruction(type))
                 return Value{ *(first_required_extra ? third : second) };
-            return Value(bin_repr::arg12_value_decode(bin_repr::arg1_decode(first)));
+            return Value(bin_repr::arg12_value_signed_decode(bin_repr::arg1_decode(first)));
         }
         case ArgumentType::Register:
         {
@@ -166,7 +166,7 @@ Argument Instruction::get_second_argument() const {
         {
             if (require_complete_instruction(type))
                 return Address{ *(first_required_extra ? third : second) };
-            return Address(bin_repr::arg12_value_decode(bin_repr::arg1_decode(first)));
+            return Address(bin_repr::arg12_value_signed_decode(bin_repr::arg1_decode(first)));
         }
         case ArgumentType::Displacement:
         {
@@ -177,7 +177,7 @@ Argument Instruction::get_second_argument() const {
                 );
             return Displacement(
                 Register(bin_repr::arg12_register_decode(bin_repr::arg1_decode(first))),
-                bin_repr::arg12_disp_decode(bin_repr::arg1_decode(first))
+                bin_repr::arg12_disp_signed_decode(bin_repr::arg1_decode(first))
             );
         }
     }

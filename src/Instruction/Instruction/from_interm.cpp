@@ -60,12 +60,12 @@ Instruction::Instruction(Operations ope, Argument const& arg0, Argument const& a
 Instruction::Encoder24::Encoder24(Instruction& is) : is(is) {}
 
 void Instruction::Encoder24::operator () (Value arg) {
-    if (arg.value >= bin_repr::arg24_value_max) {
+    if (!bin_repr::arg24_value_signed_fit(arg.value)) {
         is.first |= bin_repr::arg24_type_encode(bin_repr::arg_type_next_value);
         is.second = arg.value;
     } else {
         is.first |= bin_repr::arg24_type_encode(bin_repr::arg_type_imm_value);
-        is.first |= bin_repr::arg24_value_encode(arg.value);
+        is.first |= bin_repr::arg24_value_signed_encode(arg.value);
     }
 }
 
@@ -75,24 +75,24 @@ void Instruction::Encoder24::operator () (Register arg) {
 }
 
 void Instruction::Encoder24::operator () (Displacement arg) {
-    if (arg.displacement >= bin_repr::arg24_disp_max) {
+    if (!bin_repr::arg24_disp_signed_fit(arg.displacement)) {
         is.first |= bin_repr::arg24_type_encode(bin_repr::arg_type_defer_register_next_disp);
         is.first |= bin_repr::arg24_register_encode(arg.reg.reg);
         is.second = arg.displacement;
     } else {
         is.first |= bin_repr::arg24_type_encode(bin_repr::arg_type_defer_register_disp);
         is.first |= bin_repr::arg24_register_encode(arg.reg.reg);
-        is.first |= bin_repr::arg24_disp_encode(arg.displacement);
+        is.first |= bin_repr::arg24_disp_signed_encode(arg.displacement);
     }
 }
 
 void Instruction::Encoder24::operator () (Address arg) {
-    if (arg.address >= bin_repr::arg24_value_max) {
+    if (!bin_repr::arg24_value_signed_fit(arg.address)) {
         is.first |= bin_repr::arg24_type_encode(bin_repr::arg_type_defer_next_value);
         is.second = arg.address;
     } else {
         is.first |= bin_repr::arg24_type_encode(bin_repr::arg_type_defer_imm_value);
-        is.first |= bin_repr::arg24_value_encode(arg.address);
+        is.first |= bin_repr::arg24_value_signed_encode(arg.address);
     }
 }
 
@@ -105,7 +105,7 @@ Instruction::Encoder12::Encoder12(Instruction& is, bool is_first_arg) : is(is), 
 
 void Instruction::Encoder12::operator () (Value arg) {
     ui32 isn = 0;
-    if (arg.value >= bin_repr::arg12_value_max) {
+    if (!bin_repr::arg12_value_signed_fit(arg.value)) {
         isn |= bin_repr::arg12_type_encode(bin_repr::arg_type_next_value);
         if(is.second)
             is.third = arg.value;
@@ -113,7 +113,7 @@ void Instruction::Encoder12::operator () (Value arg) {
             is.second = arg.value;
     } else {
         isn |= bin_repr::arg12_type_encode(bin_repr::arg_type_imm_value);
-        isn |= bin_repr::arg12_value_encode(arg.value);
+        isn |= bin_repr::arg12_value_signed_encode(arg.value);
     }
 
     is.first |= is_first_arg ? bin_repr::arg0_encode(isn) : bin_repr::arg1_encode(isn);
@@ -129,7 +129,7 @@ void Instruction::Encoder12::operator () (Register arg) {
 
 void Instruction::Encoder12::operator () (Displacement arg) {
     ui32 isn = 0;
-    if (arg.displacement >= bin_repr::arg12_value_max) {
+    if (!bin_repr::arg12_disp_signed_fit(arg.displacement)) {
         isn |= bin_repr::arg12_type_encode(bin_repr::arg_type_defer_register_next_disp);
         isn |= bin_repr::arg12_register_encode(arg.reg.reg);
         if(is.second)
@@ -138,7 +138,7 @@ void Instruction::Encoder12::operator () (Displacement arg) {
             is.second = arg.displacement;
     } else {
         isn |= bin_repr::arg12_type_encode(bin_repr::arg_type_defer_register_disp);
-        isn |= bin_repr::arg12_disp_encode(arg.displacement);
+        isn |= bin_repr::arg12_disp_signed_encode(arg.displacement);
         isn |= bin_repr::arg12_register_encode(arg.reg.reg);
     }
 
@@ -147,7 +147,7 @@ void Instruction::Encoder12::operator () (Displacement arg) {
 
 void Instruction::Encoder12::operator () (Address arg) {
     ui32 isn = 0;
-    if (arg.address >= bin_repr::arg12_value_max) {
+    if (!bin_repr::arg12_value_signed_fit(arg.address)) {
         isn |= bin_repr::arg12_type_encode(bin_repr::arg_type_defer_next_value);
         if(is.second)
             is.third = arg.address;
@@ -155,7 +155,7 @@ void Instruction::Encoder12::operator () (Address arg) {
             is.second = arg.address;
     } else {
         isn |= bin_repr::arg12_type_encode(bin_repr::arg_type_defer_imm_value);
-        isn |= bin_repr::arg12_value_encode(arg.address);
+        isn |= bin_repr::arg12_value_signed_encode(arg.address);
     }
 
     is.first |= is_first_arg ? bin_repr::arg0_encode(isn) : bin_repr::arg1_encode(isn);
