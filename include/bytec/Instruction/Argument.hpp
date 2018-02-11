@@ -19,11 +19,11 @@ struct Register {
 };
 
 struct Displacement {
-    Displacement(Register reg, ui32 displacement);
+    Displacement(Register reg, i32 displacement);
     std::string to_string() const;
 
     Register reg;
-    ui32 displacement;
+    i32 displacement;
 };
 
 struct Deferred {
@@ -34,17 +34,17 @@ struct Deferred {
 };
 
 struct Address {
-    Address(ui32 address);
+    Address(i32 address);
     std::string to_string() const;
 
-    ui32 address;
+    i32 address;
 };
 
 struct Value {
-    Value(ui32 value);
+    Value(i32 value);
     std::string to_string() const;
 
-    ui32 value;
+    i32 value;
 };
 
 using Argument = std::variant<Register, Displacement, Deferred, Address, Value>;

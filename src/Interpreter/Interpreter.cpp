@@ -63,7 +63,7 @@ void Interpreter::write_to(SandBox& sandbox, Argument const& arg, ui32 value) {
 
 ui32 Interpreter::value_of(SandBox& sandbox, Argument const& arg) {
     return std::visit(Visitor {
-        [        ] (Value arg)          { return arg.value; },
+        [        ] (Value arg)          { return static_cast<ui32>(arg.value); },
         [&sandbox] (Register arg)       { return sandbox.get_register(arg.reg); },
         [&sandbox] (Displacement arg)   { return sandbox.get_memory_at(sandbox.get_register(arg.reg.reg) + arg.displacement); },
         [&sandbox] (Address arg)        { return sandbox.get_memory_at(arg.address); },
@@ -76,7 +76,7 @@ ui32 Interpreter::address_of(SandBox& sandbox, Argument const& arg) {
         [        ] (Value) -> ui32      { throw std::runtime_error("This argument has no address"); },
         [&sandbox] (Register) -> ui32   { throw std::runtime_error("This argument has no address"); },
         [&sandbox] (Displacement arg)   { return sandbox.get_register(arg.reg.reg) + arg.displacement; },
-        [&sandbox] (Address arg)        { return arg.address; },
+        [&sandbox] (Address arg)        { return static_cast<ui32>(arg.address); },
         [&sandbox] (Deferred arg)       { return sandbox.get_register(arg.reg.reg); }
     }, arg);
 }
@@ -171,34 +171,56 @@ void Interpreter::instruction_PUSH(SandBox& sandbox, Instruction const& instruct
 }
 
 void Interpreter::instruction_JMP(SandBox& sandbox, Instruction const& instruction) {
-    std::cout << "offset " << static_cast<i32>(Interpreter::value_of(sandbox, instruction.get_complete_argument()) - 4) << std::endl;
-    std::cout << sandbox.get_pc();
-    sandbox.set_pc(sandbox.get_pc() + Interpreter::value_of(sandbox, instruction.get_complete_argument()) - 4);
-    std::cout << " > " << sandbox.get_pc() << std::endl;
+    auto arg = instruction.get_complete_argument();
+    auto pc = Interpreter::value_of(sandbox, arg);
+    auto arg_type = get_argument_type(arg);
+    if (arg_type == ArgumentType::Address || arg_type == ArgumentType::Value)
+        pc += sandbox.get_pc();
+    sandbox.set_pc(pc);
 }
 
 void Interpreter::instruction_JMPE(SandBox& sandbox, Instruction const& instruction) {
-    std::cout << "offset " << static_cast<i32>(Interpreter::value_of(sandbox, instruction.get_complete_argument()) - 4) << std::endl;
-    if (sandbox.get_flag_zero())
-        sandbox.set_pc(sandbox.get_pc() + Interpreter::value_of(sandbox, instruction.get_complete_argument()) - 4);
+    if (sandbox.get_flag_zero()) {
+        auto arg = instruction.get_complete_argument();
+        auto pc = Interpreter::value_of(sandbox, arg);
+        auto arg_type = get_argument_type(arg);
+        if (arg_type == ArgumentType::Address || arg_type == ArgumentType::Value)
+            pc += sandbox.get_pc();
+        sandbox.set_pc(pc);
+    }
 }
 
 void Interpreter::instruction_JMPNE(SandBox& sandbox, Instruction const& instruction) {
-    std::cout << "offset " << static_cast<i32>(Interpreter::value_of(sandbox, instruction.get_complete_argument()) - 4) << std::endl;
-    if (!sandbox.get_flag_zero())
-        sandbox.set_pc(sandbox.get_pc() + Interpreter::value_of(sandbox, instruction.get_complete_argument()) - 4);
+    if (!sandbox.get_flag_zero()) {
+        auto arg = instruction.get_complete_argument();
+        auto pc = Interpreter::value_of(sandbox, arg);
+        auto arg_type = get_argument_type(arg);
+        if (arg_type == ArgumentType::Address || arg_type == ArgumentType::Value)
+            pc += sandbox.get_pc();
+        sandbox.set_pc(pc);
+    }
 }
 
 void Interpreter::instruction_JMPG(SandBox& sandbox, Instruction const& instruction) {
-    std::cout << "offset " << static_cast<i32>(Interpreter::value_of(sandbox, instruction.get_complete_argument()) - 4) << std::endl;
-    if (sandbox.get_flag_greater())
-        sandbox.set_pc(sandbox.get_pc() + Interpreter::value_of(sandbox, instruction.get_complete_argument()) - 4);
+    if (sandbox.get_flag_greater()) {
+        auto arg = instruction.get_complete_argument();
+        auto pc = Interpreter::value_of(sandbox, arg);
+        auto arg_type = get_argument_type(arg);
+        if (arg_type == ArgumentType::Address || arg_type == ArgumentType::Value)
+            pc += sandbox.get_pc();
+        sandbox.set_pc(pc);
+    }
 }
 
 void Interpreter::instruction_JMPGE(SandBox& sandbox, Instruction const& instruction) {
-    std::cout << "offset " << static_cast<i32>(Interpreter::value_of(sandbox, instruction.get_complete_argument()) - 4) << std::endl;
-    if (sandbox.get_flag_greater() || sandbox.get_flag_zero())
-        sandbox.set_pc(sandbox.get_pc() + Interpreter::value_of(sandbox, instruction.get_complete_argument()) - 4);
+    if (sandbox.get_flag_greater() || sandbox.get_flag_zero()) {
+        auto arg = instruction.get_complete_argument();
+        auto pc = Interpreter::value_of(sandbox, arg);
+        auto arg_type = get_argument_type(arg);
+        if (arg_type == ArgumentType::Address || arg_type == ArgumentType::Value)
+            pc += sandbox.get_pc();
+        sandbox.set_pc(pc);
+    }
 }
 
 void Interpreter::instruction_AND(SandBox& sandbox, Instruction const& instruction) {
@@ -335,9 +357,12 @@ void Interpreter::instruction_DEL(SandBox& sandbox, Instruction const& instructi
 
 void Interpreter::instruction_CALL(SandBox& sandbox, Instruction const& instruction) {
     auto arg = instruction.get_complete_argument();
-    std::cout << "offset " << static_cast<i32>(Interpreter::value_of(sandbox, instruction.get_complete_argument()) - 4) << std::endl;
+    auto pc = Interpreter::value_of(sandbox, arg);
+    auto arg_type = get_argument_type(arg);
+    if (arg_type == ArgumentType::Address || arg_type == ArgumentType::Value)
+        pc += sandbox.get_pc();
     sandbox.push_32(sandbox.get_pc());
-    sandbox.set_pc(sandbox.get_pc() + Interpreter::value_of(sandbox, arg) - 4);
+    sandbox.set_pc(pc);
 }
 
 void Interpreter::instruction_RET(SandBox& sandbox, Instruction const&) {

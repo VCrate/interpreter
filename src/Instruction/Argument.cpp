@@ -68,7 +68,7 @@ const Register Register::FG = Register(bin_repr::arg_register_FG);
 const Register Register::BP = Register(bin_repr::arg_register_BP);
 const Register Register::SP = Register(bin_repr::arg_register_SP);
 
-Displacement::Displacement(Register reg, ui32 displacement) : reg(reg), displacement(displacement) {}
+Displacement::Displacement(Register reg, i32 displacement) : reg(reg), displacement(displacement) {}
 
 std::string Displacement::to_string() const {
     return "[" + reg.to_string() + " + " + std::to_string(displacement) + "]";
@@ -80,13 +80,13 @@ std::string Deferred::to_string() const {
     return "[" + reg.to_string() + "]";
 }
 
-Address::Address(ui32 address)  : address(address) {}
+Address::Address(i32 address)  : address(address) {}
 
 std::string Address::to_string() const {
     return "[" + std::to_string(address) + "]";
 }
 
-Value::Value(ui32 value) : value(value) {}
+Value::Value(i32 value) : value(value) {}
 
 std::string Value::to_string() const {
     return std::to_string(value);
@@ -106,13 +106,7 @@ ArgumentType get_argument_type(Argument const& arg) {
 }
 
 std::string argument_to_string(Argument const& arg) {
-    return std::visit(Visitor {
-        [] (Value arg)          { return arg.to_string(); },
-        [] (Register arg)       { return arg.to_string(); },
-        [] (Displacement arg)   { return arg.to_string(); },
-        [] (Address arg)        { return arg.to_string(); },
-        [] (Deferred arg)       { return arg.to_string(); },
-    }, arg);
+    return std::visit([] (auto arg) { return arg.to_string(); }, arg);
 }
 
 }
