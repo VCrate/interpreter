@@ -26,8 +26,8 @@ int main() {
 
         // go to entry point
         program.append_instruction(Operations::OUT, Value('0'));
-        program.append_instruction(Operations::OUT, Value('0'));
         program.link(entry_point.as_value());
+        program.append_instruction(Operations::OUT, Value('0'));
         program.append_instruction(Operations::OUT, Value('0'));
         program.append_instruction(Operations::JMP, entry_point);
         program.append_instruction(Operations::OUT, Value('0'));

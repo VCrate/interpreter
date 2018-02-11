@@ -33,7 +33,7 @@ void Program::append_instruction(Operations ope, Label& label) {
             if (label.is_deferred)
                 this->set_instruction(Instruction(ope, Address(label.get_address() + label.offset - addr)), addr);
             else
-                this->set_instruction(Instruction(ope, Value(label.get_address() + label.offset - addr)), addr);
+                this->set_instruction(Instruction(ope, Value(label.get_address() - 4 + label.offset - addr)), addr);
         });
         if (label.is_deferred)
             append(Instruction(ope, Address(label.address_max() -1)));
@@ -41,9 +41,9 @@ void Program::append_instruction(Operations ope, Label& label) {
             append(Instruction(ope, Value(label.address_max() -1)));
     } else {
         if (label.is_deferred)
-            append(Instruction(ope, Address(label.get_address() + label.offset - size())));
+            append(Instruction(ope, Address(label.get_address() - 4 + label.offset - size())));
         else
-            append(Instruction(ope, Value(label.get_address() + label.offset - size())));
+            append(Instruction(ope, Value(label.get_address() - 4 + label.offset - size())));
     }
 }
 
@@ -53,9 +53,9 @@ void Program::append_instruction(Operations ope, Label& label, Argument const& a
             unlinked_label++;
         label.hooks.push_back([ope, this, &label, arg1, addr = size()] () {
             if (label.is_deferred)
-                this->set_instruction(Instruction(ope, Address(label.get_address() + label.offset - addr), arg1), addr);
+                this->set_instruction(Instruction(ope, Address(label.get_address() - 4 + label.offset - addr), arg1), addr);
             else
-                this->set_instruction(Instruction(ope, Value(label.get_address() + label.offset - addr), arg1), addr);
+                this->set_instruction(Instruction(ope, Value(label.get_address() - 4 + label.offset - addr), arg1), addr);
         });
         if (label.is_deferred)
             append(Instruction(ope, Address(label.address_max() -1), arg1));
@@ -63,9 +63,9 @@ void Program::append_instruction(Operations ope, Label& label, Argument const& a
             append(Instruction(ope, Value(label.address_max() -1), arg1));
     } else {
         if (label.is_deferred)
-            append(Instruction(ope, Address(label.get_address() + label.offset - size()), arg1));
+            append(Instruction(ope, Address(label.get_address() - 4 + label.offset - size()), arg1));
         else
-            append(Instruction(ope, Value(label.get_address() + label.offset - size()), arg1));
+            append(Instruction(ope, Value(label.get_address() - 4 + label.offset - size()), arg1));
     }
 }
 
@@ -75,9 +75,9 @@ void Program::append_instruction(Operations ope, Argument const& arg0, Label& la
             unlinked_label++;
         label.hooks.push_back([ope, this, &label, arg0, addr = size()] () {
             if (label.is_deferred)
-                this->set_instruction(Instruction(ope, arg0, Address(label.get_address() + label.offset - addr)), addr);
+                this->set_instruction(Instruction(ope, arg0, Address(label.get_address() - 4 + label.offset - addr)), addr);
             else
-                this->set_instruction(Instruction(ope, arg0, Value(label.get_address() + label.offset - addr)), addr);
+                this->set_instruction(Instruction(ope, arg0, Value(label.get_address() - 4 + label.offset - addr)), addr);
         });
         if (label.is_deferred)
             append(Instruction(ope, arg0, Address(label.address_max() -1)));
@@ -85,9 +85,9 @@ void Program::append_instruction(Operations ope, Argument const& arg0, Label& la
             append(Instruction(ope, arg0, Value(label.address_max() -1)));
     } else {
         if (label.is_deferred)
-            append(Instruction(ope, arg0, Address(label.get_address() + label.offset - size())));
+            append(Instruction(ope, arg0, Address(label.get_address() - 4 + label.offset - size())));
         else
-            append(Instruction(ope, arg0, Value(label.get_address() + label.offset - size())));
+            append(Instruction(ope, arg0, Value(label.get_address() - 4 + label.offset - size())));
     }
 }
 
@@ -103,14 +103,14 @@ void Program::append_instruction(Operations ope, Label& l0, Label& l1) {
                     return;
                 if (l0.is_deferred) {
                     if (l1.is_deferred)
-                        this->set_instruction(Instruction(ope, Address(l0.get_address() + l0.offset - addr), Address(l1.get_address() + l1.offset - addr)), addr);
+                        this->set_instruction(Instruction(ope, Address(l0.get_address() - 4 + l0.offset - addr), Address(l1.get_address() - 4 + l1.offset - addr)), addr);
                     else
-                        this->set_instruction(Instruction(ope, Address(l0.get_address() + l0.offset - addr), Value(l1.get_address() + l1.offset - addr)), addr);
+                        this->set_instruction(Instruction(ope, Address(l0.get_address() - 4 + l0.offset - addr), Value(l1.get_address() - 4 + l1.offset - addr)), addr);
                 } else {
                     if (l1.is_deferred)
-                        this->set_instruction(Instruction(ope, Value(l0.get_address() + l0.offset - addr), Address(l1.get_address() + l1.offset - addr)), addr);
+                        this->set_instruction(Instruction(ope, Value(l0.get_address() - 4 + l0.offset - addr), Address(l1.get_address() - 4 + l1.offset - addr)), addr);
                     else
-                        this->set_instruction(Instruction(ope, Value(l0.get_address() + l0.offset - addr), Value(l1.get_address() + l1.offset - addr)), addr);
+                        this->set_instruction(Instruction(ope, Value(l0.get_address() - 4 + l0.offset - addr), Value(l1.get_address() - 4 + l1.offset - addr)), addr);
                 }
             });
             l1.hooks.push_back([ope, this, &l0, &l1, addr = size()] () {
@@ -118,14 +118,14 @@ void Program::append_instruction(Operations ope, Label& l0, Label& l1) {
                     return;
                 if (l0.is_deferred) {
                     if (l1.is_deferred)
-                        this->set_instruction(Instruction(ope, Address(l0.get_address() + l0.offset - addr), Address(l1.get_address() + l1.offset - addr)), addr);
+                        this->set_instruction(Instruction(ope, Address(l0.get_address() - 4 + l0.offset - addr), Address(l1.get_address() - 4 + l1.offset - addr)), addr);
                     else
-                        this->set_instruction(Instruction(ope, Address(l0.get_address() + l0.offset - addr), Value(l1.get_address() + l1.offset - addr)), addr);
+                        this->set_instruction(Instruction(ope, Address(l0.get_address() - 4 + l0.offset - addr), Value(l1.get_address() - 4 + l1.offset - addr)), addr);
                 } else {
                     if (l1.is_deferred)
-                        this->set_instruction(Instruction(ope, Value(l0.get_address() + l0.offset - addr), Address(l1.get_address() + l1.offset - addr)), addr);
+                        this->set_instruction(Instruction(ope, Value(l0.get_address() - 4 + l0.offset - addr), Address(l1.get_address() - 4 + l1.offset - addr)), addr);
                     else
-                        this->set_instruction(Instruction(ope, Value(l0.get_address() + l0.offset - addr), Value(l1.get_address() + l1.offset - addr)), addr);
+                        this->set_instruction(Instruction(ope, Value(l0.get_address() - 4 + l0.offset - addr), Value(l1.get_address() - 4 + l1.offset - addr)), addr);
                 }
             });
             if (l0.is_deferred) {
@@ -145,26 +145,26 @@ void Program::append_instruction(Operations ope, Label& l0, Label& l1) {
             l0.hooks.push_back([ope, this, &l0, &l1, addr = size()] () {
                 if (l0.is_deferred) {
                     if (l1.is_deferred)
-                        this->set_instruction(Instruction(ope, Address(l0.get_address() + l0.offset - addr), Address(l1.get_address() + l1.offset - addr)), addr);
+                        this->set_instruction(Instruction(ope, Address(l0.get_address() - 4 + l0.offset - addr), Address(l1.get_address() - 4 + l1.offset - addr)), addr);
                     else
-                        this->set_instruction(Instruction(ope, Address(l0.get_address() + l0.offset - addr), Value(l1.get_address() + l1.offset - addr)), addr);
+                        this->set_instruction(Instruction(ope, Address(l0.get_address() - 4 + l0.offset - addr), Value(l1.get_address() - 4 + l1.offset - addr)), addr);
                 } else {
                     if (l1.is_deferred)
-                        this->set_instruction(Instruction(ope, Value(l0.get_address() + l0.offset - addr), Address(l1.get_address() + l1.offset - addr)), addr);
+                        this->set_instruction(Instruction(ope, Value(l0.get_address() - 4 + l0.offset - addr), Address(l1.get_address() - 4 + l1.offset - addr)), addr);
                     else
-                        this->set_instruction(Instruction(ope, Value(l0.get_address() + l0.offset - addr), Value(l1.get_address() + l1.offset - addr)), addr);
+                        this->set_instruction(Instruction(ope, Value(l0.get_address() - 4 + l0.offset - addr), Value(l1.get_address() - 4 + l1.offset - addr)), addr);
                 }
             });
             if (l0.is_deferred) {
                 if (l1.is_deferred)
-                    append(Instruction(ope, Address(l0.address_max()-1), Address(l1.get_address() + l1.offset - size())));
+                    append(Instruction(ope, Address(l0.address_max()-1), Address(l1.get_address() - 4 + l1.offset - size())));
                 else
-                    append(Instruction(ope, Address(l0.address_max()-1), Value(l1.get_address() + l1.offset - size())));
+                    append(Instruction(ope, Address(l0.address_max()-1), Value(l1.get_address() - 4 + l1.offset - size())));
             } else {
                 if (l1.is_deferred)
-                    append(Instruction(ope, Value(l0.address_max()-1), Address(l1.get_address() + l1.offset - size())));
+                    append(Instruction(ope, Value(l0.address_max()-1), Address(l1.get_address() - 4 + l1.offset - size())));
                 else
-                    append(Instruction(ope, Value(l0.address_max()-1), Value(l1.get_address() + l1.offset - size())));
+                    append(Instruction(ope, Value(l0.address_max()-1), Value(l1.get_address() - 4 + l1.offset - size())));
             }
         }
     } else {
@@ -174,38 +174,38 @@ void Program::append_instruction(Operations ope, Label& l0, Label& l1) {
             l1.hooks.push_back([ope, this, &l0, &l1, addr = size()] () {
                 if (l0.is_deferred) {
                     if (l1.is_deferred)
-                        this->set_instruction(Instruction(ope, Address(l0.get_address() + l0.offset - addr), Address(l1.get_address() + l1.offset - addr)), addr);
+                        this->set_instruction(Instruction(ope, Address(l0.get_address() - 4 + l0.offset - addr), Address(l1.get_address() - 4 + l1.offset - addr)), addr);
                     else
-                        this->set_instruction(Instruction(ope, Address(l0.get_address() + l0.offset - addr), Value(l1.get_address() + l1.offset - addr)), addr);
+                        this->set_instruction(Instruction(ope, Address(l0.get_address() - 4 + l0.offset - addr), Value(l1.get_address() - 4 + l1.offset - addr)), addr);
                 } else {
                     if (l1.is_deferred)
-                        this->set_instruction(Instruction(ope, Value(l0.get_address() + l0.offset - addr), Address(l1.get_address() + l1.offset - addr)), addr);
+                        this->set_instruction(Instruction(ope, Value(l0.get_address() - 4 + l0.offset - addr), Address(l1.get_address() - 4 + l1.offset - addr)), addr);
                     else
-                        this->set_instruction(Instruction(ope, Value(l0.get_address() + l0.offset - addr), Value(l1.get_address() + l1.offset - addr)), addr);
+                        this->set_instruction(Instruction(ope, Value(l0.get_address() - 4 + l0.offset - addr), Value(l1.get_address() - 4 + l1.offset - addr)), addr);
                 }
             });
             if (l0.is_deferred) {
                 if (l1.is_deferred)
-                    append(Instruction(ope, Address(l0.get_address() + l0.offset - size()), Address(l1.address_max()-1)));
+                    append(Instruction(ope, Address(l0.get_address() - 4 + l0.offset - size()), Address(l1.address_max()-1)));
                 else
-                    append(Instruction(ope, Address(l0.get_address() + l0.offset - size()), Value(l1.address_max()-1)));
+                    append(Instruction(ope, Address(l0.get_address() - 4 + l0.offset - size()), Value(l1.address_max()-1)));
             } else {
                 if (l1.is_deferred)
-                    append(Instruction(ope, Value(l0.get_address() + l0.offset - size()), Address(l1.address_max()-1)));
+                    append(Instruction(ope, Value(l0.get_address() - 4 + l0.offset - size()), Address(l1.address_max()-1)));
                 else
-                    append(Instruction(ope, Value(l0.get_address() + l0.offset - size()), Value(l1.address_max()-1)));
+                    append(Instruction(ope, Value(l0.get_address() - 4 + l0.offset - size()), Value(l1.address_max()-1)));
             }
         } else {
             if (l0.is_deferred) {
                 if (l1.is_deferred)
-                    append(Instruction(ope, Address(l0.get_address() + l0.offset - size()), Address(l1.get_address() + l1.offset - size())));
+                    append(Instruction(ope, Address(l0.get_address() - 4 + l0.offset - size()), Address(l1.get_address() - 4 + l1.offset - size())));
                 else
-                    append(Instruction(ope, Address(l0.get_address() + l0.offset - size()), Value(l1.get_address() + l1.offset - size())));
+                    append(Instruction(ope, Address(l0.get_address() - 4 + l0.offset - size()), Value(l1.get_address() - 4 + l1.offset - size())));
             } else {
                 if (l1.is_deferred)
-                    append(Instruction(ope, Value(l0.get_address() + l0.offset - size()), Address(l1.get_address() + l1.offset - size())));
+                    append(Instruction(ope, Value(l0.get_address() - 4 + l0.offset - size()), Address(l1.get_address() - 4 + l1.offset - size())));
                 else
-                    append(Instruction(ope, Value(l0.get_address() + l0.offset - size()), Value(l1.get_address() + l1.offset - size())));
+                    append(Instruction(ope, Value(l0.get_address() - 4 + l0.offset - size()), Value(l1.get_address() - 4 + l1.offset - size())));
             }
         }
     }
