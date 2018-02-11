@@ -180,47 +180,23 @@ void Interpreter::instruction_JMP(SandBox& sandbox, Instruction const& instructi
 }
 
 void Interpreter::instruction_JMPE(SandBox& sandbox, Instruction const& instruction) {
-    if (sandbox.get_flag_zero()) {
-        auto arg = instruction.get_complete_argument();
-        auto pc = Interpreter::value_of(sandbox, arg);
-        auto arg_type = get_argument_type(arg);
-        if (arg_type == ArgumentType::Address || arg_type == ArgumentType::Value)
-            pc += sandbox.get_pc();
-        sandbox.set_pc(pc);
-    }
+    if (sandbox.get_flag_zero())
+        Instruction::instruction_JMP(sandbox, instruction);
 }
 
 void Interpreter::instruction_JMPNE(SandBox& sandbox, Instruction const& instruction) {
-    if (!sandbox.get_flag_zero()) {
-        auto arg = instruction.get_complete_argument();
-        auto pc = Interpreter::value_of(sandbox, arg);
-        auto arg_type = get_argument_type(arg);
-        if (arg_type == ArgumentType::Address || arg_type == ArgumentType::Value)
-            pc += sandbox.get_pc();
-        sandbox.set_pc(pc);
-    }
+    if (!sandbox.get_flag_zero())
+        Instruction::instruction_JMP(sandbox, instruction);
 }
 
 void Interpreter::instruction_JMPG(SandBox& sandbox, Instruction const& instruction) {
-    if (sandbox.get_flag_greater()) {
-        auto arg = instruction.get_complete_argument();
-        auto pc = Interpreter::value_of(sandbox, arg);
-        auto arg_type = get_argument_type(arg);
-        if (arg_type == ArgumentType::Address || arg_type == ArgumentType::Value)
-            pc += sandbox.get_pc();
-        sandbox.set_pc(pc);
-    }
+    if (sandbox.get_flag_greater())
+        Instruction::instruction_JMP(sandbox, instruction);
 }
 
 void Interpreter::instruction_JMPGE(SandBox& sandbox, Instruction const& instruction) {
-    if (sandbox.get_flag_greater() || sandbox.get_flag_zero()) {
-        auto arg = instruction.get_complete_argument();
-        auto pc = Interpreter::value_of(sandbox, arg);
-        auto arg_type = get_argument_type(arg);
-        if (arg_type == ArgumentType::Address || arg_type == ArgumentType::Value)
-            pc += sandbox.get_pc();
-        sandbox.set_pc(pc);
-    }
+    if (sandbox.get_flag_greater() || sandbox.get_flag_zero())
+        Instruction::instruction_JMP(sandbox, instruction);
 }
 
 void Interpreter::instruction_AND(SandBox& sandbox, Instruction const& instruction) {
