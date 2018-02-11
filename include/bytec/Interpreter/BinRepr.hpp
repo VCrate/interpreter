@@ -35,10 +35,16 @@ MAKE_ALL(arg12_value_wo_sign,   0x0'FF,         0)
 MAKE_ALL(arg12_value_sign,      0x1'00,         8)
 MAKE_ALL(arg12_register,        0x1'E0,         5)
 MAKE_ALL(arg12_disp,            0x0'1F,         0)
+MAKE_ALL(arg12_disp_wo_sign,    0x0'10,         0)
+MAKE_ALL(arg12_disp_sign,       0x0'0F,         8)
 
-inline bool arg12_value_signed_fit(i32 value) { return static_cast<ui32>(value < 0 ? -value : value) <= arg12_value_wo_sign; }
+inline bool arg12_value_signed_fit(i32 value) { return static_cast<ui32>(value < 0 ? -value : value) <= arg12_value_wo_sign_mask; }
 inline ui32 arg12_value_signed_encode(i32 value) { return (value < 0 ? arg12_value_sign_mask | arg12_value_wo_sign_encode(-value) : arg12_value_wo_sign_encode(value)); }
 inline ui32 arg12_value_signed_decode(ui32 value) { return value & arg12_value_sign_mask ? -arg12_value_wo_sign_decode(value) : arg12_value_wo_sign_decode(value); }
+
+inline bool arg12_disp_signed_fit(i32 value) { return static_cast<ui32>(value < 0 ? -value : value) <= arg12_disp_wo_sign_mask; }
+inline ui32 arg12_disp_signed_encode(i32 value) { return (value < 0 ? arg12_disp_sign_mask | arg12_disp_wo_sign_encode(-value) : arg12_disp_wo_sign_encode(value)); }
+inline ui32 arg12_disp_signed_decode(ui32 value) { return value & arg12_disp_sign_mask ? -arg12_disp_wo_sign_decode(value) : arg12_disp_wo_sign_decode(value); }
 
 MAKE_ALL(arg24_type,            0xE0'00'00,     21)
 MAKE_ALL(arg24_value,           0x1F'FF'FF,     0)
@@ -46,10 +52,16 @@ MAKE_ALL(arg24_value_wo_sign,   0x0F'FF'FF,     0)
 MAKE_ALL(arg24_value_sign,      0x10'00'00,     20)
 MAKE_ALL(arg24_register,        0x1E'00'00,     17)
 MAKE_ALL(arg24_disp,            0x01'FF'FF,     0)
+MAKE_ALL(arg24_disp_wo_sign,    0x01'00'00,     0)
+MAKE_ALL(arg24_disp_sign,       0x00'FF'FF,     8)
 
-inline bool arg24_value_signed_fit(i32 value) { return static_cast<ui32>(value < 0 ? -value : value) <= arg24_value_wo_sign; }
+inline bool arg24_value_signed_fit(i32 value) { return static_cast<ui32>(value < 0 ? -value : value) <= arg24_value_wo_sign_mask; }
 inline ui32 arg24_value_signed_encode(i32 value) { return (value < 0 ? arg24_value_sign_mask | arg24_value_wo_sign_encode(-value) : arg24_value_wo_sign_encode(value)); }
 inline ui32 arg24_value_signed_decode(ui32 value) { return value & arg24_value_sign_mask ? -arg24_value_wo_sign_decode(value) : arg24_value_wo_sign_decode(value); }
+
+inline bool arg24_disp_signed_fit(i32 value) { return static_cast<ui32>(value < 0 ? -value : value) <= arg24_disp_wo_sign_mask; }
+inline ui32 arg24_disp_signed_encode(i32 value) { return (value < 0 ? arg24_disp_sign_mask | arg24_disp_wo_sign_encode(-value) : arg24_disp_wo_sign_encode(value)); }
+inline ui32 arg24_disp_signed_decode(ui32 value) { return value & arg24_disp_sign_mask ? -arg24_disp_wo_sign_decode(value) : arg24_disp_wo_sign_decode(value); }
 
 static constexpr ui32 arg_type_register = 0x00;
 static constexpr ui32 arg_type_defer_register = 0x01;
