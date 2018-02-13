@@ -18,6 +18,7 @@ public:
 
         bool is_null() const;
         void reset();
+        bool fuse(Block const& block);
 
         ui32 address;
         ui32 size;
@@ -35,7 +36,7 @@ public:
 
 private:
 
-    Block* get_block_containing(ui32 address);
+    std::vector<MemoryOwner::Block>::iterator get_block_after(ui32 address);
 
     std::vector<Block> blocks;
 
