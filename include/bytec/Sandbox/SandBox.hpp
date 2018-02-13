@@ -2,7 +2,7 @@
 
 #include <bytec/Alias.hpp>
 #include <bytec/Program/Program.hpp>
-#include <bytec/Sandbox/Memory.hpp>
+#include <bytec/Sandbox/Memory/Memory.hpp>
 
 #include <vector>
 #include <array>

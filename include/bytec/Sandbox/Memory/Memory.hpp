@@ -3,6 +3,7 @@
 #include <vector>
 
 #include <bytec/Alias.hpp>
+#include <bytec/Sandbox/Memory/FragmentArray.hpp>
 
 namespace bytec {
 
@@ -49,8 +50,11 @@ private:
     ui32 find_index_of(ui32 address) const; // returns index where address is in interval [index - 1, index[
     void insert_before(ui32 index, FreeBlock const& block);
 
+    void move_stack_pointer_forward(ui32 offset);
+    void move_stack_pointer_backward(ui32 offset);
+
     ui32 stack_pointer;
-    std::vector<ui8> memory;
+    FragmentArray<> memory;
     std::vector<FreeBlock> free_blocks;
 };
 

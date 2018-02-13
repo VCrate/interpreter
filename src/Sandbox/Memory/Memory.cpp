@@ -1,4 +1,4 @@
-#include <bytec/Sandbox/Memory.hpp>
+#include <bytec/Sandbox/Memory/Memory.hpp>
 
 #include <stdexcept>
 
@@ -36,13 +36,23 @@ ui32 Memory::get_stack_pointer() const {
 }
 
 void Memory::push32(ui32 value) {
-    push16(value);
-    push16(value >> 16);
+    set32(stack_pointer, value);
+    set_stack_pointer(stack_pointer + 4);
+    if (!free_blocks.empty()) {
+        auto& block = free_blocks.back();
+        if ((block.size -= 4) <= 0)
+            free_blocks.pop_back();
+    }
 }
 
 void Memory::push16(ui16 value) {
-    push8(value);
-    push8(value >> 8);
+    set16(stack_pointer, value);
+    set_stack_pointer(stack_pointer + 2);
+    if (!free_blocks.empty()) {
+        auto& block = free_blocks.back();
+        if ((block.size -= 2) <= 0)
+            free_blocks.pop_back();
+    }
 }
 
 void Memory::push8(ui8 value) {
@@ -56,11 +66,21 @@ void Memory::push8(ui8 value) {
 }
 
 ui32 Memory::pop32() {
-    return (pop16() << 16) | pop16();
+    if (!free_blocks.empty())
+        free_blocks.back().size += 4;
+    else
+        free_blocks.emplace_back(FreeBlock{stack_pointer+4, 1});
+    set_stack_pointer(stack_pointer - 4);
+    return memory.get_32(stack_pointer);
 }
 
 ui16 Memory::pop16() {
-    return (pop8() << 8) | pop8();
+    if (!free_blocks.empty())
+        free_blocks.back().size += 2;
+    else
+        free_blocks.emplace_back(FreeBlock{stack_pointer+2, 1});
+    set_stack_pointer(stack_pointer - 2);
+    return memory.get_16(stack_pointer);
 }
 
 ui8 Memory::pop8() {
@@ -69,33 +89,54 @@ ui8 Memory::pop8() {
     else
         free_blocks.emplace_back(FreeBlock{stack_pointer+1, 1});
     set_stack_pointer(stack_pointer - 1);
-    return memory[stack_pointer];
+    return memory.get_8(stack_pointer);
 }
 
 ui32 Memory::get32(ui32 address) const {
-    return (get16(address + 2) << 16) | get16(address);
+    return memory.get_32(address);
 }
 
 ui16 Memory::get16(ui32 address) const {
-    return (get8(address + 1) << 8) | get8(address);
+    return memory.get_16(address);
 }
 
 ui8 Memory::get8(ui32 address) const {
-    return memory[address];
+    return memory.get_8(address);
 }
 
 void Memory::set32(ui32 address, ui32 value) {
-    set16(address + 2, value >> 16);
-    set16(address, value);
+    return memory.set_32(address, value);
 }
 
 void Memory::set16(ui32 address, ui16 value) {
-    set8(address + 1, value >> 8);
-    set8(address, value);
+    return memory.set_16(address, value);
 }
 
 void Memory::set8(ui32 address, ui8 value) {
-    memory[address] = value;
+    return memory.set_8(address, value);
+}
+
+void Memory::move_stack_pointer_forward(ui32 offset) {
+    if (offset == 0) return;
+
+    if (!free_blocks.empty()) {
+        auto& block = free_blocks.back();
+        if (block.size == offset)
+            free_blocks.pop_back();
+        else if (block.size < offset)
+            throw std::runtime_error("Stack overflow");
+        block.size -= offset;
+    } else
+        throw std::runtime_error("Stack overflow");
+}
+
+void Memory::move_stack_pointer_backward(ui32 offset) {
+    if (offset == 0) return;
+
+    if (!free_blocks.empty())
+        free_blocks.back().size += offset;
+    else
+        free_blocks.emplace_back(FreeBlock{stack_pointer + offset, offset});
 }
 
 ui16 Memory::get_size_allocated(ui32 address) const {
