@@ -8,10 +8,18 @@
 namespace bytec {
 
 template<typename T8 = ui8, typename T16 = ui16, typename T32 = ui32, typename T64 = ui64, bool CheckAlignment = false> 
-class FragmentArray : public std::vector<T8> {
+class FragmentArray {
 public:
 
-    FragmentArray(ui32 size, T8 def_value = T8{}) : std::vector<T8>(size, def_value) {}
+    FragmentArray(ui32 size, T8 def_value = T8{}) : array(size, def_value) {}
+
+    T8& operator [] (ui32 pos) {
+        return array[pos];
+    }
+
+    T8 operator [] (ui32 pos) const {
+        return array[pos];
+    }
 
     T8 get_8(ui32 position, ui32 alignment = 1) const {
         check_alignment(position, alignment);
@@ -62,6 +70,8 @@ private:
         if (CheckAlignment && position % alignment != 0)
             throw std::runtime_error("Alignment Error");
     }
+
+    std::vector<T8> array;
 
 };
 
