@@ -2,7 +2,7 @@
 #                     SRC                    #
 ##############################################
 # All directories to build (inside src/)
-DIR := Interpreter Program Sandbox Instruction Instruction/Instruction
+DIR := Interpreter Program Sandbox Sandbox/Memory Instruction Instruction/Instruction
 # Files to exclude
 EXCLUDED_FILE := 
 # Directories with src/ prefix
