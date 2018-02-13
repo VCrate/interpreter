@@ -28,17 +28,17 @@ public:
 
     T16 get_16(ui32 position, ui32 alignment = 2) const {
         check_alignment(position, alignment);
-        return get_8(position + 1) << 8 | get_8(position);
+        return static_cast<T16>(get_8(position + 1)) << 8 | get_8(position);
     }
 
     T32 get_32(ui32 position, ui32 alignment = 4) const {
         check_alignment(position, alignment);
-        return get_16(position + 2) << 16 | get_16(position);
+        return static_cast<T32>(get_16(position + 2)) << 16 | get_16(position);
     }
 
     T64 get_64(ui32 position, ui32 alignment = 8) const {
         check_alignment(position, alignment);
-        return get_32(position + 4) << 32 | get_32(position);
+        return static_cast<T64>(get_32(position + 4)) << 32 | get_32(position);
     }
 
     void set_8(ui32 position, ui8 value, ui32 alignment = 1) {
