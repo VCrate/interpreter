@@ -181,22 +181,22 @@ void Interpreter::instruction_JMP(SandBox& sandbox, Instruction const& instructi
 
 void Interpreter::instruction_JMPE(SandBox& sandbox, Instruction const& instruction) {
     if (sandbox.get_flag_zero())
-        Instruction::instruction_JMP(sandbox, instruction);
+        Interpreter::instruction_JMP(sandbox, instruction);
 }
 
 void Interpreter::instruction_JMPNE(SandBox& sandbox, Instruction const& instruction) {
     if (!sandbox.get_flag_zero())
-        Instruction::instruction_JMP(sandbox, instruction);
+        Interpreter::instruction_JMP(sandbox, instruction);
 }
 
 void Interpreter::instruction_JMPG(SandBox& sandbox, Instruction const& instruction) {
     if (sandbox.get_flag_greater())
-        Instruction::instruction_JMP(sandbox, instruction);
+        Interpreter::instruction_JMP(sandbox, instruction);
 }
 
 void Interpreter::instruction_JMPGE(SandBox& sandbox, Instruction const& instruction) {
     if (sandbox.get_flag_greater() || sandbox.get_flag_zero())
-        Instruction::instruction_JMP(sandbox, instruction);
+        Interpreter::instruction_JMP(sandbox, instruction);
 }
 
 void Interpreter::instruction_AND(SandBox& sandbox, Instruction const& instruction) {
