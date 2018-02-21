@@ -6,7 +6,7 @@
 
 namespace bytec {
 
-SandBox::SandBox(ui32 memory_initial_size) : memory(memory_initial_size) {}
+SandBox::SandBox(ui32 memory_initial_size) : last_stack_address(stack_margin), memory(memory_initial_size, stack_margin) {}
 
 void SandBox::halt() {
     halted = true;
@@ -22,7 +22,7 @@ void SandBox::load_program(Program const& program) {
     set_bp(program.size() - 4);
     for(ui32 i = 0; i < program.size(); i += 4) {
         auto instruction = program.get_raw(i);
-        memory.push32(instruction);
+        push_32(instruction);
     }
 }
 
@@ -111,55 +111,41 @@ bool SandBox::get_flag_greater() const {
 }
 
 void SandBox::push_32(ui32 value) {
-    memory.push32(value);
+    set_memory_at(get_sp(), value);
+    set_sp(get_sp() + 4);
 }
 
 ui32 SandBox::pop_32() {
-    return memory.pop32();
+    set_sp(get_sp() - 4);
+    return get_memory_at(get_sp());
 }
 
-ui32 SandBox::get_register(ui32 reg) const {/*
-    std::cout << "return %";
-    switch(reg) {
-        case bin_repr::arg_register_PC: std::cout << "PC"; break;
-        case bin_repr::arg_register_FG: std::cout << "FG"; break;
-        case bin_repr::arg_register_BP: std::cout << "BP"; break;
-        case bin_repr::arg_register_SP: std::cout << "SP"; break;
-        default:                        std::cout << reg;  break;
-    }
-    std::cout << " (" << registers[reg] << ")" << std::endl;*/
-    if (reg == bin_repr::arg_register_SP)
-        return memory.get_stack_pointer();
+ui32 SandBox::get_register(ui32 reg) const {
     return registers[reg];
 }
 
-void SandBox::set_register(ui32 reg, ui32 value) {/*
-    std::cout << "%";
-    switch(reg) {
-        case bin_repr::arg_register_PC: std::cout << "PC"; break;
-        case bin_repr::arg_register_FG: std::cout << "FG"; break;
-        case bin_repr::arg_register_BP: std::cout << "BP"; break;
-        case bin_repr::arg_register_SP: std::cout << "SP"; break;
-        default:                        std::cout << reg;  break;
+void SandBox::set_register(ui32 reg, ui32 value) {
+    if (reg == bin_repr::arg_register_SP) {
+        if (value >= last_stack_address) {
+            if (!memory.ask_for(value, stack_margin))
+                throw std::runtime_error("Stack overflow");
+            last_stack_address = value + stack_margin;
+        }
     }
-    std::cout << " = " << value << std::endl;*/
-    if (reg == bin_repr::arg_register_SP)
-        return memory.set_stack_pointer(value);
+
     registers[reg] = value;
 }
 
 ui32 SandBox::get_memory_at(ui32 address) {
-    //std::cout << "return [" << address << "] //" << ((memory[address] << 24) | (memory[address + 1] << 16) | (memory[address + 2] << 8) | memory[address + 3]) << std::endl;
-    return memory.get32(address);
+    return memory.get_32(address);
 }
 
 void SandBox::set_memory_at(ui32 address, ui32 value) {
-    //std::cout << "[" << address << "] = " << value << std::endl;
-    memory.set32(address, value);
+    memory.set_32(address, value);
 }
 
 ui32 SandBox::allocate(ui32 size) {
-    return memory.allocate(size);
+    return memory.allocate(size).value_or(0);
 }
 
 void SandBox::deallocate(ui32 address) {

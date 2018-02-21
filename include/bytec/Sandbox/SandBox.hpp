@@ -2,7 +2,7 @@
 
 #include <bytec/Alias.hpp>
 #include <bytec/Program/Program.hpp>
-#include <bytec/Sandbox/Memory.hpp>
+#include <bytec/Sandbox/Memory/Memory.hpp>
 
 #include <vector>
 #include <array>
@@ -56,7 +56,10 @@ public:
 
 private:
 
-    std::array<ui32, 15> registers;
+    static constexpr ui32 stack_margin = 1 << 6;
+
+    ui32 last_stack_address;
+    std::array<ui32, 16> registers;
     Memory memory;
 
     bool halted = false;
