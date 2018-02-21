@@ -13,6 +13,29 @@ public:
 
     FragmentArray(ui32 size, T8 def_value = T8{}) : array(size, def_value) {}
 
+    ui32 size_8() const {
+        return array.size();
+    }
+
+    ui32 size_16() const {
+        return array.size() / 2;
+    }
+
+    ui32 size_32() const {
+        return array.size() / 4;
+    }
+
+    bool empty() const {
+        return array.empty();
+    }
+
+    auto begin() { return array.begin(); }
+    auto end() { return array.end(); }
+    auto begin() const { return array.begin(); }
+    auto end() const { return array.end(); }
+    auto cbegin() const { return array.cbegin(); }
+    auto cend() const { return array.cend(); }
+
     T8& operator [] (ui32 pos) {
         return array[pos];
     }
