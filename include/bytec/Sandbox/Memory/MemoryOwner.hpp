@@ -36,7 +36,7 @@ public:
 
 private:
 
-    std::vector<MemoryOwner::Block>::iterator get_block_after(ui32 address);
+    std::vector<Block>::iterator get_block_after(ui32 address);
 
     std::vector<Block> blocks;
 

@@ -21,8 +21,9 @@ bool MemoryOwner::Block::fuse(MemoryOwner::Block const& block) {
     if (address + size < block.address)
         return false;
 
-    size = std::max(address + size, block.address + block.size) - std::min(address, block.address);
-    address = std::min(address, block.address);
+    auto new_address = std::min(address, block.address);
+    size = std::max(address + size, block.address + block.size) - new_address;
+    address = new_address;
     return true;
 }
 
@@ -71,6 +72,11 @@ bool MemoryOwner::ask_for(MemoryOwner::Block block) {
 void MemoryOwner::give_back(MemoryOwner::Block block) {
     if (block.is_null())
         return;
+
+    if (blocks.empty()) {
+        blocks.push_back(block);
+        return;
+    }
 
     auto it = get_block_after(block.address);
     if (it == blocks.begin()) {
