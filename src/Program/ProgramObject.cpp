@@ -49,8 +49,7 @@ ProgramObject::address_t ProgramObject::read_jmp_table(ui32 offset) const {
     return program.get_32(jmp_table_block.address + offset);
 }
 
-
-ui8 ProgramObject::read_date(ui32 offset) const {
+ui8 ProgramObject::read_data(ui32 offset) const {
     if (offset >= data_block.size)
         throw std::runtime_error("Out of bounds");
     return program.get_8(data_block.address + offset);

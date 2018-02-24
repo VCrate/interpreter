@@ -29,7 +29,7 @@ public:
     ui32 get_symbol_table_size() const;
 
     address_t read_jmp_table(ui32 offset) const;
-    ui8 read_date(ui32 offset) const;
+    ui8 read_data(ui32 offset) const;
     std::optional<address_t> read_symbol_table(std::string const symbol) const;
     instruction_t read_instruction(ui32 offset) const;
 
