@@ -53,7 +53,7 @@ OPTIM := -O2
 # C++ flags
 FLAGS := -std=c++17 -g3 -Wall -Wextra -Wno-pmf-conversions
 # C++ librairy
-LIBS := -lGL -lGLU -lGLEW -lglfw3 -lX11 -lXxf86vm -lXrandr -lpthread -lXi -ldl -lXinerama -lXcursor 
+LIBS :=
 # Header include folder
 INCLUDE := -I ./include
 # Makefile flags
@@ -64,22 +64,22 @@ all: $(DEST)
 # Main build task
 # Compile each file and link them
 $(DEST): $(BUILD_DIR) $(OBJ) $(MAIN_OBJ)
-	@echo "\033[32m\033[1m:: Linking of all objects\033[0m"
+	@echo -e "\033[32m\033[1m:: Linking of all objects\033[0m"
 	@g++ $(INCLUDE) $(FLAGS) $(OBJ) $(MAIN_OBJ) -o $(DEST) $(LIBS)
-	@echo -n "\033[34m"
-	@echo "---------------"
-	@echo "Build finished!"
-	@echo "---------------"
-	@echo -n "\033[0m"
+	@echo -e -n "\033[34m"
+	@echo -e "---------------"
+	@echo -e "Build finished!"
+	@echo -e "---------------"
+	@echo -e -n "\033[0m"
 
 # Compile a file into a object
 build/src/%.o: %.cpp
-	@echo "\033[1m:: Building" "$<" "\033[0m"
+	@echo -e "\033[1m:: Building" "$<" "\033[0m"
 	@g++ -c $(INCLUDE) $(OPTIM) $(FLAGS) $(DEPS_FLAGS) -o "$@" "$<"
 
 # Compile a file into a object
 $(MAIN_OBJ): $(MAIN_PATH)
-	@echo "\033[1m:: Building Main" "\033[0m"
+	@echo -e "\033[1m:: Building Main" "\033[0m"
 	@g++ -c $(INCLUDE) $(OPTIM) $(FLAGS) -o "$@" "$<"
 
 # Make build folders
@@ -88,27 +88,27 @@ $(BUILD_DIR):
 
 # Clean every build files by destroying the build/ folder.
 clean:
-	@echo "Removing build folder..."
+	@echo -e "Removing build folder..."
 	@rm -rf build
-	@echo -n "\033[34m"
-	@echo "----------------"
-	@echo "Project  Cleaned"
-	@echo "----------------"
-	@echo -n "\033[0m"
+	@echo -e -n "\033[34m"
+	@echo -e "----------------"
+	@echo -e "Project  Cleaned"
+	@echo -e "----------------"
+	@echo -e -n "\033[0m"
 
 # Run the program
 run: $(DEST)
-	@echo -n "\033[34m"
-	@echo "----------------"
-	@echo "      Run       "
-	@echo "----------------"
-	@echo -n "\033[0m"
+	@echo -e -n "\033[34m"
+	@echo -e "----------------"
+	@echo -e "      Run       "
+	@echo -e "----------------"
+	@echo -e -n "\033[0m"
 	@$(DEST)
-	@echo -n "\033[34m"
-	@echo "----------------"
-	@echo "      Stop      "
-	@echo "----------------"
-	@echo -n "\033[0m"
+	@echo -e -n "\033[34m"
+	@echo -e "----------------"
+	@echo -e "      Stop      "
+	@echo -e "----------------"
+	@echo -e -n "\033[0m"
 
 # Equivalent of make clean and make run
 again:
@@ -116,16 +116,16 @@ again:
 	@make run
 
 valgrind: $(DEST)
-	@echo -n "\033[34m"
-	@echo "----------------"
-	@echo "  Run Valgrind  "
-	@echo "----------------"
-	@echo -n "\033[0m"
+	@echo -e -n "\033[34m"
+	@echo -e "----------------"
+	@echo -e "  Run Valgrind  "
+	@echo -e "----------------"
+	@echo -e -n "\033[0m"
 	@valgrind --leak-check=full --show-leak-kinds=all $(DEST)
-	@echo -n "\033[34m"
-	@echo "----------------"
-	@echo "      Stop      "
-	@echo "----------------"
-	@echo -n "\033[0m"
+	@echo -e -n "\033[34m"
+	@echo -e "----------------"
+	@echo -e "      Stop      "
+	@echo -e "----------------"
+	@echo -e -n "\033[0m"
 
 -include $(DEPS)
