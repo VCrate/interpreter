@@ -1,5 +1,3 @@
-# Bytecode interpreter
+# Interpreter
 
-## Instructions Set
-
-Still no documentation online...
+Read an object file in argument and run it in a sandbox.
