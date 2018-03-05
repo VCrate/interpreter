@@ -32,6 +32,9 @@ DEST := build/main_app
 BUILD_DIR := build build/main build/src $(addprefix build/src/,$(SRC_DIR)) $(addprefix build/deps/,$(SRC_DIR)) build/lib build/shared $(addprefix build/shared/,$(SRC_DIR))
 # .o files
 OBJ := $(patsubst %.cpp,build/src/%.o,$(SRC))
+# .o already build
+LIB_PATH := lib/bytecode-description/
+LIB_OBJ_PATH := $(LIB_PATH)/build/src
 # Include folders
 INCLUDE_FOLDER := include/
 
@@ -55,7 +58,7 @@ FLAGS := -std=c++17 -g3 -Wall -Wextra -Wno-pmf-conversions
 # C++ librairy
 LIBS :=
 # Header include folder
-INCLUDE := -I ./include
+INCLUDE := -I ./include -I $(LIB_PATH)/include
 # Makefile flags
 MAKEFLAGS += --no-print-directory
 
@@ -63,9 +66,9 @@ all: $(DEST)
 
 # Main build task
 # Compile each file and link them
-$(DEST): $(BUILD_DIR) $(OBJ) $(MAIN_OBJ)
+$(DEST): $(BUILD_DIR) $(LIB_OBJ_PATH) $(OBJ) $(MAIN_OBJ)
 	@echo -e "\033[32m\033[1m:: Linking of all objects\033[0m"
-	@g++ $(INCLUDE) $(FLAGS) $(OBJ) $(MAIN_OBJ) -o $(DEST) $(LIBS)
+	@g++ $(INCLUDE) $(FLAGS) $(OBJ) $(shell find $(LIB_OBJ_PATH) -name '*.o') $(MAIN_OBJ) -o $(DEST) $(LIBS)
 	@echo -e -n "\033[34m"
 	@echo -e "---------------"
 	@echo -e "Build finished!"
@@ -85,6 +88,10 @@ $(MAIN_OBJ): $(MAIN_PATH)
 # Make build folders
 $(BUILD_DIR):
 	@mkdir -p $@
+
+# Build lib
+$(LIB_OBJ_PATH):
+	cd $(LIB_PATH) && make
 
 # Clean every build files by destroying the build/ folder.
 clean:
