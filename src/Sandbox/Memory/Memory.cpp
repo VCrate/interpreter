@@ -1,8 +1,8 @@
-#include <bytec/Sandbox/Memory/Memory.hpp>
+#include <vcrate/Sandbox/Memory/Memory.hpp>
 
 #include <stdexcept>
 
-namespace bytec {
+namespace vcrate { namespace interpreter {
 
 Memory::Memory(ui32 initial_size, ui32 stack_initial_size) : memory(initial_size), allocator() {
     if (initial_size < stack_initial_size)
@@ -58,4 +58,4 @@ bool Memory::ask_for(ui32 address, ui32 size) {
     return allocator.ask_for({ address, size });
 }
 
-}
+}}

@@ -1,10 +1,10 @@
 #pragma once
 
-#include <bytec/Alias.hpp>
+#include <vcrate/Alias.hpp>
 
-#include <bytec/Sandbox/SandBox.hpp>
+#include <vcrate/Sandbox/SandBox.hpp>
 
-namespace bytec {
+namespace vcrate { namespace interpreter {
 
 class Interpreter {
 public:
@@ -58,4 +58,4 @@ private:
 
 };
 
-}
+}}

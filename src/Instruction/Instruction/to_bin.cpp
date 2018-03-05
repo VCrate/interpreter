@@ -1,11 +1,11 @@
-#include <bytec/Instruction/Instruction.hpp>
+#include <vcrate/Instruction/Instruction.hpp>
 
-#include <bytec/Instruction/OperationDefinition.hpp>
-#include <bytec/Interpreter/BinRepr.hpp>
+#include <vcrate/Instruction/OperationDefinition.hpp>
+#include <vcrate/Interpreter/BinRepr.hpp>
 
 #include <stdexcept>
 
-namespace bytec {
+namespace vcrate { namespace interpreter {
 
 ui32 Instruction::get_main_instruction() const {
     return first;
@@ -23,4 +23,4 @@ ui32 Instruction::get_second_extra() const {
     return *third;
 }
 
-}
+}}

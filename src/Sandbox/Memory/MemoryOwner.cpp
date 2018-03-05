@@ -1,9 +1,9 @@
-#include <bytec/Sandbox/Memory/MemoryOwner.hpp>
+#include <vcrate/Sandbox/Memory/MemoryOwner.hpp>
 
 #include <algorithm>
 #include <stdexcept>
 
-namespace bytec {
+namespace vcrate { namespace interpreter {
 
 MemoryOwner::Block::Block() { reset(); }
 MemoryOwner::Block::Block(ui32 address, ui32 size) : address(address), size(size) {
@@ -152,6 +152,4 @@ std::vector<MemoryOwner::Block>::iterator MemoryOwner::get_block_after(ui32 addr
     });
 }
 
-
-
-}
+}}

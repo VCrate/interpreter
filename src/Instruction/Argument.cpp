@@ -1,10 +1,10 @@
-#include <bytec/Instruction/Argument.hpp>
+#include <vcrate/Instruction/Argument.hpp>
 
-#include <bytec/Interpreter/BinRepr.hpp>
+#include <vcrate/Interpreter/BinRepr.hpp>
 
 #include <stdexcept>
 
-namespace bytec {
+namespace vcrate { namespace interpreter {
 
 Register::Register(ui32 reg) : reg(reg) {
     if(
@@ -109,4 +109,4 @@ std::string argument_to_string(Argument const& arg) {
     return std::visit([] (auto arg) { return arg.to_string(); }, arg);
 }
 
-}
+}}

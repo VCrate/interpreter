@@ -1,10 +1,10 @@
-#include <bytec/Sandbox/SandBox.hpp>
+#include <vcrate/Sandbox/SandBox.hpp>
 
-#include <bytec/Interpreter/BinRepr.hpp>
+#include <vcrate/Interpreter/BinRepr.hpp>
 
 #include <iostream>
 
-namespace bytec {
+namespace vcrate { namespace interpreter {
 
 SandBox::SandBox(ui32 memory_initial_size) : last_stack_address(stack_margin), memory(memory_initial_size, stack_margin) {}
 
@@ -160,4 +160,4 @@ ui8 SandBox::input() const {
     return static_cast<ui8>(std::cin.get());
 }
 
-}
+}}

@@ -1,11 +1,11 @@
-#include <bytec/Instruction/Instruction.hpp>
+#include <vcrate/Instruction/Instruction.hpp>
 
-#include <bytec/Instruction/OperationDefinition.hpp>
-#include <bytec/Interpreter/BinRepr.hpp>
+#include <vcrate/Instruction/OperationDefinition.hpp>
+#include <vcrate/Interpreter/BinRepr.hpp>
 
 #include <stdexcept>
 
-namespace bytec {
+namespace vcrate { namespace interpreter {
 
 std::string Instruction::to_string() const {
     auto op = get_operation();
@@ -184,4 +184,4 @@ Argument Instruction::get_second_argument() const {
     throw std::runtime_error("This argument is unknown");
 }
 
-}
+}}

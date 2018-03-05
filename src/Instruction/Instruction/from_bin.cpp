@@ -1,11 +1,11 @@
-#include <bytec/Instruction/Instruction.hpp>
+#include <vcrate/Instruction/Instruction.hpp>
 
-#include <bytec/Instruction/OperationDefinition.hpp>
-#include <bytec/Interpreter/BinRepr.hpp>
+#include <vcrate/Instruction/OperationDefinition.hpp>
+#include <vcrate/Interpreter/BinRepr.hpp>
 
 #include <stdexcept>
 
-namespace bytec {
+namespace vcrate { namespace interpreter {
 
 Instruction::Instruction(ui32 main, ui32 extra0, ui32 extra1) {
     Operations ope = static_cast<Operations>(bin_repr::operation_decode(main));
@@ -42,4 +42,4 @@ Instruction::Instruction(ui32 main, ui32 extra0, ui32 extra1) {
     }
 }
 
-}
+}}

@@ -1,12 +1,12 @@
 #pragma once
 
-#include <bytec/Alias.hpp>
+#include <vcrate/Alias.hpp>
 
 #include <optional>
 #include <vector>
 #include <functional>
 
-namespace bytec {
+namespace vcrate { namespace interpreter {
 
 class Label {
 public:
@@ -42,4 +42,4 @@ private:
     Size size;
 };
 
-}
+}}

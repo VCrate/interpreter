@@ -1,11 +1,11 @@
-#include <bytec/Instruction/Instruction.hpp>
+#include <vcrate/Instruction/Instruction.hpp>
 
-#include <bytec/Instruction/OperationDefinition.hpp>
-#include <bytec/Interpreter/BinRepr.hpp>
+#include <vcrate/Instruction/OperationDefinition.hpp>
+#include <vcrate/Interpreter/BinRepr.hpp>
 
 #include <stdexcept>
 
-namespace bytec {
+namespace vcrate { namespace interpreter {
 
 bool Instruction::is_writable(ArgumentType arg) const {
     return arg != ArgumentType::Value;
@@ -169,4 +169,4 @@ void Instruction::Encoder12::operator () (Deferred arg) {
     is.first |= is_first_arg ? bin_repr::arg0_encode(isn) : bin_repr::arg1_encode(isn);
 }
 
-}
+}}

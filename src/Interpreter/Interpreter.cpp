@@ -1,9 +1,9 @@
-#include <bytec/Interpreter/Interpreter.hpp>
+#include <vcrate/Interpreter/Interpreter.hpp>
 
 #include <iostream>
 #include <bitset>
 
-namespace bytec {
+namespace vcrate { namespace interpreter {
 
 void Interpreter::run_next_instruction(SandBox& sandbox) {
     auto instruction = sandbox.get_instruction_and_move();
@@ -370,4 +370,4 @@ void Interpreter::instruction_DBG(SandBox& sandbox, Instruction const& instructi
     std::cout << Interpreter::value_of(sandbox, arg);
 }
 
-}
+}}

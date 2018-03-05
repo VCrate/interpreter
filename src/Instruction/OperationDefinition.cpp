@@ -1,9 +1,9 @@
-#include <bytec/Instruction/OperationDefinition.hpp>
+#include <vcrate/Instruction/OperationDefinition.hpp>
 
 #include <map>
 #include <iostream>
 
-namespace bytec {
+namespace vcrate { namespace interpreter {
 
 OperationDefinition::OperationDefinition(std::string const& abbr) : abbr(abbr), arguments_count(0) {}
 OperationDefinition::OperationDefinition(std::string const& abbr, bool first_is_writable)
@@ -62,4 +62,4 @@ OperationDefinition OperationDefinition::get_definition(Operations operation) {
     }
 }
 
-}
+}}

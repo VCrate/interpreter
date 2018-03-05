@@ -1,14 +1,14 @@
 #pragma once
 
-#include <bytec/Alias.hpp>
-#include <bytec/Instruction/Instruction.hpp>
-#include <bytec/Program/Label.hpp>
+#include <vcrate/Alias.hpp>
+#include <vcrate/Instruction/Instruction.hpp>
+#include <vcrate/Program/Label.hpp>
 
 #include <vector>
 #include <map>
 #include <optional>
 
-namespace bytec {
+namespace vcrate { namespace interpreter {
 
 class Program {
 public:
@@ -54,4 +54,4 @@ private:
 
 };
 
-}
+}}

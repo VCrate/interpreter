@@ -1,12 +1,12 @@
-#include <bytec/Program/Label.hpp>
+#include <vcrate/Program/Label.hpp>
 
-#include <bytec/Interpreter/BinRepr.hpp>
+#include <vcrate/Interpreter/BinRepr.hpp>
 
 #include <stdexcept>
 #include <iostream>
 #include <limits>
 
-namespace bytec {
+namespace vcrate { namespace interpreter {
 
 Label::Label(Size size) : size(size) {}
 
@@ -45,5 +45,4 @@ Label& Label::as_address(ui32 offset) {
     return *this;
 }
 
-
-}
+}}

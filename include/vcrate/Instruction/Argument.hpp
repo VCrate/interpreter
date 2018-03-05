@@ -1,11 +1,11 @@
 #pragma once
 
-#include <bytec/Alias.hpp>
+#include <vcrate/Alias.hpp>
 
 #include <variant>
 #include <string>
 
-namespace bytec {
+namespace vcrate { namespace interpreter {
 
 struct Register {
 
@@ -58,4 +58,4 @@ std::string argument_to_string(Argument const& arg);
 template<class... Ts> struct Visitor : Ts... { using Ts::operator()...; };
 template<class... Ts> Visitor(Ts...) -> Visitor<Ts...>;
 
-}
+}}

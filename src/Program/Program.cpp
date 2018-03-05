@@ -1,8 +1,8 @@
-#include <bytec/Program/Program.hpp>
+#include <vcrate/Program/Program.hpp>
 
 #include <iostream>
 
-namespace bytec {
+namespace vcrate { namespace interpreter {
 
 void Program::verify_labels() const {
     if (unlinked_label > 0)
@@ -329,4 +329,4 @@ void Program::append(i8 n) {
     append(static_cast<ui32>(n << 24));
 }
 
-}
+}}

@@ -1,8 +1,9 @@
 #pragma once
 
-#include <bytec/Interpreter/Operations.hpp>
+#include <vcrate/Interpreter/Operations.hpp>
 
-namespace bytec { namespace bin_repr {
+namespace vcrate { namespace interpreter {
+namespace bin_repr {
 
 inline constexpr ui32 decode(ui32 mask, ui8 shift, ui32 value) {
     return (value & mask) >> shift;
@@ -104,4 +105,4 @@ static constexpr ui32 flag_greater = 1 << 1;
 #undef MAKE_MASK
 #undef MAKE_SHIFT
 
-}}
+}}}
