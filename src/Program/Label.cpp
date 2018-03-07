@@ -1,6 +1,6 @@
 #include <vcrate/Program/Label.hpp>
 
-#include <vcrate/Interpreter/BinRepr.hpp>
+#include <vcrate/bytecode/v1.hpp>
 
 #include <stdexcept>
 #include <iostream>
@@ -26,8 +26,8 @@ Label::Size Label::size_type() const {
 
 ui32 Label::address_max() const {
     switch(size) {
-        case Label::Size::Short: return bin_repr::arg12_value_max;
-        case Label::Size::Medium: return bin_repr::arg24_value_max;
+        case Label::Size::Short: return bytecode::v1::arg_12_signed_value.max_value();
+        case Label::Size::Medium: return bytecode::v1::arg_24_signed_value.max_value();
         case Label::Size::Long: return std::numeric_limits<ui32>::max();
     }
     throw std::runtime_error("Label Size unknown");

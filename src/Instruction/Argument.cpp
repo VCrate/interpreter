@@ -1,72 +1,57 @@
 #include <vcrate/Instruction/Argument.hpp>
 
-#include <vcrate/Interpreter/BinRepr.hpp>
+#include <vcrate/bytecode/v1.hpp>
 
 #include <stdexcept>
 
 namespace vcrate { namespace interpreter {
 
+namespace btc = ::vcrate::bytecode::v1;
+
 Register::Register(ui32 reg) : reg(reg) {
-    if(
-        reg != bin_repr::arg_register_A &&
-        reg != bin_repr::arg_register_B &&
-        reg != bin_repr::arg_register_C &&
-        reg != bin_repr::arg_register_D &&
-        reg != bin_repr::arg_register_E &&
-        reg != bin_repr::arg_register_F &&
-        reg != bin_repr::arg_register_G &&
-        reg != bin_repr::arg_register_H &&
-        reg != bin_repr::arg_register_I &&
-        reg != bin_repr::arg_register_J &&
-        reg != bin_repr::arg_register_K &&
-        reg != bin_repr::arg_register_L &&
-        reg != bin_repr::arg_register_PC &&
-        reg != bin_repr::arg_register_FG &&
-        reg != bin_repr::arg_register_BP &&
-        reg != bin_repr::arg_register_SP        
-    )
+    if(reg > btc::register_sp)
         throw std::runtime_error("Register unknown");
 }
 
 std::string Register::to_string() const {
     switch(reg) {
-        case bin_repr::arg_register_A: return "%A";
-        case bin_repr::arg_register_B: return "%B";
-        case bin_repr::arg_register_C: return "%C";
-        case bin_repr::arg_register_D: return "%D";
-        case bin_repr::arg_register_E: return "%E";
-        case bin_repr::arg_register_F: return "%F";
-        case bin_repr::arg_register_G: return "%G";
-        case bin_repr::arg_register_H: return "%H";
-        case bin_repr::arg_register_I: return "%I";
-        case bin_repr::arg_register_J: return "%J";
-        case bin_repr::arg_register_K: return "%K";
-        case bin_repr::arg_register_L: return "%L";
-        case bin_repr::arg_register_PC: return "%PC";
-        case bin_repr::arg_register_FG: return "%FG";
-        case bin_repr::arg_register_BP: return "%BP";
-        case bin_repr::arg_register_SP: return "%SP";
+        case btc::register_a: return "%A";
+        case btc::register_b: return "%B";
+        case btc::register_c: return "%C";
+        case btc::register_d: return "%D";
+        case btc::register_e: return "%E";
+        case btc::register_f: return "%F";
+        case btc::register_g: return "%G";
+        case btc::register_h: return "%H";
+        case btc::register_i: return "%I";
+        case btc::register_j: return "%J";
+        case btc::register_k: return "%K";
+        case btc::register_l: return "%L";
+        case btc::register_pc: return "%PC";
+        case btc::register_fg: return "%FG";
+        case btc::register_bp: return "%BP";
+        case btc::register_sp: return "%SP";
         default:
             throw std::runtime_error("Register unknown");
     }
 }
 
-const Register Register::A = Register(bin_repr::arg_register_A);
-const Register Register::B = Register(bin_repr::arg_register_B);
-const Register Register::C = Register(bin_repr::arg_register_C);
-const Register Register::D = Register(bin_repr::arg_register_D);
-const Register Register::E = Register(bin_repr::arg_register_E);
-const Register Register::F = Register(bin_repr::arg_register_F);
-const Register Register::G = Register(bin_repr::arg_register_G);
-const Register Register::H = Register(bin_repr::arg_register_H);
-const Register Register::I = Register(bin_repr::arg_register_I);
-const Register Register::J = Register(bin_repr::arg_register_J);
-const Register Register::K = Register(bin_repr::arg_register_K);
-const Register Register::L = Register(bin_repr::arg_register_L);
-const Register Register::PC = Register(bin_repr::arg_register_PC);
-const Register Register::FG = Register(bin_repr::arg_register_FG);
-const Register Register::BP = Register(bin_repr::arg_register_BP);
-const Register Register::SP = Register(bin_repr::arg_register_SP);
+const Register Register::A = Register(btc::register_a);
+const Register Register::B = Register(btc::register_b);
+const Register Register::C = Register(btc::register_c);
+const Register Register::D = Register(btc::register_d);
+const Register Register::E = Register(btc::register_e);
+const Register Register::F = Register(btc::register_f);
+const Register Register::G = Register(btc::register_g);
+const Register Register::H = Register(btc::register_h);
+const Register Register::I = Register(btc::register_i);
+const Register Register::J = Register(btc::register_j);
+const Register Register::K = Register(btc::register_k);
+const Register Register::L = Register(btc::register_l);
+const Register Register::PC = Register(btc::register_pc);
+const Register Register::FG = Register(btc::register_fg);
+const Register Register::BP = Register(btc::register_bp);
+const Register Register::SP = Register(btc::register_sp);
 
 Displacement::Displacement(Register reg, i32 displacement) : reg(reg), displacement(displacement) {}
 

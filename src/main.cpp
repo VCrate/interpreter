@@ -2,7 +2,6 @@
 #include <vcrate/Sandbox/SandBox.hpp>
 #include <vcrate/Interpreter/Interpreter.hpp>
 #include <vcrate/Instruction/OperationDefinition.hpp>
-#include <vcrate/Interpreter/BinRepr.hpp>
 
 #include <vcrate/Program/Example.hpp>
 

@@ -1,7 +1,6 @@
 #include <vcrate/Instruction/Instruction.hpp>
 
 #include <vcrate/Instruction/OperationDefinition.hpp>
-#include <vcrate/Interpreter/BinRepr.hpp>
 
 #include <stdexcept>
 
