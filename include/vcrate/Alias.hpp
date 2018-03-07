@@ -1,6 +1,6 @@
 #pragma once
 
-namespace bytec {
+namespace vcrate {
 
 using i8 = signed char;
 using ui8 = unsigned char;

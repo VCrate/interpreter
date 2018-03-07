@@ -1,11 +1,12 @@
 #pragma once
 
-#include <bytec/Alias.hpp>
-#include <bytec/Program/Program.hpp>
-#include <bytec/Instruction/Instruction.hpp>
-#include <bytec/Program/Label.hpp>
+#include <vcrate/Alias.hpp>
+#include <vcrate/Program/Program.hpp>
+#include <vcrate/Instruction/Instruction.hpp>
+#include <vcrate/Program/Label.hpp>
 
-namespace bytec { namespace program_ex {
+namespace vcrate { namespace interpreter {
+namespace program_ex {
 
 void hello_world(Program& program);
 void print_number(Program& program);
@@ -22,4 +23,4 @@ struct vector_labels {
 };
 void vector(Program& program);
 
-}}
+}}}

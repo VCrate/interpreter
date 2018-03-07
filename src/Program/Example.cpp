@@ -1,8 +1,9 @@
-#include <bytec/Program/Example.hpp>
+#include <vcrate/Program/Example.hpp>
 
 #include <iostream>
 
-namespace bytec { namespace program_ex {
+namespace vcrate { namespace interpreter {
+namespace program_ex {
 
 void hello_world(Program& program) {
     /* Hello World
@@ -550,4 +551,4 @@ void vector(Program& program) {
 
 }
 
-}}
+}}}

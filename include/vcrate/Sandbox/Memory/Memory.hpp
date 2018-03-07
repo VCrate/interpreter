@@ -2,11 +2,11 @@
 
 #include <vector>
 
-#include <bytec/Alias.hpp>
-#include <bytec/Sandbox/Memory/FragmentArray.hpp>
-#include <bytec/Sandbox/Memory/MemoryOwner.hpp>
+#include <vcrate/Alias.hpp>
+#include <vcrate/Sandbox/Memory/FragmentArray.hpp>
+#include <vcrate/Sandbox/Memory/MemoryOwner.hpp>
 
-namespace bytec {
+namespace vcrate { namespace interpreter {
 
 class Memory {
 public:
@@ -36,4 +36,4 @@ private:
     MemoryOwner allocator;
 };
 
-}
+}}

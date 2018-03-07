@@ -1,9 +1,9 @@
 #pragma once
 
-#include <bytec/Instruction/Instruction.hpp>
-#include <bytec/Interpreter/Operations.hpp>
+#include <vcrate/Instruction/Instruction.hpp>
+#include <vcrate/Interpreter/Operations.hpp>
 
-namespace bytec {
+namespace vcrate { namespace interpreter {
 
 struct OperationDefinition {
     OperationDefinition(std::string const& abbr);
@@ -18,4 +18,4 @@ struct OperationDefinition {
     bool second_is_writable;
 };
 
-}
+}}

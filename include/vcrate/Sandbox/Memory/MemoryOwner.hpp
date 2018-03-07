@@ -1,11 +1,11 @@
 #pragma once
 
-#include <bytec/Alias.hpp>
+#include <vcrate/Alias.hpp>
 
 #include <vector>
 #include <optional>
 
-namespace bytec {
+namespace vcrate { namespace interpreter {
 
 class MemoryOwner {
 public:
@@ -42,4 +42,4 @@ private:
 
 };
 
-}
+}}

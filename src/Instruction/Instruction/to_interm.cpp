@@ -1,11 +1,14 @@
-#include <bytec/Instruction/Instruction.hpp>
+#include <vcrate/Instruction/Instruction.hpp>
 
-#include <bytec/Instruction/OperationDefinition.hpp>
-#include <bytec/Interpreter/BinRepr.hpp>
+#include <vcrate/Instruction/OperationDefinition.hpp>
+
+#include <vcrate/bytecode/v1.hpp>
 
 #include <stdexcept>
 
-namespace bytec {
+namespace vcrate { namespace interpreter {
+
+namespace btc = ::vcrate::bytecode::v1;
 
 std::string Instruction::to_string() const {
     auto op = get_operation();
@@ -28,14 +31,14 @@ Instruction::Type Instruction::type() const {
 }
 
 Operations Instruction::get_operation() const {
-    return static_cast<Operations>(bin_repr::operation_decode(first));
+    return static_cast<Operations>(btc::instruction.decode(first));
 }
 
 bool Instruction::require_complete_instruction(ui32 type) const {
     switch(type) {
-        case bin_repr::arg_type_defer_next_value:
-        case bin_repr::arg_type_defer_register_next_disp:
-        case bin_repr::arg_type_next_value:
+        case btc::arg_type_defer_register_disp_next:
+        case btc::arg_type_value_next:
+        case btc::arg_type_address_next:
             return true;
         default:
             return false;
@@ -44,61 +47,69 @@ bool Instruction::require_complete_instruction(ui32 type) const {
 
 ArgumentType Instruction::get_corresponding_argtype(ui32 type) const {
     switch(type) {
-        case bin_repr::arg_type_register:
+        case btc::arg_type_register:
             return ArgumentType::Register;
 
-        case bin_repr::arg_type_defer_imm_value:
-        case bin_repr::arg_type_defer_next_value:
+        case btc::arg_type_address:
+        case btc::arg_type_address_next:
             return ArgumentType::Address;
 
-        case bin_repr::arg_type_defer_register:
+        case btc::arg_type_defer_register:
             return ArgumentType::Deferred;
 
-        case bin_repr::arg_type_defer_register_disp:
-        case bin_repr::arg_type_defer_register_next_disp:
+        case btc::arg_type_defer_register_disp:
+        case btc::arg_type_defer_register_disp_next:
             return ArgumentType::Displacement;
 
-        case bin_repr::arg_type_imm_value:
-        case bin_repr::arg_type_next_value:
+        case btc::arg_type_value:
+        case btc::arg_type_value_next:
             return ArgumentType::Value;
+
         default:
             throw std::runtime_error("This argument is unknown");
     }
 }
 
 Argument Instruction::get_complete_argument() const {
-    auto type = bin_repr::arg24_type_decode(first);
+    auto type = btc::arg_24_type.decode(first);
     switch(get_corresponding_argtype(type)) {
         case ArgumentType::Value:
         {
             if (require_complete_instruction(type))
-                return Value{ *second };
-            return Value(bin_repr::arg24_value_signed_decode(first));
+                return Value{ static_cast<i32>(*second) };
+            return Value{ bytecode::decode_signed_value(
+                btc::arg_24_unsigned_value, 
+                btc::arg_24_sign_value,
+                first)
+            };
         }
         case ArgumentType::Register:
         {
-            return Register(bin_repr::arg24_register_decode(first));
+            return Register(btc::arg_24_register.decode(first));
         }
         case ArgumentType::Deferred:
         {
-            return Deferred(bin_repr::arg24_register_decode(first));
+            return Deferred(btc::arg_24_register.decode(first));
         }
         case ArgumentType::Address:
         {
             if (require_complete_instruction(type))
                 return Address{ *second };
-            return Address(bin_repr::arg24_value_signed_decode(first));
+            return Address { btc::arg_24_signed_value.decode(first) };
         }
         case ArgumentType::Displacement:
         {
             if (require_complete_instruction(type))
                 return Displacement(
-                    Register(bin_repr::arg24_register_decode(first)),
-                    *second
+                    Register(btc::arg_24_register.decode(first)),
+                    static_cast<i32>(*second)
                 );
             return Displacement(
-                Register(bin_repr::arg24_register_decode(first)),
-                bin_repr::arg24_disp_signed_decode(first)
+                Register(btc::arg_24_register.decode(first)),
+                bytecode::decode_signed_value(
+                    btc::arg_24_unsigned_disp, 
+                    btc::arg_24_sign_disp,
+                    first)
             );
         }
     }
@@ -106,82 +117,96 @@ Argument Instruction::get_complete_argument() const {
 }
 
 Argument Instruction::get_first_argument() const {
-    auto type = bin_repr::arg12_type_decode(bin_repr::arg0_decode(first));
+    auto type = btc::arg_12a_type.decode(first);
     switch(get_corresponding_argtype(type)) {
         case ArgumentType::Value:
         {
             if (require_complete_instruction(type))
-                return Value{ *second };
-            return Value(bin_repr::arg12_value_signed_decode(bin_repr::arg0_decode(first)));
+                return Value{ static_cast<i32>(*second) };
+            return Value{ bytecode::decode_signed_value(
+                btc::arg_12a_unsigned_value, 
+                btc::arg_12a_sign_value,
+                first)
+            };
         }
         case ArgumentType::Register:
         {
-            return Register(bin_repr::arg12_register_decode(bin_repr::arg0_decode(first)));
+            return Register{ btc::arg_12a_register.decode(first) };
         }
         case ArgumentType::Deferred:
         {
-            return Deferred(bin_repr::arg12_register_decode(bin_repr::arg0_decode(first)));
+            return Deferred{ btc::arg_12a_register.decode(first) };
         }
         case ArgumentType::Address:
         {
             if (require_complete_instruction(type))
                 return Address{ *second };
-            return Address(bin_repr::arg12_value_signed_decode(bin_repr::arg0_decode(first)));
+            return Address{ btc::arg_12a_signed_value.decode(first) };
         }
         case ArgumentType::Displacement:
         {
             if (require_complete_instruction(type))
-                return Displacement(
-                    Register(bin_repr::arg12_register_decode(bin_repr::arg0_decode(first))),
-                    *second
-                );
-            return Displacement(
-                Register(bin_repr::arg12_register_decode(bin_repr::arg0_decode(first))),
-                bin_repr::arg12_disp_signed_decode(bin_repr::arg0_decode(first))
-            );
+                return Displacement{
+                    Register{ btc::arg_12a_register.decode(first) },
+                    static_cast<i32>(*second)
+                };
+            return Displacement{
+                Register{ btc::arg_12a_register.decode(first) },
+                bytecode::decode_signed_value(
+                    btc::arg_12a_unsigned_disp, 
+                    btc::arg_12a_sign_disp,
+                    first)
+            };
         }
     }
     throw std::runtime_error("This argument is unknown");
 }
 
 Argument Instruction::get_second_argument() const {
-    bool first_required_extra = require_complete_instruction(bin_repr::arg12_type_decode(bin_repr::arg0_decode(first)));
-    auto type = bin_repr::arg12_type_decode(bin_repr::arg1_decode(first));
+    auto first_required_extra = require_complete_instruction(btc::arg_12a_type.decode(first));
+    auto type = btc::arg_12b_type.decode(first);
     switch(get_corresponding_argtype(type)) {
         case ArgumentType::Value:
         {
             if (require_complete_instruction(type))
-                return Value{ *(first_required_extra ? third : second) };
-            return Value(bin_repr::arg12_value_signed_decode(bin_repr::arg1_decode(first)));
+                return Value{ static_cast<i32>(*(first_required_extra ? third : second)) };
+            return Value{ bytecode::decode_signed_value(
+                btc::arg_12b_unsigned_value, 
+                btc::arg_12b_sign_value,
+                first)
+            };
         }
         case ArgumentType::Register:
         {
-            return Register(bin_repr::arg12_register_decode(bin_repr::arg1_decode(first)));
+            return Register{ btc::arg_12b_register.decode(first) };
         }
         case ArgumentType::Deferred:
         {
-            return Deferred(bin_repr::arg12_register_decode(bin_repr::arg1_decode(first)));
+            return Register{ btc::arg_12b_register.decode(first) };
         }
         case ArgumentType::Address:
         {
             if (require_complete_instruction(type))
                 return Address{ *(first_required_extra ? third : second) };
-            return Address(bin_repr::arg12_value_signed_decode(bin_repr::arg1_decode(first)));
+            return Address{ btc::arg_12b_signed_value.decode(first) };
         }
         case ArgumentType::Displacement:
         {
             if (require_complete_instruction(type))
                 return Displacement(
-                    Register(bin_repr::arg12_register_decode(bin_repr::arg1_decode(first))),
-                    *(first_required_extra ? third : second)
+                    Register{ btc::arg_12b_register.decode(first) },
+                    static_cast<i32>(*(first_required_extra ? third : second))
                 );
             return Displacement(
-                Register(bin_repr::arg12_register_decode(bin_repr::arg1_decode(first))),
-                bin_repr::arg12_disp_signed_decode(bin_repr::arg1_decode(first))
+                Register{ btc::arg_12b_register.decode(first) },
+                bytecode::decode_signed_value(
+                    btc::arg_12b_unsigned_disp, 
+                    btc::arg_12b_sign_disp,
+                    first)
             );
         }
     }
     throw std::runtime_error("This argument is unknown");
 }
 
-}
+}}

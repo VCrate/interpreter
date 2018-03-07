@@ -1,13 +1,13 @@
 #pragma once
 
-#include <bytec/Alias.hpp>
-#include <bytec/Instruction/Argument.hpp>
-#include <bytec/Interpreter/Operations.hpp>
-#include <bytec/Program/Label.hpp>
+#include <vcrate/Alias.hpp>
+#include <vcrate/Instruction/Argument.hpp>
+#include <vcrate/Interpreter/Operations.hpp>
+#include <vcrate/Program/Label.hpp>
 
 #include <optional>
 
-namespace bytec {
+namespace vcrate { namespace interpreter {
 
 class Instruction {
 public:
@@ -80,4 +80,4 @@ private:
 
 };
 
-}
+}}

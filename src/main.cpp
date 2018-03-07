@@ -1,10 +1,9 @@
-#include <bytec/Program/Program.hpp>
-#include <bytec/Sandbox/SandBox.hpp>
-#include <bytec/Interpreter/Interpreter.hpp>
-#include <bytec/Instruction/OperationDefinition.hpp>
-#include <bytec/Interpreter/BinRepr.hpp>
+#include <vcrate/Program/Program.hpp>
+#include <vcrate/Sandbox/SandBox.hpp>
+#include <vcrate/Interpreter/Interpreter.hpp>
+#include <vcrate/Instruction/OperationDefinition.hpp>
 
-#include <bytec/Program/Example.hpp>
+#include <vcrate/Program/Example.hpp>
 
 #include <iostream>
 #include <bitset>
@@ -12,7 +11,8 @@
 #include <ctime>
 #include <chrono>
 
-using namespace bytec;
+using namespace vcrate::interpreter;
+using namespace vcrate;
 
 int main() {
     std::srand(std::time(nullptr));

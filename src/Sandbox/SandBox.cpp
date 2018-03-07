@@ -1,10 +1,12 @@
-#include <bytec/Sandbox/SandBox.hpp>
+#include <vcrate/Sandbox/SandBox.hpp>
 
-#include <bytec/Interpreter/BinRepr.hpp>
+#include <vcrate/bytecode/v1.hpp>
 
 #include <iostream>
 
-namespace bytec {
+namespace vcrate { namespace interpreter {
+
+namespace btc = ::vcrate::bytecode::v1;
 
 SandBox::SandBox(ui32 memory_initial_size) : last_stack_address(stack_margin), memory(memory_initial_size, stack_margin) {}
 
@@ -27,7 +29,7 @@ void SandBox::load_program(Program const& program) {
 }
 
 ui32 SandBox::get_pc() const {
-    return get_register(bin_repr::arg_register_PC);
+    return get_register(btc::register_pc);
 }
 
 ui32 SandBox::get_pc_increment() {
@@ -62,44 +64,44 @@ Instruction SandBox::get_instruction_and_move() {
 }
 
 void SandBox::set_pc(ui32 value) {
-    set_register(bin_repr::arg_register_PC, value);
+    set_register(btc::register_pc, value);
 }
 
 ui32 SandBox::get_bp() const {
-    return get_register(bin_repr::arg_register_BP);
+    return get_register(btc::register_bp);
 }
 
 void SandBox::set_bp(ui32 value) {
-    set_register(bin_repr::arg_register_BP, value);
+    set_register(btc::register_bp, value);
 }
 
 ui32 SandBox::get_sp() const {
-    return get_register(bin_repr::arg_register_SP);
+    return get_register(btc::register_sp);
 }
 
 void SandBox::set_sp(ui32 value) {
-    set_register(bin_repr::arg_register_SP, value);
+    set_register(btc::register_sp, value);
 }
 
 ui32 SandBox::get_fg() const {
-    return get_register(bin_repr::arg_register_FG);
+    return get_register(btc::register_fg);
 }
 
 void SandBox::set_fg(ui32 value) {
-    set_register(bin_repr::arg_register_FG, value);
+    set_register(btc::register_fg, value);
 }
 
 void SandBox::set_flag_zero(bool value) {
     if (value)
-        set_fg(get_fg() | bin_repr::flag_zero);
+        set_fg(get_fg() | btc::flag_zero);
     else
-        set_fg(get_fg() & (~bin_repr::flag_zero));
+        set_fg(get_fg() & (~btc::flag_zero));
 }
 void SandBox::set_flag_greater(bool value) {
     if (value)
-        set_fg(get_fg() | bin_repr::flag_greater);
+        set_fg(get_fg() | btc::flag_greater);
     else
-        set_fg(get_fg() & (~bin_repr::flag_greater));
+        set_fg(get_fg() & (~btc::flag_greater));
 }
 
 bool SandBox::get_flag_zero() const {
@@ -125,7 +127,7 @@ ui32 SandBox::get_register(ui32 reg) const {
 }
 
 void SandBox::set_register(ui32 reg, ui32 value) {
-    if (reg == bin_repr::arg_register_SP) {
+    if (reg == btc::register_sp) {
         if (value >= last_stack_address) {
             if (!memory.ask_for(value, stack_margin))
                 throw std::runtime_error("Stack overflow");
@@ -160,4 +162,4 @@ ui8 SandBox::input() const {
     return static_cast<ui8>(std::cin.get());
 }
 
-}
+}}

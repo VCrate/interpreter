@@ -1,13 +1,13 @@
 #pragma once
 
-#include <bytec/Alias.hpp>
-#include <bytec/Program/Program.hpp>
-#include <bytec/Sandbox/Memory/Memory.hpp>
+#include <vcrate/Alias.hpp>
+#include <vcrate/Program/Program.hpp>
+#include <vcrate/Sandbox/Memory/Memory.hpp>
 
 #include <vector>
 #include <array>
 
-namespace bytec {
+namespace vcrate { namespace interpreter {
 
 class SandBox {
 public:
@@ -65,4 +65,4 @@ private:
     bool halted = false;
 };
 
-}
+}}

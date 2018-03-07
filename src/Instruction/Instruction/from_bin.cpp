@@ -1,14 +1,17 @@
-#include <bytec/Instruction/Instruction.hpp>
+#include <vcrate/Instruction/Instruction.hpp>
 
-#include <bytec/Instruction/OperationDefinition.hpp>
-#include <bytec/Interpreter/BinRepr.hpp>
+#include <vcrate/Instruction/OperationDefinition.hpp>
+
+#include <vcrate/bytecode/v1.hpp>
 
 #include <stdexcept>
 
-namespace bytec {
+namespace vcrate { namespace interpreter {
 
 Instruction::Instruction(ui32 main, ui32 extra0, ui32 extra1) {
-    Operations ope = static_cast<Operations>(bin_repr::operation_decode(main));
+    namespace btc = ::vcrate::bytecode::v1;
+
+    Operations ope = static_cast<Operations>(btc::instruction.decode(main));
     auto def = OperationDefinition::get_definition(ope);
     switch(def.arguments_count) {
         case 0:
@@ -16,7 +19,7 @@ Instruction::Instruction(ui32 main, ui32 extra0, ui32 extra1) {
             return;
         case 1:
         {
-            auto type = bin_repr::arg24_type_decode(main);
+            auto type = btc::arg_24_type.decode(main);
             if (require_complete_instruction(type))
                 second = extra0;
             first = main;
@@ -24,8 +27,8 @@ Instruction::Instruction(ui32 main, ui32 extra0, ui32 extra1) {
         }
         case 2:
         {
-            auto type0 = bin_repr::arg12_type_decode(bin_repr::arg0_decode(main));
-            auto type1 = bin_repr::arg12_type_decode(bin_repr::arg1_decode(main));
+            auto type0 = btc::arg_12a_type.decode(main);
+            auto type1 = btc::arg_12b_type.decode(main);
             if (require_complete_instruction(type0)) {
                 second = extra0;
                 if (require_complete_instruction(type1))
@@ -42,4 +45,4 @@ Instruction::Instruction(ui32 main, ui32 extra0, ui32 extra1) {
     }
 }
 
-}
+}}

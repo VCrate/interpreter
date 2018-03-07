@@ -1,11 +1,11 @@
 #pragma once
 
-#include <bytec/Alias.hpp>
+#include <vcrate/Alias.hpp>
 
 #include <stdexcept>
 #include <vector>
 
-namespace bytec {
+namespace vcrate { namespace interpreter {
 
 template<typename T8 = ui8, typename T16 = ui16, typename T32 = ui32, typename T64 = ui64, bool CheckAlignment = false> 
 class FragmentArray {
@@ -75,4 +75,4 @@ private:
 
 };
 
-}
+}}

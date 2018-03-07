@@ -1,8 +1,8 @@
 #pragma once
 
-#include <bytec/Alias.hpp>
+#include <vcrate/Alias.hpp>
 
-namespace bytec {
+namespace vcrate { namespace interpreter {
 
 enum class Operations : ui8 {
     ADD,  // Add (RRW)
@@ -49,4 +49,4 @@ enum class Operations : ui8 {
     DBG
 };
 
-}
+}}
