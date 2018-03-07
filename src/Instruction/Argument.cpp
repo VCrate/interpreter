@@ -65,7 +65,7 @@ std::string Deferred::to_string() const {
     return "[" + reg.to_string() + "]";
 }
 
-Address::Address(i32 address)  : address(address) {}
+Address::Address(ui32 address)  : address(address) {}
 
 std::string Address::to_string() const {
     return "[" + std::to_string(address) + "]";

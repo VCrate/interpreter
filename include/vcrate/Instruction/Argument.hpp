@@ -34,10 +34,10 @@ struct Deferred {
 };
 
 struct Address {
-    Address(i32 address);
+    Address(ui32 address);
     std::string to_string() const;
 
-    i32 address;
+    ui32 address;
 };
 
 struct Value {

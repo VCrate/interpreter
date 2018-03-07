@@ -92,7 +92,7 @@ void Instruction::Encoder24::operator () (Displacement arg) {
 }
 
 void Instruction::Encoder24::operator () (Address arg) {
-    if (btc::arg_24_unsigned_value.max_value() < std::abs(arg.address)) {
+    if (btc::arg_24_unsigned_value.max_value() < arg.address) {
         is.first = btc::arg_24_type.encode(btc::arg_type_address_next, is.first);
         is.second = arg.address;
     } else {
@@ -153,7 +153,7 @@ void Instruction::Encoder12::operator () (Displacement arg) {
 
 void Instruction::Encoder12::operator () (Address arg) {
     ui32 isn = 0;
-    if (btc::arg_12_unsigned_value.max_value() < std::abs(arg.address)) {
+    if (btc::arg_12_unsigned_value.max_value() < arg.address) {
         isn = btc::arg_12_type.encode(btc::arg_type_address_next, isn);
         if(is.second)
             is.third = arg.address;
@@ -161,8 +161,7 @@ void Instruction::Encoder12::operator () (Address arg) {
             is.second = arg.address;
     } else {
         isn = btc::arg_12_type.encode(btc::arg_type_address, isn);
-        isn = btc::arg_12_unsigned_value.encode(std::abs(arg.address), isn);
-        isn = btc::arg_12_sign_value.encode(arg.address < 0, isn);
+        isn = btc::arg_12_signed_value.encode(arg.address, isn);
     }
 
     is.first = is_first_arg ? btc::arg_12a.encode(isn, is.first) : btc::arg_12b.encode(isn, is.first);
