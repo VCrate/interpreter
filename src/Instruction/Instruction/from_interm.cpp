@@ -158,7 +158,7 @@ void Instruction::Encoder12::operator () (Displacement arg) {
 
 void Instruction::Encoder12::operator () (Address arg) {
     ui32 isn = 0;
-    if (btc::arg_12_unsigned_value.max_value() < arg.address) {
+    if (btc::arg_12_signed_value.max_value() < arg.address) {
         isn = btc::arg_12_type.encode(btc::arg_type_address_next, isn);
         if(is.second)
             is.third = arg.address;
