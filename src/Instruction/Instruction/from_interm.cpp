@@ -92,7 +92,7 @@ void Instruction::Encoder24::operator () (Displacement arg) {
 }
 
 void Instruction::Encoder24::operator () (Address arg) {
-    if (btc::arg_24_unsigned_value.max_value() < arg.address) {
+    if (btc::arg_24_signed_value.max_value() < arg.address) {
         is.first = btc::arg_24_type.encode(btc::arg_type_address_next, is.first);
         is.second = arg.address;
     } else {
