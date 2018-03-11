@@ -182,7 +182,7 @@ Argument Instruction::get_second_argument() const {
         }
         case ArgumentType::Deferred:
         {
-            return Register{ btc::arg_12b_register.decode(first) };
+            return Deferred{ btc::arg_12b_register.decode(first) };
         }
         case ArgumentType::Address:
         {
