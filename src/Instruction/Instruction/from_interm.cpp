@@ -63,7 +63,8 @@ Instruction::Instruction(Operations ope, Argument const& arg0, Argument const& a
 Instruction::Encoder24::Encoder24(Instruction& is) : is(is) {}
 
 void Instruction::Encoder24::operator () (Value arg) {
-    if (btc::arg_24_unsigned_value.max_value() < std::abs(arg.value)) {
+    ui32 abs_value = arg.value < 0 ? -static_cast<ui32>(arg.value) : static_cast<ui32>(arg.value);
+    if (btc::arg_24_unsigned_value.max_value() < abs_value) {
         is.first = btc::arg_24_type.encode(btc::arg_type_value_next, is.first);
         is.second = arg.value;
     } else {
@@ -79,7 +80,8 @@ void Instruction::Encoder24::operator () (Register arg) {
 }
 
 void Instruction::Encoder24::operator () (Displacement arg) {
-    if (btc::arg_24_unsigned_disp.max_value() < std::abs(arg.displacement)) {
+    ui32 abs_disp = arg.displacement < 0 ? -static_cast<ui32>(arg.displacement) : static_cast<ui32>(arg.displacement);
+    if (btc::arg_24_unsigned_disp.max_value() < abs_disp) {
         is.first = btc::arg_24_type.encode(btc::arg_type_defer_register_disp_next, is.first);
         is.first = btc::arg_24_register.encode(arg.reg.reg, is.first);
         is.second = arg.displacement;
@@ -110,7 +112,8 @@ Instruction::Encoder12::Encoder12(Instruction& is, bool is_first_arg) : is(is), 
 
 void Instruction::Encoder12::operator () (Value arg) {
     ui32 isn = 0;
-    if (btc::arg_12_unsigned_value.max_value() < std::abs(arg.value)) {
+    ui32 abs_value = arg.value < 0 ? -static_cast<ui32>(arg.value) : static_cast<ui32>(arg.value);
+    if (btc::arg_12_unsigned_value.max_value() < abs_value) {
         isn = btc::arg_12_type.encode(btc::arg_type_value_next, isn);
         if(is.second)
             is.third = arg.value;
@@ -135,7 +138,8 @@ void Instruction::Encoder12::operator () (Register arg) {
 
 void Instruction::Encoder12::operator () (Displacement arg) {
     ui32 isn = 0;
-    if (btc::arg_12_unsigned_disp.max_value() < std::abs(arg.displacement)) {
+    ui32 abs_disp = arg.displacement < 0 ? -static_cast<ui32>(arg.displacement) : static_cast<ui32>(arg.displacement);
+    if (btc::arg_12_unsigned_disp.max_value() < abs_disp) {
         isn = btc::arg_12_type.encode(btc::arg_type_defer_register_disp_next, isn);
         isn = btc::arg_12_register.encode(arg.reg.reg, isn);
         if(is.second)

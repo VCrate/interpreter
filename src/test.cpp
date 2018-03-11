@@ -233,7 +233,11 @@ bool check_same(interm_to_inst const& interm, bin_to_inst const& from, bin_to_in
     if (from_args != to_args) {
         error_header();
         print_interm(interm);
-        std::cout << " gives " << from_args << " extra size but " << to_args << " was expected\n";
+        std::cout << " gives " << from_args << " extra size (";
+        print_bin(from);
+        std::cout << " != ";
+        print_bin(to);
+        std::cout << ") but " << to_args << " was expected\n";
         return false;
     }
 
