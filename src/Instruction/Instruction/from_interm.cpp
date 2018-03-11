@@ -137,6 +137,7 @@ void Instruction::Encoder12::operator () (Displacement arg) {
     ui32 isn = 0;
     if (btc::arg_12_unsigned_disp.max_value() < std::abs(arg.displacement)) {
         isn = btc::arg_12_type.encode(btc::arg_type_defer_register_disp_next, isn);
+        isn = btc::arg_12_register.encode(arg.reg.reg, isn);
         if(is.second)
             is.third = arg.displacement;
         else
@@ -144,8 +145,8 @@ void Instruction::Encoder12::operator () (Displacement arg) {
     } else {
         isn = btc::arg_12_type.encode(btc::arg_type_defer_register_disp, isn);
         isn = btc::arg_12_register.encode(arg.reg.reg, isn);
-        is.first = bytecode::encode_signed_value(btc::arg_12_unsigned_disp, btc::arg_12_sign_disp,
-            arg.displacement, is.first);
+        isn = bytecode::encode_signed_value(btc::arg_12_unsigned_disp, btc::arg_12_sign_disp,
+            arg.displacement, isn);
     }
 
     is.first = is_first_arg ? btc::arg_12a.encode(isn, is.first) : btc::arg_12b.encode(isn, is.first);
