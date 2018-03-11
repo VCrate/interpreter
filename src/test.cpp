@@ -481,11 +481,139 @@ int main() {
     });
     test_instruction_equals({
         0b00100100'111'0000'00000'000'0000'00000,
-        std::numeric_limits<ui32>::max(),
+        std::numeric_limits<i32>::max(),
         std::nullopt
     },{
         Operations::OUT,
         Value(std::numeric_limits<i32>::max()),
         std::nullopt
     });
+
+
+    title("Operations with 2 arguments");
+
+    subtitle("Register");
+    test_instruction_equals({
+        0b00011001'000'0010'00000'000'1111'00000,
+        std::nullopt,
+        std::nullopt
+    },{
+        Operations::CMP,
+        Register::C,
+        Register::SP
+    });
+
+    subtitle("Deferred");
+    test_instruction_equals({
+        0b00011001'001'0010'00000'001'1111'00000,
+        std::nullopt,
+        std::nullopt
+    },{
+        Operations::CMP,
+        Deferred(Register::C),
+        Deferred(Register::SP)
+    });
+
+    subtitle("Displacement");
+    test_instruction_equals({
+        0b00011001'010'0001'01111'010'1011'11111,
+        std::nullopt,
+        std::nullopt
+    },{
+        Operations::CMP,
+        Displacement(Register::B, bytecode::v1::arg_12_unsigned_disp.max_value()),
+        Displacement(Register::L, -bytecode::v1::arg_12_unsigned_disp.max_value()),
+    });
+    test_instruction_equals({
+        0b00011001'010'1011'00001'010'0001'10001,
+        std::nullopt,
+        std::nullopt
+    },{
+        Operations::CMP,
+        Displacement(Register::L, 1),
+        Displacement(Register::B, -1),
+    });
+
+    subtitle("Displacement in extra");
+    test_instruction_equals({
+        0b00011001'011'0001'00000'011'0010'00000,
+        bytecode::v1::arg_12_unsigned_disp.max_value() + 1,
+        std::numeric_limits<i32>::max()
+    },{
+        Operations::CMP,
+        Displacement(Register::B, bytecode::v1::arg_12_unsigned_disp.max_value() + 1),
+        Displacement(Register::C, std::numeric_limits<i32>::max())
+    });
+    test_instruction_equals({
+        0b00011001'011'0001'00000'011'0010'00000,
+        -bytecode::v1::arg_12_unsigned_disp.max_value() - 1,
+        std::numeric_limits<i32>::min()
+    },{
+        Operations::CMP,
+        Displacement(Register::B, -bytecode::v1::arg_12_unsigned_disp.max_value() - 1),
+        Displacement(Register::C, std::numeric_limits<i32>::min())
+    });
+
+    subtitle("Address");
+    test_instruction_equals({
+        0b00011001'100'0000'00000'100'1111'11111,
+        std::nullopt,
+        std::nullopt
+    },{
+        Operations::CMP,
+        Address(0),
+        Address(bytecode::v1::arg_12_signed_value.max_value())
+    });
+
+    subtitle("Address in extra");
+    test_instruction_equals({
+        0b00011001'101'0000'00000'101'0000'00000,
+        bytecode::v1::arg_12_signed_value.max_value() + 1,
+        std::numeric_limits<ui32>::max()
+    },{
+        Operations::CMP,
+        Address(bytecode::v1::arg_12_signed_value.max_value() + 1),
+        Address(std::numeric_limits<ui32>::max())
+    });
+
+    subtitle("Value");
+    test_instruction_equals({
+        0b00011001'110'0000'00001'110'1000'00001,
+        std::nullopt,
+        std::nullopt
+    },{
+        Operations::CMP,
+        Value(1),
+        Value(-1)
+    });
+    test_instruction_equals({
+        0b00011001'110'0111'11111'110'1111'11111,
+        std::nullopt,
+        std::nullopt
+    },{
+        Operations::CMP,
+        Value(bytecode::v1::arg_12_unsigned_value.max_value()),
+        Value(-bytecode::v1::arg_12_unsigned_value.max_value())
+    });
+    subtitle("Value in extra");
+    test_instruction_equals({
+        0b00011001'111'0000'00000'111'0000'00000,
+        bytecode::v1::arg_24_unsigned_value.max_value() + 1,
+        std::numeric_limits<i32>::max()
+    },{
+        Operations::CMP,
+        Value(bytecode::v1::arg_24_unsigned_value.max_value() + 1),
+        Value(std::numeric_limits<i32>::max())
+    });
+    test_instruction_equals({
+        0b00011001'111'0000'00000'111'0000'00000,
+        -bytecode::v1::arg_24_unsigned_value.max_value() -1,
+        std::numeric_limits<i32>::min()
+    },{
+        Operations::CMP,
+        Value(-bytecode::v1::arg_24_unsigned_value.max_value() -1),
+        Value(std::numeric_limits<i32>::min())
+    });
+
+
 }
