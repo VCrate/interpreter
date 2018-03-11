@@ -121,8 +121,8 @@ void Instruction::Encoder12::operator () (Value arg) {
             is.second = arg.value;
     } else {
         isn = btc::arg_12_type.encode(btc::arg_type_value, isn);
-        is.first = bytecode::encode_signed_value(btc::arg_12_unsigned_value, btc::arg_12_sign_value,
-            arg.value, is.first);
+        isn = bytecode::encode_signed_value(btc::arg_12_unsigned_value, btc::arg_12_sign_value,
+            arg.value, isn);
     }
 
     is.first = is_first_arg ? btc::arg_12a.encode(isn, is.first) : btc::arg_12b.encode(isn, is.first);
