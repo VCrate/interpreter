@@ -90,9 +90,20 @@ void print_interm(interm_to_inst const& interm) {
 bin_to_inst to_bin_to_inst(Instruction const& inst) {
     bin_to_inst b { 0, std::nullopt, std::nullopt };
     switch(inst.type()) {
-        case Instruction::Type::Triple: b.extra0 = inst.get_first_extra();
-        case Instruction::Type::Double: b.extra1 = inst.get_second_extra();
-        case Instruction::Type::Single: b.base = inst.get_main_instruction();
+        case Instruction::Type::Triple: 
+            b.extra0 = inst.get_first_extra();
+            b.extra1 = inst.get_second_extra();
+            b.base = inst.get_main_instruction();
+            break;
+
+        case Instruction::Type::Double: 
+            b.extra0 = inst.get_first_extra();
+            b.base = inst.get_main_instruction();
+            break;
+
+        case Instruction::Type::Single: 
+            b.base = inst.get_main_instruction();
+            break;
     }
     return b;
 }
