@@ -3,9 +3,8 @@
 #include <vcrate/Interpreter/Interpreter.hpp>
 #include <vcrate/Instruction/OperationDefinition.hpp>
 
-#include <vcrate/Program/Example.hpp>
-
 #include <iostream>
+#include <fstream>
 #include <bitset>
 #include <cstdlib>
 #include <ctime>
@@ -17,6 +16,14 @@ using namespace vcrate;
 int main() {
     std::srand(std::time(nullptr));
 
+    Program program;
+    std::ifstream file("temp/test_program.vcx", std::ios::binary);
+    file >> program;
+
+    program.print(std::cout);
+
+
+/*
     SandBox sandbox(1 << 24);
 
     auto chrono_start = std::chrono::high_resolution_clock::now();
@@ -34,5 +41,5 @@ int main() {
     auto elapsed = std::chrono::high_resolution_clock::now() - chrono_start;
     auto nanos = std::chrono::duration_cast<std::chrono::nanoseconds>(elapsed).count();
     std::cout << "Duration : " << nanos / 1'000'000 << " ms (" << nanos / 1'000'000'000. << " s)\n";
-
+*/
 }

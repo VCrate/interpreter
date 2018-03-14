@@ -21,11 +21,11 @@ bool SandBox::is_halted() const {
 void SandBox::load_program(Program const& program) {
     set_pc(0);
     set_fg(0);
-    set_bp(program.size() - 4);
+    /*set_bp(program.size() - 4);
     for(ui32 i = 0; i < program.size(); i += 4) {
         auto instruction = program.get_raw(i);
         push_32(instruction);
-    }
+    }*/
 }
 
 ui32 SandBox::get_pc() const {

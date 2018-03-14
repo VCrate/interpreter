@@ -3,7 +3,6 @@
 #include <vcrate/Alias.hpp>
 #include <vcrate/Instruction/Argument.hpp>
 #include <vcrate/Interpreter/Operations.hpp>
-#include <vcrate/Program/Label.hpp>
 
 #include <optional>
 
