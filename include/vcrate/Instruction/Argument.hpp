@@ -11,10 +11,10 @@ struct Register {
 
     static const Register A, B, C, D, E, F, G, H, I, J, K, L, PC, FG, BP, SP;
 
-    Register(ui32 reg);
+    Register(ui32 id);
     std::string to_string() const;
 
-    ui32 reg;
+    ui32 id;
 
 };
 

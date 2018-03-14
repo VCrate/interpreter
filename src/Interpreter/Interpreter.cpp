@@ -54,20 +54,20 @@ void Interpreter::run_next_instruction(SandBox& sandbox) {
 void Interpreter::write_to(SandBox& sandbox, Argument const& arg, ui32 value) {
     std::visit(Visitor {
         [               ] (Value) -> void       { throw std::runtime_error("Cannot write to that argument"); },
-        [&sandbox, value] (Register arg)        { sandbox.set_register(arg.reg, value); },
-        [&sandbox, value] (Displacement arg)    { sandbox.set_memory_at(sandbox.get_register(arg.reg.reg) + arg.displacement, value); },
+        [&sandbox, value] (Register arg)        { sandbox.set_register(arg.id, value); },
+        [&sandbox, value] (Displacement arg)    { sandbox.set_memory_at(sandbox.get_register(arg.reg.id) + arg.displacement, value); },
         [&sandbox, value] (Address arg)         { sandbox.set_memory_at(arg.address, value); },
-        [&sandbox, value] (Deferred arg)        { sandbox.set_memory_at(sandbox.get_register(arg.reg.reg), value); }
+        [&sandbox, value] (Deferred arg)        { sandbox.set_memory_at(sandbox.get_register(arg.reg.id), value); }
     }, arg);
 }
 
 ui32 Interpreter::value_of(SandBox& sandbox, Argument const& arg) {
     return std::visit(Visitor {
         [        ] (Value arg)          { return static_cast<ui32>(arg.value); },
-        [&sandbox] (Register arg)       { return sandbox.get_register(arg.reg); },
-        [&sandbox] (Displacement arg)   { return sandbox.get_memory_at(sandbox.get_register(arg.reg.reg) + arg.displacement); },
+        [&sandbox] (Register arg)       { return sandbox.get_register(arg.id); },
+        [&sandbox] (Displacement arg)   { return sandbox.get_memory_at(sandbox.get_register(arg.reg.id) + arg.displacement); },
         [&sandbox] (Address arg)        { return sandbox.get_memory_at(arg.address); },
-        [&sandbox] (Deferred arg)       { return sandbox.get_memory_at(sandbox.get_register(arg.reg.reg)); }
+        [&sandbox] (Deferred arg)       { return sandbox.get_memory_at(sandbox.get_register(arg.reg.id)); }
     }, arg);
 }
 
@@ -75,9 +75,9 @@ ui32 Interpreter::address_of(SandBox& sandbox, Argument const& arg) {
     return std::visit(Visitor {
         [        ] (Value) -> ui32      { throw std::runtime_error("This argument has no address"); },
         [&sandbox] (Register) -> ui32   { throw std::runtime_error("This argument has no address"); },
-        [&sandbox] (Displacement arg)   { return sandbox.get_register(arg.reg.reg) + arg.displacement; },
+        [&sandbox] (Displacement arg)   { return sandbox.get_register(arg.reg.id) + arg.displacement; },
         [&sandbox] (Address arg)        { return static_cast<ui32>(arg.address); },
-        [&sandbox] (Deferred arg)       { return sandbox.get_register(arg.reg.reg); }
+        [&sandbox] (Deferred arg)       { return sandbox.get_register(arg.reg.id); }
     }, arg);
 }
 

@@ -8,13 +8,13 @@ namespace vcrate { namespace interpreter {
 
 namespace btc = ::vcrate::bytecode::v1;
 
-Register::Register(ui32 reg) : reg(reg) {
-    if(reg > btc::register_sp)
+Register::Register(ui32 id) : id(id) {
+    if(id > btc::register_sp)
         throw std::runtime_error("Register unknown");
 }
 
 std::string Register::to_string() const {
-    switch(reg) {
+    switch(id) {
         case btc::register_a: return "%A";
         case btc::register_b: return "%B";
         case btc::register_c: return "%C";

@@ -76,18 +76,18 @@ void Instruction::Encoder24::operator () (Value arg) {
 
 void Instruction::Encoder24::operator () (Register arg) {
     is.first = btc::arg_24_type.encode(btc::arg_type_register, is.first);
-    is.first = btc::arg_24_register.encode(arg.reg, is.first);
+    is.first = btc::arg_24_register.encode(arg.id, is.first);
 }
 
 void Instruction::Encoder24::operator () (Displacement arg) {
     ui32 abs_disp = arg.displacement < 0 ? -static_cast<ui32>(arg.displacement) : static_cast<ui32>(arg.displacement);
     if (btc::arg_24_unsigned_disp.max_value() < abs_disp) {
         is.first = btc::arg_24_type.encode(btc::arg_type_defer_register_disp_next, is.first);
-        is.first = btc::arg_24_register.encode(arg.reg.reg, is.first);
+        is.first = btc::arg_24_register.encode(arg.reg.id, is.first);
         is.second = arg.displacement;
     } else {
         is.first = btc::arg_24_type.encode(btc::arg_type_defer_register_disp, is.first);
-        is.first = btc::arg_24_register.encode(arg.reg.reg, is.first);
+        is.first = btc::arg_24_register.encode(arg.reg.id, is.first);
         is.first = bytecode::encode_signed_value(btc::arg_24_unsigned_disp, btc::arg_24_sign_disp,
             arg.displacement, is.first);
     }
@@ -105,7 +105,7 @@ void Instruction::Encoder24::operator () (Address arg) {
 
 void Instruction::Encoder24::operator () (Deferred arg) {
     is.first = btc::arg_24_type.encode(btc::arg_type_defer_register, is.first);
-    is.first = btc::arg_24_register.encode(arg.reg.reg, is.first);
+    is.first = btc::arg_24_register.encode(arg.reg.id, is.first);
 }
 
 Instruction::Encoder12::Encoder12(Instruction& is, bool is_first_arg) : is(is), is_first_arg(is_first_arg) {}
@@ -131,7 +131,7 @@ void Instruction::Encoder12::operator () (Value arg) {
 void Instruction::Encoder12::operator () (Register arg) {
     ui32 isn = 0;
     isn = btc::arg_12_type.encode(btc::arg_type_register, isn);
-    isn = btc::arg_12_register.encode(arg.reg, isn);
+    isn = btc::arg_12_register.encode(arg.id, isn);
 
     is.first = is_first_arg ? btc::arg_12a.encode(isn, is.first) : btc::arg_12b.encode(isn, is.first);
 }
@@ -141,14 +141,14 @@ void Instruction::Encoder12::operator () (Displacement arg) {
     ui32 abs_disp = arg.displacement < 0 ? -static_cast<ui32>(arg.displacement) : static_cast<ui32>(arg.displacement);
     if (btc::arg_12_unsigned_disp.max_value() < abs_disp) {
         isn = btc::arg_12_type.encode(btc::arg_type_defer_register_disp_next, isn);
-        isn = btc::arg_12_register.encode(arg.reg.reg, isn);
+        isn = btc::arg_12_register.encode(arg.reg.id, isn);
         if(is.second)
             is.third = arg.displacement;
         else
             is.second = arg.displacement;
     } else {
         isn = btc::arg_12_type.encode(btc::arg_type_defer_register_disp, isn);
-        isn = btc::arg_12_register.encode(arg.reg.reg, isn);
+        isn = btc::arg_12_register.encode(arg.reg.id, isn);
         isn = bytecode::encode_signed_value(btc::arg_12_unsigned_disp, btc::arg_12_sign_disp,
             arg.displacement, isn);
     }
@@ -175,7 +175,7 @@ void Instruction::Encoder12::operator () (Address arg) {
 void Instruction::Encoder12::operator () (Deferred arg) {
     ui32 isn = 0;
     isn = btc::arg_12_type.encode(btc::arg_type_defer_register, isn);
-    isn = btc::arg_12_register.encode(arg.reg.reg, isn);
+    isn = btc::arg_12_register.encode(arg.reg.id, isn);
 
     is.first = is_first_arg ? btc::arg_12a.encode(isn, is.first) : btc::arg_12b.encode(isn, is.first);
 }
