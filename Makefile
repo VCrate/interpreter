@@ -16,8 +16,8 @@ SRC := $(filter-out $(EXCLUDED_FILE),$(foreach d,$(SRC_DIR),$(wildcard $(d)/*.cp
 # Main directories
 MAIN_DIR := src/
 # Main file 
-# Pick one : main.cpp test.cpp
-MAIN := test.cpp
+# Pick one : main.cpp test.cpp write_test_file.cpp
+MAIN := main.cpp
 # Main path
 MAIN_PATH := $(MAIN_DIR)/$(MAIN)
 # Main .o
