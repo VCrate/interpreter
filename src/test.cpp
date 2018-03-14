@@ -27,20 +27,20 @@ struct interm_to_inst {
     std::optional<Argument> arg0, arg1;
 };
 
-std::string size_to_str(Instruction::Type size) {
+std::string size_to_str(Instruction::ByteSize size) {
     switch(size) {
-        case Instruction::Type::Single: return "Single";
-        case Instruction::Type::Double: return "Double";
-        case Instruction::Type::Triple: return "Triple";
+        case Instruction::ByteSize::Single: return "Single";
+        case Instruction::ByteSize::Double: return "Double";
+        case Instruction::ByteSize::Triple: return "Triple";
     }
     throw std::runtime_error("Hmmm");
 }
 
-ui32 get_arguments_count(Instruction::Type size) {
+ui32 get_arguments_count(Instruction::ByteSize size) {
     switch(size) {
-        case Instruction::Type::Single: return 0;
-        case Instruction::Type::Double: return 1;
-        case Instruction::Type::Triple: return 2;
+        case Instruction::ByteSize::Single: return 0;
+        case Instruction::ByteSize::Double: return 1;
+        case Instruction::ByteSize::Triple: return 2;
     }
     throw std::runtime_error("Hmmm");
 }
@@ -89,19 +89,19 @@ void print_interm(interm_to_inst const& interm) {
 
 bin_to_inst to_bin_to_inst(Instruction const& inst) {
     bin_to_inst b { 0, std::nullopt, std::nullopt };
-    switch(inst.type()) {
-        case Instruction::Type::Triple: 
+    switch(inst.get_byte_size()) {
+        case Instruction::ByteSize::Triple: 
             b.extra0 = inst.get_first_extra();
             b.extra1 = inst.get_second_extra();
             b.base = inst.get_main_instruction();
             break;
 
-        case Instruction::Type::Double: 
+        case Instruction::ByteSize::Double: 
             b.extra0 = inst.get_first_extra();
             b.base = inst.get_main_instruction();
             break;
 
-        case Instruction::Type::Single: 
+        case Instruction::ByteSize::Single: 
             b.base = inst.get_main_instruction();
             break;
     }

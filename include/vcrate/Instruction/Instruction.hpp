@@ -12,12 +12,12 @@ namespace vcrate { namespace interpreter {
 class Instruction {
 public:
 
-    enum class Type {
+    enum class ByteSize {
         Single, // 32 bits
         Double, // 64 bits
         Triple  // 96 bits
     };
-    Type type() const;
+    ByteSize get_byte_size() const;
     
     std::string to_string() const;
 

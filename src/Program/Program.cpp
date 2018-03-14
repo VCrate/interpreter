@@ -212,11 +212,11 @@ void Program::append_instruction(Operations ope, Label& l0, Label& l1) {
 }
 
 void Program::append(Instruction const& instruction) {
-    auto type = instruction.type();
+    auto type = instruction.get_byte_size();
     instructions.push_back(instruction.get_main_instruction());
-    if (type == Instruction::Type::Double) {
+    if (type == Instruction::ByteSize::Double) {
         instructions.push_back(instruction.get_first_extra());
-    } else if (type == Instruction::Type::Triple) {
+    } else if (type == Instruction::ByteSize::Triple) {
         instructions.push_back(instruction.get_first_extra());
         instructions.push_back(instruction.get_second_extra());
     }
@@ -230,14 +230,14 @@ Instruction Program::get_instruction(ui32 address) const {
 }
 
 void Program::set_instruction(Instruction const& instruction, ui32 address) {
-    auto type = instruction.type();
+    auto type = instruction.get_byte_size();
 
     set_raw(instruction.get_main_instruction(), address);
 
-    if (type == Instruction::Type::Double) {
+    if (type == Instruction::ByteSize::Double) {
         set_raw(instruction.get_first_extra(), address + 1);
 
-    } else if (type == Instruction::Type::Triple) {
+    } else if (type == Instruction::ByteSize::Triple) {
         set_raw(instruction.get_first_extra(), address + 1);
         set_raw(instruction.get_second_extra(), address + 2);
     }

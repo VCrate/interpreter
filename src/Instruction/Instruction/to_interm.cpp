@@ -24,10 +24,10 @@ std::string Instruction::to_string() const {
     return str;
 }
 
-Instruction::Type Instruction::type() const {
+Instruction::ByteSize Instruction::get_byte_size() const {
     if (second)
-        return third ? Instruction::Type::Triple : Instruction::Type::Double;
-    return Instruction::Type::Single;    
+        return third ? Instruction::ByteSize::Triple : Instruction::ByteSize::Double;
+    return Instruction::ByteSize::Single;    
 }
 
 Operations Instruction::get_operation() const {
