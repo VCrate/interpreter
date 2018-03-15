@@ -11,6 +11,7 @@ std::istream& operator >> (std::istream& is, Program& program) {
     is.read(reinterpret_cast<char*>(&size_jmp_table), sizeof(size_jmp_table));
     is.read(reinterpret_cast<char*>(&size_data), sizeof(size_data));
     is.read(reinterpret_cast<char*>(&size_code), sizeof(size_code));
+    is.read(reinterpret_cast<char*>(&program.entry_point), sizeof(program.entry_point));
 
     program.read_symbols(is, size_symbols);
     program.read_jmp_table(is, size_jmp_table);
@@ -61,6 +62,9 @@ void Program::read_code(std::istream& is, ui32 size) {
 
 void Program::print(std::ostream& os) const {
     os << "Program: \n";
+
+    os << "Entry point: " << entry_point << "\n";
+
     ui32 size_header = sizeof(ui32) * 4;
     ui32 size_symbols = 0;
     for(auto const& pair : symbols)

@@ -12,6 +12,14 @@ namespace vcrate { namespace interpreter {
 class Program {
 public:
 
+    ui32 entry_point;
+
+    std::vector<ui32> jmp_table;
+    std::vector<ui32> data;
+    std::vector<ui32> code;
+
+    std::map<std::string, ui32> symbols;
+
     void print(std::ostream& os) const;
 
 private:
@@ -22,12 +30,6 @@ private:
     void read_jmp_table(std::istream& is, ui32 size);
     void read_data(std::istream& is, ui32 size);
     void read_code(std::istream& is, ui32 size);
-
-    std::vector<ui32> jmp_table;
-    std::vector<ui32> data;
-    std::vector<ui32> code;
-
-    std::map<std::string, ui32> symbols;
 };
 
 std::istream& operator >> (std::istream& is, Program& program);

@@ -6,6 +6,9 @@
 
 #include <vector>
 #include <array>
+#include <optional>
+#include <map>
+#include <string>
 
 namespace vcrate { namespace interpreter {
 
@@ -54,6 +57,8 @@ public:
     ui32 allocate(ui32 size);
     void deallocate(ui32 address);
 
+    std::optional<ui32> get_symbol(std::string const& symbol) const;
+
 private:
 
     static constexpr ui32 stack_margin = 1 << 6;
@@ -61,6 +66,8 @@ private:
     ui32 last_stack_address;
     std::array<ui32, 16> registers;
     Memory memory;
+
+    std::map<std::string, ui32> symbols;
 
     bool halted = false;
 };

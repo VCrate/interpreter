@@ -22,9 +22,8 @@ int main() {
 
     program.print(std::cout);
 
-
-/*
     SandBox sandbox(1 << 24);
+    sandbox.load_program(program);
 
     auto chrono_start = std::chrono::high_resolution_clock::now();
     std::cout << "# Start #" << std::endl;
@@ -41,5 +40,5 @@ int main() {
     auto elapsed = std::chrono::high_resolution_clock::now() - chrono_start;
     auto nanos = std::chrono::duration_cast<std::chrono::nanoseconds>(elapsed).count();
     std::cout << "Duration : " << nanos / 1'000'000 << " ms (" << nanos / 1'000'000'000. << " s)\n";
-*/
+
 }

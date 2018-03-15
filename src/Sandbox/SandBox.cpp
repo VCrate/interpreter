@@ -19,13 +19,31 @@ bool SandBox::is_halted() const {
 }
 
 void SandBox::load_program(Program const& program) {
-    set_pc(0);
-    set_fg(0);
-    /*set_bp(program.size() - 4);
-    for(ui32 i = 0; i < program.size(); i += 4) {
-        auto instruction = program.get_raw(i);
-        push_32(instruction);
-    }*/
+    ui32 base_address = 0;
+    ui32 current_address = base_address;
+    set_pc(program.entry_point + base_address);
+    
+    for(auto address : program.jmp_table) {
+        address += base_address;
+        set_memory_at(current_address, address);
+        current_address += 4;
+    }
+    
+    for(auto data : program.data) { 
+        set_memory_at(current_address, data);
+        current_address += 4;
+    }
+
+    for(auto instructions : program.code) { 
+        set_memory_at(current_address, instructions);
+        current_address += 4;
+    }
+
+    for(auto pair : program.symbols) {
+        pair.second += base_address;
+        if (!symbols.insert(pair).second) 
+            throw std::runtime_error("Symbol already existing");
+    }
 }
 
 ui32 SandBox::get_pc() const {
@@ -160,6 +178,13 @@ void SandBox::output(ui8 value) const {
 
 ui8 SandBox::input() const {
     return static_cast<ui8>(std::cin.get());
+}
+
+std::optional<ui32> SandBox::get_symbol(std::string const& symbol) const {
+    auto it = symbols.find(symbol);
+    if (it != symbols.end())
+        return it->second;
+    return std::nullopt;
 }
 
 }}
