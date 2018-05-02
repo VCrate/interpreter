@@ -1,138 +1,329 @@
-##############################################
-#                     SRC                    #
-##############################################
-# All directories to build (inside src/)
-DIR := Interpreter Program Sandbox Sandbox/Memory Instruction Instruction/Instruction
-# Files to exclude
-EXCLUDED_FILE := 
-# Directories with src/ prefix
-SRC_DIR := $(addprefix src/,$(DIR))
-# All .cpp files
-SRC := $(filter-out $(EXCLUDED_FILE),$(foreach d,$(SRC_DIR),$(wildcard $(d)/*.cpp)))
+# Structure of the project: 
+#
+# /
+#     build/  
+#         shared/
+#             libproject-name.so
+#             src/
+#                 object files...
+#         static/
+#             libproject-name.a
+#             src/
+#                 object files...
+#         executable/
+#             project-name
+#             src/
+#                 object files
+#     src/
+#         sources files...
+#     inc/
+#         header files...
 
-##############################################
-#                    MAIN                    #
-##############################################
-# Main directories
-MAIN_DIR := src/
-# Main file 
-# Pick one : main.cpp test.cpp
-MAIN := test.cpp
-# Main path
-MAIN_PATH := $(MAIN_DIR)/$(MAIN)
-# Main .o
-MAIN_OBJ := $(patsubst %.cpp,build/main/%.o,$(MAIN))
+# Note: inc and src can be the same folder
 
-##############################################
-#                  BUILD/.o                  #
-##############################################
-# Name of the executable
-DEST := build/main_app
-# Build Directories
-BUILD_DIR := build build/main build/src $(addprefix build/src/,$(SRC_DIR)) $(addprefix build/deps/,$(SRC_DIR)) build/lib build/shared $(addprefix build/shared/,$(SRC_DIR))
-# .o files
-OBJ := $(patsubst %.cpp,build/src/%.o,$(SRC))
-# .o already build
-LIB_PATH := lib/bytecode-description/
-LIB_OBJ_PATH := $(LIB_PATH)/build/src
-# Include folders
-INCLUDE_FOLDER := include/
+#####
+##### FOLDER SETTINGS
+#####
 
-##############################################
-#                    DEPS                    #
-##############################################
-# All .d files corresponding to each .cpp
-DEPS := $(patsubst %.cpp,build/deps/%.d,$(SRC))
-# Deps folder
-DEPS_FOLDER := build/deps
-# Flags
-DEPS_FLAGS := -MMD -MP
+SRC_FOLDER := src
+INC_FOLDER := include
 
-##############################################
-#                    FLAGS                   #
-##############################################
-# C++ optimsation level
-OPTIM := -O2
-# C++ flags
-FLAGS := -std=c++17 -g3 -Wall -Wextra -Wno-pmf-conversions
-# C++ librairy
-LIBS :=
-# Header include folder
-INCLUDE := -I ./include -I $(LIB_PATH)/include
-# Makefile flags
+BUILD_FOLDER := build
+
+BUILD_SHARED_FOLDER := $(BUILD_FOLDER)/shared
+BUILD_STATIC_FOLDER := $(BUILD_FOLDER)/static
+BUILD_EXE_FOLDER := $(BUILD_FOLDER)/executable
+
+#####
+##### GENERAL SETTINGS
+#####
+
+PROJECT_NAME := interpreter
+CXX := g++
+SXX := ar
+
+# Targets
+TARGET_SHARED := $(BUILD_SHARED_FOLDER)/lib$(PROJECT_NAME).so
+TARGET_STATIC := $(BUILD_STATIC_FOLDER)/lib$(PROJECT_NAME).a
+TARGET_EXE := $(BUILD_EXE_FOLDER)/$(PROJECT_NAME)
+
+# Target to build when `make` or `make all` is typed
+TARGET_ALL := $(TARGET_EXE)
+
+#####
+##### FILES SETTINGS
+#####
+
+# Extension
+EXT_SRC_FILE = .cpp
+EXT_INC_FILE = .hpp
+
+# Get header from source file
+# This function is only used to checks if the header has bee modified and the object file must be rebuild
+# So if the header doesn't exist it's ok
+
+# The first argument is the source file relative to $(SRC_FOLDER)
+# The header must be relative to $(INC_FOLDER)
+
+# EX: $(1:%$(EXT_SRC_FILE)=%$(EXT_INC_FILE)) 
+# will take the file "folder/sub_folder_file.cpp"
+# and transform it into "folder/sub_folder_file.hpp"
+header-of = $(1:%$(EXT_SRC_FILE)=vcrate/%$(EXT_INC_FILE))
+
+# Relative to $(SRC_FOLDER)
+SRC_EXCLUDE_FILE := 
+# All files that are not use for libraries, don't add src/
+SRC_MAINS := desassembler.cpp main.cpp test.cpp
+# The main file to use (must be in $(SRC_MAINS))
+SRC_MAIN := desassembler.cpp
+
+#####
+##### FLAGS
+#####
+
+FLAGS := -std=c++17 -g3 -Wall -Wextra -Wno-pmf-conversions -O2
+STATIC_LINK_FLAG := rcs
+
+# Include path
+# Must be use with -I
+INC_FLAG := -I $(INC_FOLDER) -I lib/bytecode-description/include
+
+#####
+##### LIBRARY
+#####
+
+# Path to libaries if not in $PATH, for example (relative to the project folder): lib/
+# Must be use with -L
+LIBS_PATH := -L lib/bytecode-description/build/static 
+
+# For example: -lsfml-graphics
+LIBS := -lbytecode_desc
+
+# Library that require to be build
+LIB_TO_BUILD := lib/bytecode-description/build/static/libbytecode_desc.a
+
+# Create rules to build the libraries
+
+lib/bytecode-description/build/static/libbytecode_desc.a:
+	@$(call _special,BUILDING STATIC LIBRARY ($@)...)
+	@cd lib/bytecode-description/ && make | sed "s/^/\t/"
+
+###############################################
+#                   PRIVATE                   #
+###############################################
+
+#####
+##### OTHER
+#####
+
+_RESET := \033[0m
+_BOLD := \033[1m
+
+_COLOR_RED := \033[31m
+_COLOR_GREEN := \033[32m
+_COLOR_YELLOW := \033[33m
+_COLOR_BLUE := \033[34m
+_COLOR_MAGENTA := \033[35m
+_COLOR_CYAN := \033[36m
+_COLOR_WHITE := \033[37m
+
+SHARED_FLAGS := -fPIC
+
 MAKEFLAGS += --no-print-directory
 
-all: $(DEST)
+#####
+##### FUNCTIONS
+#####
 
-# Main build task
-# Compile each file and link them
-$(DEST): $(BUILD_DIR) $(LIB_OBJ_PATH) $(OBJ) $(MAIN_OBJ)
-	@echo -e "\033[32m\033[1m:: Linking of all objects\033[0m"
-	@g++ $(INCLUDE) $(FLAGS) $(OBJ) $(shell find $(LIB_OBJ_PATH) -name '*.o') $(MAIN_OBJ) -o $(DEST) $(LIBS)
-	@echo -e -n "\033[34m"
-	@echo -e "---------------"
-	@echo -e "Build finished!"
-	@echo -e "---------------"
-	@echo -e -n "\033[0m"
+_void =
+_space = $(_void) $(_void)
+_comma = ,
 
-# Compile a file into a object
-build/src/%.o: %.cpp
-	@echo -e "\033[1m:: Building" "$<" "\033[0m"
-	@g++ -c $(INCLUDE) $(OPTIM) $(FLAGS) $(DEPS_FLAGS) -o "$@" "$<"
+# join <between> <list>
+_join = $(subst $(_space),$(1),$(2))
 
-# Compile a file into a object
-$(MAIN_OBJ): $(MAIN_PATH)
-	@echo -e "\033[1m:: Building Main" "\033[0m"
-	@g++ -c $(INCLUDE) $(OPTIM) $(FLAGS) -o "$@" "$<"
+# _header <message>
+_header = echo -e "$(_COLOR_CYAN)$(_BOLD)>>> $(1)$(_RESET)"
+# _sub-header <message>
+_sub-header = echo -e "$(_COLOR_GREEN)>>> $(1)$(_RESET)"
+# _build-msg <target> <from>
+_build-msg = echo -e "$(_COLOR_WHITE):: Building $(_BOLD)$(1)$(_RESET)$(_COLOR_WHITE) from $(_BOLD)$(2)$(_RESET)"
+# _special <message>
+_special = echo -e "$(_COLOR_MAGENTA)$(_BOLD)\# $(1)$(_RESET)"
 
-# Make build folders
-$(BUILD_DIR):
-	@mkdir -p $@
+# not <value>
+# return an empty string if value is not
+not = $(if $(1),,not-empty-string)
 
-# Build lib
-$(LIB_OBJ_PATH):
-	cd $(LIB_PATH) && make
+# _remove-folder <folder>
+define _remove-folder
+	rm -rf $(1)
+endef
 
-# Clean every build files by destroying the build/ folder.
+# _is-empty <value> [<message>]
+# example: $(call check-not-empty,FOLDER,The folder must be specified)
+_is-empty = $(call not,$(1))
+define _is-empty-er
+	$(if $(call _is-empty,$(1)),$(error Value is empty $(if $(2),($(2)) )))
+endef
+
+# _exists <file> [<message>]
+_exists = $(wildcard $(1))
+define _exists-er
+	$(if $(call _exists,$(1)),,$(error File '$(1)' doesn't exists $(if $(2),($(2)) )))
+endef
+
+#####
+##### SOURCES
+#####
+
+_SRC_MAINS := $(addprefix $(SRC_FOLDER)/,$(SRC_MAINS))
+# All sources files not main
+_SRC_FILES := $(filter-out $(_SRC_MAINS),$(shell find $(SRC_FOLDER) -name '*$(EXT_SRC_FILE)'))
+
+#####
+##### DIRECTORIES
+#####
+
+# All sources file directories
+_SRC_DIR := $(sort $(dir $(_SRC_FILES)))
+
+_EXE_DIR := $(addprefix $(BUILD_EXE_FOLDER)/,$(_SRC_DIR))
+_SHARED_DIR := $(addprefix $(BUILD_SHARED_FOLDER)/,$(_SRC_DIR))
+_STATIC_DIR := $(addprefix $(BUILD_STATIC_FOLDER)/,$(_SRC_DIR))
+
+_BUILD_DIR := $(_EXE_DIR) $(_SHARED_DIR) $(_STATIC_DIR)
+
+#####
+##### OBJECT FILES
+##### 
+
+_OBJ_MAIN := $(SRC_MAIN:%$(EXT_SRC_FILE)=$(BUILD_EXE_FOLDER)/$(SRC_FOLDER)/%.o)
+_OBJ_SRC_EXE := $(_OBJ_MAIN) $(_SRC_FILES:%$(EXT_SRC_FILE)=$(BUILD_EXE_FOLDER)/%.o) 
+
+_OBJ_SRC_SHARED := $(_SRC_FILES:%$(EXT_SRC_FILE)=$(BUILD_SHARED_FOLDER)/%.o)
+
+_OBJ_SRC_STATIC := $(_SRC_FILES:%$(EXT_SRC_FILE)=$(BUILD_STATIC_FOLDER)/%.o)
+
+_LIB_PATH_LD := $(call _join,:,$(strip $(filter-out -L,$(LIBS_PATH))))
+export LD_LIBRARY_PATH += $(_LIB_PATH_LD)
+
+#####
+##### RULES
+#####
+
+.PHONY: all executable shared static 
+.PHONY: clean clean-executable clean-shared clean-static
+.PHONY: re re-executable re-shared re-static
+.PHONY: re-run run
+
+.DEFAULT_GOAL := all
+
+all:
+ifneq ($(findstring $(TARGET_EXE),$(TARGET_ALL)),)
+	@make executable
+endif
+ifneq ($(findstring $(TARGET_SHARED),$(TARGET_ALL)),)
+	@make shared
+endif
+ifneq ($(findstring $(TARGET_STATIC),$(TARGET_ALL)),)
+	@make static
+endif
+
+executable: 
+	@$(call _header,BUILDING EXECUTABLE...)
+	@make $(TARGET_EXE)
+
+shared:
+	@$(call _header,BUILDING SHARED LIBRARY...)
+	@make $(TARGET_SHARED)
+
+static:
+	@$(call _header,BUILDING STATIC LIBRARY...)
+	@make $(TARGET_STATIC)
+
 clean:
-	@echo -e "Removing build folder..."
-	@rm -rf build
-	@echo -e -n "\033[34m"
-	@echo -e "----------------"
-	@echo -e "Project  Cleaned"
-	@echo -e "----------------"
-	@echo -e -n "\033[0m"
+	@$(call _remove-folder,$(BUILD_FOLDER))
 
-# Run the program
-run: $(DEST)
-	@echo -e -n "\033[34m"
-	@echo -e "----------------"
-	@echo -e "      Run       "
-	@echo -e "----------------"
-	@echo -e -n "\033[0m"
-	@$(DEST)
-	@echo -e -n "\033[34m"
-	@echo -e "----------------"
-	@echo -e "      Stop      "
-	@echo -e "----------------"
-	@echo -e -n "\033[0m"
+clean-executable:
+	@$(call _remove-folder,$(BUILD_EXE_FOLDER))
 
-# Equivalent of make clean and make run
-again:
+clean-shared:
+	@$(call _remove-folder,$(BUILD_SHARED_FOLDER))
+
+clean-static:
+	@$(call _remove-folder,$(BUILD_STATIC_FOLDER))
+
+re:
 	@make clean
+	@make
+
+re-executable:
+	@make clean-executable
+	@make executable
+
+re-shared:
+	@make clean-shared
+	@make shared
+
+re-static:
+	@make clean-static
+	@make static
+
+run:
+	@make executable
+	@echo
+	@$(call _special,EXECUTING $(TARGET_EXE)...)
+	@-$(TARGET_EXE) $(args); $(call _special,PROGRAM HALT WITH CODE $$?)
+
+#@$(call _special,PROGRAM HALT WITH CODE $$?)
+
+re-run:
+	@make re-executable
 	@make run
 
-valgrind: $(DEST)
-	@echo -e -n "\033[34m"
-	@echo -e "----------------"
-	@echo -e "  Run Valgrind  "
-	@echo -e "----------------"
-	@echo -e -n "\033[0m"
-	@valgrind --leak-check=full --show-leak-kinds=all $(DEST)
-	@echo -e -n "\033[34m"
-	@echo -e "----------------"
-	@echo -e "      Stop      "
-	@echo -e "----------------"
-	@echo -e -n "\033[0m"
+$(_BUILD_DIR):
+	@mkdir -p $(_BUILD_DIR)
 
--include $(DEPS)
+###
+
+
+$(TARGET_STATIC): $(_BUILD_DIR) $(LIB_TO_BUILD) $(_OBJ_SRC_STATIC)
+	@$(call _sub-header,Archiving...)
+	@$(SXX) $(STATIC_LINK_FLAG) $(TARGET_STATIC) $(_OBJ_SRC_STATIC)
+	@$(call _header,Static library done ($(TARGET_STATIC)))
+
+$(BUILD_STATIC_FOLDER)/$(SRC_FOLDER)/%.o: $(SRC_FOLDER)/%$(EXT_SRC_FILE) $(INC_FOLDER)/$(call header-of,%$(EXT_SRC_FILE))
+	@$(call _build-msg,$(notdir $@),$(call _join,$(_comma)$(_space),$(strip $(notdir $< $(wildcard $(word 2,$^))))))
+	@$(CXX) -c $(INC_FLAG) $(FLAGS) -o "$@" "$<"
+
+
+###
+
+
+$(TARGET_SHARED): $(_BUILD_DIR) $(LIB_TO_BUILD) $(_OBJ_SRC_SHARED)
+	@$(call _sub-header,Shared library creation...)
+	@$(CXX) $(INC_FLAG) $(FLAGS) -shared -o $(TARGET_SHARED) $(_OBJ_SRC_SHARED) $(LIBS_PATH) $(LIBS)
+	@$(call _header,Shared library done ($(TARGET_SHARED)))
+
+$(BUILD_SHARED_FOLDER)/$(SRC_FOLDER)/%.o: $(SRC_FOLDER)/%$(EXT_SRC_FILE) $(INC_FOLDER)/$(call header-of,%$(EXT_SRC_FILE))
+	@$(call _build-msg,$(notdir $@),$(call _join,$(_comma)$(_space),$(strip $(notdir $< $(wildcard $(word 2,$^))))))
+	@$(CXX) -c $(INC_FLAG) $(FLAGS) $(SHARED_FLAGS) -o "$@" "$<"
+
+
+###
+
+
+$(TARGET_EXE): $(_BUILD_DIR) $(LIB_TO_BUILD) $(_OBJ_SRC_EXE)
+	@$(call _sub-header,Linking...)
+	@$(CXX) $(INC_FLAG) $(FLAGS) $(_OBJ_SRC_EXE) -o "$@" $(LIBS_PATH) $(LIBS)
+	@$(call _header,Executable done ($(TARGET_EXE)))
+
+$(BUILD_EXE_FOLDER)/$(SRC_FOLDER)/%.o: $(SRC_FOLDER)/%$(EXT_SRC_FILE) $(INC_FOLDER)/$(call header-of,%$(EXT_SRC_FILE))
+	@$(call _build-msg,$(notdir $@),$(call _join,$(_comma)$(_space),$(strip $(notdir $< $(wildcard $(word 2,$^))))))
+	@$(CXX) -c $(INC_FLAG) $(FLAGS) -o "$@" "$<"
+
+
+# Just to avoid file without headers
+%$(EXT_INC_FILE):
+	
