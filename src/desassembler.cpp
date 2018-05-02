@@ -14,18 +14,18 @@ using namespace vcrate::interpreter;
 using namespace vcrate::vcx;
 using namespace vcrate;
 
-void box(std::string const& title, std::string const& content) {
-    ui32 max = title.size();
+void box(std::string const& title, std::string const& content, ui32 column = 1) {
+    ui32 max = title.size()+4;
+    max += (column - (max - 1) % column) % column;
     std::vector<std::string> contents;
     {
         std::stringstream ss(content); 
         std::string s;
         while(std::getline(ss, s, '\n')) {
             contents.push_back(s);
-            max = std::max<ui32>(s.size(), max);
+            max = std::max<ui32>((s.size() + 2 + 1) * column + 1, max);
         }
     }
-    max += 2;
 
     auto repeat = [] (ui32 n, auto s) {
         while(n--)
@@ -33,16 +33,51 @@ void box(std::string const& title, std::string const& content) {
     };
 
     std::cout << "┏"; repeat(max-2, "━"); std::cout << "┓\n";
-    ui32 spaces = ((max-2) - title.size()) / 2;
-    std::cout << "┃" << std::string(spaces, ' ') << title << std::string(max-2 - spaces - title.size(), ' ') << "┃\n";
-    std::cout << "┡" ; repeat(max-2, "━"); std::cout << "┩\n";
-    for(auto const& s : contents) 
-        std::cout << "│" << s << std::string(max-2 - s.size(), ' ') << "│\n";
-    std::cout << "└"; repeat(max-2, "─"); std::cout << "┘\n";
+    ui32 spaces = ((max-2) - (title.size() + 2)) / 2;
+    std::cout << "┃ " << std::string(spaces, ' ') << title << std::string(max - 2 - spaces - (title.size() + 2), ' ') << " ┃\n";
+    std::cout << "┡";
+    for (ui32 i = 0; i < column; ++i) {
+        if (i > 0)
+            std::cout << "┯";
+        repeat((max - (column + 1)) / column, "━");
+    }
+    std::cout << "┩\n";
+
+    ui32 cur_col = 0;
+    for(auto const& s : contents) {
+        if (cur_col == 0)
+            std::cout << "│";
+
+        i32 l = (max - (column + 1)) / column;
+        std::cout << " " << s << std::string(l - (s.size() + 2), ' ') << " │";
+        if (++cur_col >= column) {
+            std::cout << '\n';
+            cur_col = 0;
+        }
+    }
+    if (cur_col > 0) {
+        while (cur_col++ < column) {
+            i32 l = (max - (column + 1)) / column;
+            std::cout << std::string(l, ' ') << "│";
+        }
+        std::cout << '\n';
+    }
+    std::cout << "└";
+    for (ui32 i = 0; i < column; ++i) {
+        if (i > 0)
+            std::cout << "┴";
+        repeat((max - (column + 1)) / column, "─");
+    }
+    std::cout << "┘\n";
 }
 
 std::string left_right_text(ui32 n, std::string const& left, std::string const& right, char d = ' ') {
     return left + std::string(std::max<int>(0, static_cast<int>(n) - left.size() - right.size()), d) + right;
+}
+
+std::string center(ui32 l, std::string const& s, char d = ' ') {
+    ui32 spaces = (l - s.size()) / 2;
+    return std::string(spaces, d) + s + std::string(l - spaces - s.size(), d);
 }
 
 ui32 get_symbols_size(std::map<std::string, ui32> const& symbols) {
@@ -70,20 +105,22 @@ int main(int argc, char** argv) {
     is >> exe;
     is.close();
 
+    constexpr ui32 size = 45;
+
     std::cout << "\033[1m" << "Executable (" << file << ")" << ":\033[22m\n";
     box("Header (16 bytes)", 
-        left_right_text(30, "Instructions", std::to_string(exe.code.size()*4) + " bytes", '.')             + '\n' +
-        left_right_text(30, "Data",         std::to_string(exe.data.size()*4) + " bytes", '.')             + '\n' +
-        left_right_text(30, "Jump table",   std::to_string(exe.jmp_table.size()*4) + " bytes", '.')        + '\n' +
-        left_right_text(30, "Symbols",      std::to_string(get_symbols_size(exe.symbols)) + " bytes", '.') + '\n'
+        left_right_text(size, "Symbols",      std::to_string(get_symbols_size(exe.symbols)) + " bytes", '.') + '\n' +
+        left_right_text(size, "Jump table",   std::to_string(exe.jmp_table.size()*4) + " bytes", '.')        + '\n' +
+        left_right_text(size, "Data",         std::to_string(exe.data.size()*4) + " bytes", '.')             + '\n' +
+        left_right_text(size, "Instructions", std::to_string(exe.code.size()*4) + " bytes", '.')             + '\n'
     );
 
     {
         std::string sym;
         for(auto const& p : exe.symbols)
-            sym += left_right_text(30, p.first, std::to_string(p.second), '.') + '\n';
+            sym += left_right_text(size, p.first, std::to_string(p.second), '.') + '\n';
         if (sym.empty())
-            sym = std::string(30, ' ');
+            sym = std::string(size, ' ');
         box("Symbols (" + std::to_string(exe.symbols.size()) + ")", sym);
     }
 
@@ -93,8 +130,8 @@ int main(int argc, char** argv) {
             return acc + std::to_string(s1) + '\n';
         });
         if (jmp.empty())
-            jmp = std::string(30, ' ');
-        box("Jump table (" + std::to_string(exe.jmp_table.size()) + ")", jmp);
+            jmp = std::string((size - 4) / 3, ' ');
+        box(center(size, "Jump table (" + std::to_string(exe.jmp_table.size()) + ")"), jmp, 3);
     }
 
     {
@@ -117,14 +154,14 @@ int main(int argc, char** argv) {
 
             if (++packet > 1) {
                 packet = 0;
-                datas += left_right_text(30, hex, chr) + '\n';
+                datas += left_right_text(size, hex, chr) + '\n';
                 hex = chr = "";
             }
         }
         if (!hex.empty())
-            datas += left_right_text(30, hex, chr + "    ") + '\n';
+            datas += left_right_text(size, hex, chr + "    ") + '\n';
         if (datas.empty())
-            datas = std::string(30, ' ');
+            datas = std::string(size, ' ');
 
         box("Data (" + std::to_string(exe.data.size() * 4) + " bytes)", datas);
     }
@@ -151,7 +188,8 @@ int main(int argc, char** argv) {
             instruction_count++;
             insn += isn.to_string() + '\n';
         }
-        box("Instructions (" + std::to_string(instruction_count) + ")", insn);
+        if (insn.empty())
+            insn = std::string((size - 3) / 2, ' ');
+        box(center(size, "Instructions (" + std::to_string(instruction_count) + ")"), insn, 2);
     }
-
 }
