@@ -73,9 +73,9 @@ header-of = $(1:%$(EXT_SRC_FILE)=vcrate/%$(EXT_INC_FILE))
 # Relative to $(SRC_FOLDER)
 SRC_EXCLUDE_FILE := 
 # All files that are not use for libraries, don't add src/
-SRC_MAINS := desassembler.cpp main.cpp test.cpp
+SRC_MAINS := disassembler.cpp main.cpp test.cpp
 # The main file to use (must be in $(SRC_MAINS))
-SRC_MAIN := desassembler.cpp
+SRC_MAIN := disassembler.cpp
 
 #####
 ##### FLAGS
@@ -275,8 +275,6 @@ run:
 	@echo
 	@$(call _special,EXECUTING $(TARGET_EXE)...)
 	@-$(TARGET_EXE) $(args); $(call _special,PROGRAM HALT WITH CODE $$?)
-
-#@$(call _special,PROGRAM HALT WITH CODE $$?)
 
 re-run:
 	@make re-executable
