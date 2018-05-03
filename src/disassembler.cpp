@@ -186,7 +186,10 @@ int main(int argc, char** argv) {
                     break;
             }
             instruction_count++;
-            insn += isn.to_string() + '\n';
+            if (pc == exe.entry_point)
+                insn += isn.to_string() + " *\n";
+            else
+                insn += isn.to_string() + '\n';
         }
         if (insn.empty())
             insn = std::string((size - 3) / 2, ' ');
