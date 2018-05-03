@@ -1,6 +1,7 @@
 #include <vcrate/Sandbox/SandBox.hpp>
 
 #include <vcrate/bytecode/v1.hpp>
+#include <vcrate/vcx/Executable.hpp>
 
 #include <iostream>
 
@@ -18,14 +19,22 @@ bool SandBox::is_halted() const {
     return halted;
 }
 
-void SandBox::load_program(Program const& program) {
-    set_pc(0);
-    set_fg(0);
-    set_bp(program.size() - 4);
-    for(ui32 i = 0; i < program.size(); i += 4) {
-        auto instruction = program.get_raw(i);
-        push_32(instruction);
-    }
+void SandBox::load_executable(vcx::Executable const& exe) {
+    ui32 base_addr = 0;
+    ui32 cur_addr = base_addr;
+    for(auto j : exe.jmp_table)
+        memory.set_32((cur_addr += 4) - 4, j + base_addr);
+    for(auto d : exe.data)
+        memory.set_32((cur_addr += 4) - 4, d);
+
+    set_pc(exe.entry_point + cur_addr);
+
+    for(auto i : exe.code)
+        memory.set_32((cur_addr += 4) - 4, i);
+
+    // TODO: symbols
+    set_bp(cur_addr - 4);
+    set_sp(cur_addr);
 }
 
 ui32 SandBox::get_pc() const {
@@ -46,15 +55,12 @@ Instruction SandBox::get_instruction_and_move() {
     auto inst = get_instruction();
     switch(inst.get_byte_size()) {
         case Instruction::ByteSize::Triple:
-            std::cout << "Move +12" << std::endl;
             set_pc(get_pc() + 12);
             break;
         case Instruction::ByteSize::Double:
-            std::cout << "Move +8" << std::endl;
             set_pc(get_pc() + 8);
             break;
         case Instruction::ByteSize::Single:
-            std::cout << "Move +4" << std::endl;
             set_pc(get_pc() + 4);
             break;
         default:
