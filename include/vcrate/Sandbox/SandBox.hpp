@@ -1,8 +1,9 @@
 #pragma once
 
 #include <vcrate/Alias.hpp>
-#include <vcrate/Program/Program.hpp>
+#include <vcrate/vcx/Executable.hpp>
 #include <vcrate/Sandbox/Memory/Memory.hpp>
+#include <vcrate/Instruction/Instruction.hpp>
 
 #include <vector>
 #include <array>
@@ -43,7 +44,7 @@ public:
     ui32 get_memory_at(ui32 address);
     void set_memory_at(ui32 address, ui32 value);
 
-    void load_program(Program const& program);
+    void load_executable(vcx::Executable const& exe);
 
     void halt();
     bool is_halted() const;

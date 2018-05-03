@@ -109,6 +109,7 @@ int main(int argc, char** argv) {
 
     std::cout << "\033[1m" << "Executable (" << file << ")" << ":\033[22m\n";
     box("Header (16 bytes)", 
+        left_right_text(size, "Entry point",  std::to_string(exe.entry_point), '.')                          + '\n' +
         left_right_text(size, "Symbols",      std::to_string(get_symbols_size(exe.symbols)) + " bytes", '.') + '\n' +
         left_right_text(size, "Jump table",   std::to_string(exe.jmp_table.size()*4) + " bytes", '.')        + '\n' +
         left_right_text(size, "Data",         std::to_string(exe.data.size()*4) + " bytes", '.')             + '\n' +
@@ -174,6 +175,12 @@ int main(int argc, char** argv) {
             ui32 extra1 = pc + 2 < exe.code.size() ? exe.code[pc+2] : 0;
             Instruction isn(exe.code[pc], extra0, extra1);
 
+            if (pc*4 == exe.entry_point)
+                insn += isn.to_string() + " *\n";
+            else
+                insn += isn.to_string() + '\n';
+
+            instruction_count++;
             switch(isn.get_byte_size()) {
                 case Instruction::ByteSize::Single:
                     pc += 1;
@@ -185,11 +192,6 @@ int main(int argc, char** argv) {
                     pc += 3;
                     break;
             }
-            instruction_count++;
-            if (pc == exe.entry_point)
-                insn += isn.to_string() + " *\n";
-            else
-                insn += isn.to_string() + '\n';
         }
         if (insn.empty())
             insn = std::string((size - 3) / 2, ' ');
