@@ -175,7 +175,7 @@ void Interpreter::instruction_JMP(SandBox& sandbox, Instruction const& instructi
     auto pc = Interpreter::value_of(sandbox, arg);
     auto arg_type = get_argument_type(arg);
     if (arg_type == ArgumentType::Address || arg_type == ArgumentType::Value)
-        pc += sandbox.get_pc() - (static_cast<ui32>(instruction.get_byte_size()) + 1) * 4;
+        pc += sandbox.get_pc() - instruction.get_byte_size();
     sandbox.set_pc(pc);
 }
 

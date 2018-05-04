@@ -24,10 +24,8 @@ std::string Instruction::to_string() const {
     return str;
 }
 
-Instruction::ByteSize Instruction::get_byte_size() const {
-    if (second)
-        return third ? Instruction::ByteSize::Triple : Instruction::ByteSize::Double;
-    return Instruction::ByteSize::Single;    
+ui32 Instruction::get_byte_size() const {
+    return sizeof(ui32) * (1 + static_cast<bool>(second) + static_cast<bool>(third));    
 }
 
 Operations Instruction::get_operation() const {

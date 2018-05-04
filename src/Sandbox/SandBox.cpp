@@ -53,19 +53,7 @@ Instruction SandBox::get_instruction() {
 
 Instruction SandBox::get_instruction_and_move() {
     auto inst = get_instruction();
-    switch(inst.get_byte_size()) {
-        case Instruction::ByteSize::Triple:
-            set_pc(get_pc() + 12);
-            break;
-        case Instruction::ByteSize::Double:
-            set_pc(get_pc() + 8);
-            break;
-        case Instruction::ByteSize::Single:
-            set_pc(get_pc() + 4);
-            break;
-        default:
-            throw std::runtime_error("Instruction size not supported");
-    }
+    set_pc(get_pc() + inst.get_byte_size());
     return inst;
 }
 

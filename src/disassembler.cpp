@@ -181,17 +181,7 @@ int main(int argc, char** argv) {
                 insn += isn.to_string() + '\n';
 
             instruction_count++;
-            switch(isn.get_byte_size()) {
-                case Instruction::ByteSize::Single:
-                    pc += 1;
-                    break;
-                case Instruction::ByteSize::Double:
-                    pc += 2;
-                    break;
-                case Instruction::ByteSize::Triple:
-                    pc += 3;
-                    break;
-            }
+            pc += isn.get_byte_size() / 4;
         }
         if (insn.empty())
             insn = std::string((size - 3) / 2, ' ');
