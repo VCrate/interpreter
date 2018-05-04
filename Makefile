@@ -243,16 +243,29 @@ static:
 	@make $(TARGET_STATIC)
 
 clean:
+	@$(call _header,REMOVING $(BUILD_FOLDER))
 	@$(call _remove-folder,$(BUILD_FOLDER))
 
 clean-executable:
+	@$(call _header,REMOVING $(BUILD_EXE_FOLDER))
 	@$(call _remove-folder,$(BUILD_EXE_FOLDER))
 
 clean-shared:
+	@$(call _header,REMOVING $(BUILD_SHARED_FOLDER))
 	@$(call _remove-folder,$(BUILD_SHARED_FOLDER))
 
 clean-static:
+	@$(call _header,REMOVING $(BUILD_STATIC_FOLDER))
 	@$(call _remove-folder,$(BUILD_STATIC_FOLDER))
+
+where-executable:
+	@echo $(TARGET_EXE)
+
+where-shared:
+	@echo $(TARGET_SHARED)
+
+where-static:
+	@echo $(TARGET_STATIC)
 
 re:
 	@make clean
@@ -274,11 +287,21 @@ run:
 	@make executable
 	@echo
 	@$(call _special,EXECUTING $(TARGET_EXE)...)
-	@-$(TARGET_EXE) $(args); $(call _special,PROGRAM HALT WITH CODE $$?)
+	@$(TARGET_EXE) $(args); ERR=$$?; $(call _special,PROGRAM HALT WITH CODE $$ERR); exit $$ERR;
 
 re-run:
 	@make re-executable
 	@make run
+
+valgrind:
+	@make executable
+	@echo
+	@$(call _special,EXECUTING $(TARGET_EXE) WITH VALGRIND...)
+	@valgrind $(TARGET_EXE) $(args); ERR=$$?; $(call _special,PROGRAM HALT WITH CODE $$ERR); exit $$ERR;
+
+re-valgrind:
+	@make re-executable
+	@make valgrind
 
 $(_BUILD_DIR):
 	@mkdir -p $(_BUILD_DIR)
