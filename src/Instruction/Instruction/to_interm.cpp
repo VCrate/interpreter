@@ -1,6 +1,6 @@
 #include <vcrate/Instruction/Instruction.hpp>
 
-#include <vcrate/Instruction/OperationDefinition.hpp>
+#include <vcrate/bytecode/Operations.hpp>
 
 #include <vcrate/bytecode/v1.hpp>
 
@@ -12,11 +12,11 @@ namespace btc = ::vcrate::bytecode::v1;
 
 std::string Instruction::to_string() const {
     auto op = get_operation();
-    auto def = OperationDefinition::get_definition(op);
-    std::string str = def.abbr + " ";
-    if (def.arguments_count == 1) {
+    auto def = bytecode::OpDefinition::get(op);
+    std::string str = def.name + " ";
+    if (def.arg_count() == 1) {
         str += argument_to_string(get_complete_argument());
-    } else if (def.arguments_count == 2) {
+    } else if (def.arg_count() == 2) {
         str += argument_to_string(get_first_argument());
         str += ", ";
         str += argument_to_string(get_second_argument());
@@ -28,8 +28,8 @@ ui32 Instruction::get_byte_size() const {
     return sizeof(ui32) * (1 + static_cast<bool>(second) + static_cast<bool>(third));    
 }
 
-Operations Instruction::get_operation() const {
-    return static_cast<Operations>(btc::instruction.decode(first));
+bytecode::Operations Instruction::get_operation() const {
+    return static_cast<bytecode::Operations>(btc::instruction.decode(first));
 }
 
 bool Instruction::require_complete_instruction(ui32 type) const {

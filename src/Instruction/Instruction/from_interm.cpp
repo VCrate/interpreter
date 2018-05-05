@@ -1,7 +1,6 @@
 #include <vcrate/Instruction/Instruction.hpp>
 
-#include <vcrate/Instruction/OperationDefinition.hpp>
-
+#include <vcrate/bytecode/Operations.hpp>
 #include <vcrate/bytecode/v1.hpp>
 
 #include <stdexcept>
@@ -14,34 +13,34 @@ bool Instruction::is_writable(ArgumentType arg) const {
     return arg != ArgumentType::Value;
 }
 
-void Instruction::encode_operation(Operations operation) {
+void Instruction::encode_operation(bytecode::Operations operation) {
     first = btc::instruction.encode(static_cast<ui32>(operation), first);
 }
 
-void Instruction::check_argument_count(Operations operation, ui32 count) {
-    auto def = OperationDefinition::get_definition(operation);
-    if (def.arguments_count != count)
+void Instruction::check_argument_count(bytecode::Operations operation, ui32 count) {
+    auto def = bytecode::OpDefinition::get(operation);
+    if (def.arg_count() != count)
         throw std::runtime_error("This operation need more/less arguments");
 }
 
-void Instruction::check_first_not_writable(Operations operation) {
-    auto def = OperationDefinition::get_definition(operation);
-    if (def.first_is_writable)
+void Instruction::check_first_not_writable(bytecode::Operations operation) {
+    auto def = bytecode::OpDefinition::get(operation);
+    if (def.should_be_writable(0))
         throw std::runtime_error("The first argument must be writable");
 }
 
-void Instruction::check_second_not_writable(Operations operation) {
-    auto def = OperationDefinition::get_definition(operation);
-    if (def.second_is_writable)
+void Instruction::check_second_not_writable(bytecode::Operations operation) {
+    auto def = bytecode::OpDefinition::get(operation);
+    if (def.should_be_writable(1))
         throw std::runtime_error("The second argument must be writable");
 }
 
-Instruction::Instruction(Operations ope) {
+Instruction::Instruction(bytecode::Operations ope) {
     check_argument_count(ope, 0);
     encode_operation(ope);
 }
 
-Instruction::Instruction(Operations ope, Argument const& arg) {
+Instruction::Instruction(bytecode::Operations ope, Argument const& arg) {
     check_argument_count(ope, 1);
     if (!is_writable(get_argument_type(arg)))
         check_first_not_writable(ope);
@@ -49,7 +48,7 @@ Instruction::Instruction(Operations ope, Argument const& arg) {
     std::visit(Instruction::Encoder24(*this), arg);
 }
 
-Instruction::Instruction(Operations ope, Argument const& arg0, Argument const& arg1) {
+Instruction::Instruction(bytecode::Operations ope, Argument const& arg0, Argument const& arg1) {
     check_argument_count(ope, 2);
     if (!is_writable(get_argument_type(arg0)))
         check_first_not_writable(ope);

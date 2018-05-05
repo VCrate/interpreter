@@ -4,7 +4,7 @@
 
 namespace vcrate { namespace interpreter {
 namespace program_ex {
-
+#if 0
 void hello_world(Program& program) {
     /* Hello World
      *     Labels available : 
@@ -550,5 +550,5 @@ void vector(Program& program) {
     program.append_instruction(Operations::RET);
 
 }
-
+#endif
 }}}

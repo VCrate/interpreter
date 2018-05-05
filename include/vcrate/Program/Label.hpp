@@ -7,6 +7,7 @@
 #include <functional>
 
 namespace vcrate { namespace interpreter {
+#if 0
 
 class Label {
 public:
@@ -41,5 +42,5 @@ private:
 
     Size size;
 };
-
+#endif
 }}

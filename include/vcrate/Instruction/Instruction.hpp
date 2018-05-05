@@ -2,7 +2,7 @@
 
 #include <vcrate/Alias.hpp>
 #include <vcrate/Instruction/Argument.hpp>
-#include <vcrate/Interpreter/Operations.hpp>
+#include <vcrate/bytecode/Operations.hpp>
 #include <vcrate/Program/Label.hpp>
 
 #include <optional>
@@ -17,7 +17,7 @@ public:
     std::string to_string() const;
 
     ////////// DECODING
-    Operations get_operation() const;
+    bytecode::Operations get_operation() const;
 
     Argument get_complete_argument() const;
     Argument get_first_argument() const;
@@ -31,16 +31,16 @@ public:
 
     Instruction(ui32 main, ui32 extra0 = 0, ui32 extra1 = 0);
 
-    Instruction(Operations ope);
-    Instruction(Operations ope, Argument const& arg);
-    Instruction(Operations ope, Argument const& arg0, Argument const& arg1);
+    Instruction(bytecode::Operations ope);
+    Instruction(bytecode::Operations ope, Argument const& arg);
+    Instruction(bytecode::Operations ope, Argument const& arg0, Argument const& arg1);
 
 
 private:
 
-    void check_argument_count(Operations operation, ui32 count);
-    void check_first_not_writable(Operations operation);
-    void check_second_not_writable(Operations operation);
+    void check_argument_count(bytecode::Operations operation, ui32 count);
+    void check_first_not_writable(bytecode::Operations operation);
+    void check_second_not_writable(bytecode::Operations operation);
 
     struct Encoder24 {
         Encoder24(Instruction& is);
@@ -63,7 +63,7 @@ private:
         void operator()(Address value);
     };
 
-    void encode_operation(Operations operation);
+    void encode_operation(bytecode::Operations operation);
 
     ArgumentType get_corresponding_argtype(ui32 type) const;
     bool is_writable(ArgumentType arg) const;

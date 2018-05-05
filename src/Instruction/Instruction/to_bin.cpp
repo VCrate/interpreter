@@ -1,7 +1,5 @@
 #include <vcrate/Instruction/Instruction.hpp>
 
-#include <vcrate/Instruction/OperationDefinition.hpp>
-
 #include <stdexcept>
 
 namespace vcrate { namespace interpreter {

@@ -7,7 +7,7 @@
 
 namespace vcrate { namespace interpreter {
 namespace program_ex {
-
+#if 0
 void hello_world(Program& program);
 void print_number(Program& program);
 void lerp(Program& program);
@@ -22,5 +22,5 @@ struct vector_labels {
 
 };
 void vector(Program& program);
-
+#endif
 }}}

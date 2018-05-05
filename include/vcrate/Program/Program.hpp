@@ -9,6 +9,7 @@
 #include <optional>
 
 namespace vcrate { namespace interpreter {
+#if 0
 
 class Program {
 public:
@@ -53,5 +54,5 @@ private:
     ui32 unlinked_label = 0;
 
 };
-
+#endif
 }}

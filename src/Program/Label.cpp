@@ -7,7 +7,7 @@
 #include <limits>
 
 namespace vcrate { namespace interpreter {
-
+#if 0
 Label::Label(Size size) : size(size) {}
 
 bool Label::is_linked() const {
@@ -44,5 +44,6 @@ Label& Label::as_address(ui32 offset) {
     this->offset = offset;
     return *this;
 }
+#endif
 
 }}

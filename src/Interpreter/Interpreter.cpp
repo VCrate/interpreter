@@ -7,6 +7,7 @@ namespace vcrate { namespace interpreter {
 
 void Interpreter::run_next_instruction(SandBox& sandbox) {
     auto instruction = sandbox.get_instruction_and_move();
+    using Operations = bytecode::Operations;
     switch(instruction.get_operation()) {
         case Operations::ADD:   return Interpreter::instruction_ADD(sandbox, instruction);
         case Operations::SUB:   return Interpreter::instruction_SUB(sandbox, instruction);

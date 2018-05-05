@@ -1,7 +1,7 @@
 #include <vcrate/Program/Program.hpp>
 #include <vcrate/Sandbox/SandBox.hpp>
 #include <vcrate/Interpreter/Interpreter.hpp>
-#include <vcrate/Instruction/OperationDefinition.hpp>
+#include <vcrate/bytecode/Operations.hpp>
 #include <vcrate/vcx/Executable.hpp>
 #include <vcrate/Program/Example.hpp>
 

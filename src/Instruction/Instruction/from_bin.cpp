@@ -1,7 +1,5 @@
 #include <vcrate/Instruction/Instruction.hpp>
 
-#include <vcrate/Instruction/OperationDefinition.hpp>
-
 #include <vcrate/bytecode/v1.hpp>
 
 #include <stdexcept>
@@ -11,9 +9,9 @@ namespace vcrate { namespace interpreter {
 Instruction::Instruction(ui32 main, ui32 extra0, ui32 extra1) {
     namespace btc = ::vcrate::bytecode::v1;
 
-    Operations ope = static_cast<Operations>(btc::instruction.decode(main));
-    auto def = OperationDefinition::get_definition(ope);
-    switch(def.arguments_count) {
+    auto ope = static_cast<bytecode::Operations>(btc::instruction.decode(main));
+    auto def = bytecode::OpDefinition::get(ope);
+    switch(def.arg_count()) {
         case 0:
             first = main;
             return;
