@@ -1,8 +1,6 @@
-#include <vcrate/Program/Program.hpp>
 #include <vcrate/Sandbox/SandBox.hpp>
 #include <vcrate/Interpreter/Interpreter.hpp>
-#include <vcrate/Instruction/OperationDefinition.hpp>
-#include <vcrate/Program/Example.hpp>
+#include <vcrate/bytecode/Operations.hpp>
 
 #include <vcrate/bytecode/v1.hpp>
 
@@ -15,6 +13,7 @@
 #include <limits>
 
 using namespace vcrate;
+using namespace vcrate::bytecode;
 using namespace vcrate::interpreter;
 
 struct bin_to_inst {
@@ -27,20 +26,11 @@ struct interm_to_inst {
     std::optional<Argument> arg0, arg1;
 };
 
-std::string size_to_str(Instruction::ByteSize size) {
+std::string size_to_str(ui32 size) {
     switch(size) {
-        case Instruction::ByteSize::Single: return "Single";
-        case Instruction::ByteSize::Double: return "Double";
-        case Instruction::ByteSize::Triple: return "Triple";
-    }
-    throw std::runtime_error("Hmmm");
-}
-
-ui32 get_arguments_count(Instruction::ByteSize size) {
-    switch(size) {
-        case Instruction::ByteSize::Single: return 0;
-        case Instruction::ByteSize::Double: return 1;
-        case Instruction::ByteSize::Triple: return 2;
+        case 0: return "Single";
+        case 1: return "Double";
+        case 2: return "Triple";
     }
     throw std::runtime_error("Hmmm");
 }
@@ -79,7 +69,7 @@ void print_bin(bin_to_inst const& bin) {
 }
 
 void print_interm(interm_to_inst const& interm) {
-    std::cout << "<" << OperationDefinition::get_definition(interm.ope).abbr;
+    std::cout << "<" << OpDefinition::get(interm.ope).name;
     if (interm.arg0)
         std::cout << " " << argument_to_string(*interm.arg0);
     if (interm.arg1)
@@ -90,18 +80,18 @@ void print_interm(interm_to_inst const& interm) {
 bin_to_inst to_bin_to_inst(Instruction const& inst) {
     bin_to_inst b { 0, std::nullopt, std::nullopt };
     switch(inst.get_byte_size()) {
-        case Instruction::ByteSize::Triple: 
+        case 3: 
             b.extra0 = inst.get_first_extra();
             b.extra1 = inst.get_second_extra();
             b.base = inst.get_main_instruction();
             break;
 
-        case Instruction::ByteSize::Double: 
+        case 2: 
             b.extra0 = inst.get_first_extra();
             b.base = inst.get_main_instruction();
             break;
 
-        case Instruction::ByteSize::Single: 
+        case 1: 
             b.base = inst.get_main_instruction();
             break;
     }
@@ -110,7 +100,7 @@ bin_to_inst to_bin_to_inst(Instruction const& inst) {
 
 interm_to_inst to_interm_to_inst(Instruction const& inst) {
     interm_to_inst b { inst.get_operation(), std::nullopt, std::nullopt };
-    switch(OperationDefinition::get_definition(b.ope).arguments_count) {
+    switch(OpDefinition::get(b.ope).arg_count()) {
         case 0:
             return b;
         case 1: 
@@ -136,15 +126,15 @@ bool check_argument(bin_to_inst const& bin, ui32 arg, Argument const& from, Argu
 }
 
 bool check_same(bin_to_inst const& bin, interm_to_inst const& from, interm_to_inst const& to) {
-    auto def_ope = OperationDefinition::get_definition(to.ope);
-    auto args = def_ope.arguments_count;
+    auto def_ope = OpDefinition::get(to.ope);
+    auto args = def_ope.arg_count();
 
     if (from.ope != to.ope) {
-        auto def_ope_from = OperationDefinition::get_definition(from.ope);
+        auto def_ope_from = OpDefinition::get(from.ope);
         error_header();
         print_bin(bin);
-        std::cout << " got Operations::" << def_ope_from.abbr;
-        std::cout << " but Operations::" << def_ope.abbr << " expected\n";
+        std::cout << " got Operations::" << def_ope_from.name;
+        std::cout << " but Operations::" << def_ope.name << " expected\n";
         return false;
     }
 
