@@ -21,7 +21,23 @@ int main(int argc, char** argv) {
         return 1;
     }
 
-    std::string file = argv[1];
+    std::string file = "";
+    bool print_instructions = false;
+
+    for (int i = 1; i < argc; ++i) {
+        std::string arg = argv[i];
+        if (arg == "-v" || arg == "--verbose") {
+            print_instructions = true;
+        } else if (arg == "--help" || arg[0] == '-') {
+            if (arg != "--help")
+                std::cout << "Argument not supported\n";
+            std::cout << "Usage: " << argv[0] << " [--help] [-v | --verbose] <filename>\n";
+            return arg != "--help";
+        } else {
+            file = arg;
+        }
+    }
+
     std::ifstream is(file);
 
     if (!is) {
@@ -41,9 +57,9 @@ int main(int argc, char** argv) {
 
     while(!sandbox.is_halted() && sandbox.get_pc() < 100) {
         auto is = sandbox.get_instruction();
-        std::cout << "\033[31m\033[1m< " << sandbox.get_pc() << " : " << is.to_string() << " >\033[0m"; 
+        if (print_instructions)
+            std::cout << "\033[31m\033[1m< " << sandbox.get_pc() << " : " << is.to_string() << " >\033[0m\n"; 
         Interpreter::run_next_instruction(sandbox);
-        std::cout << '\n';
         //std::cin.get();
     }
 
