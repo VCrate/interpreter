@@ -51,5 +51,6 @@ int main(int argc, char** argv) {
     auto elapsed = std::chrono::high_resolution_clock::now() - chrono_start;
     auto nanos = std::chrono::duration_cast<std::chrono::nanoseconds>(elapsed).count();
     std::cout << "Duration : " << nanos / 1'000'000. << " ms (" << nanos / 1'000'000'000. << " s)\n";
+    std::cout << "Halt code : " << sandbox.get_register(0) << '\n';
 
 }
