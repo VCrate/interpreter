@@ -1,3 +1,6 @@
 [submodule "lib/bytecode-description"]
 	path = lib/bytecode-description
 	url = https://github.com/VCrate/bytecode-description.git
+[submodule "lib/sandbox"]
+	path = lib/sandbox
+	url = https://github.com/VCrate/sandbox.git
