@@ -3,6 +3,7 @@
 #include <vcrate/Alias.hpp>
 
 #include <vcrate/Sandbox/SandBox.hpp>
+#include <vcrate/Instruction/Instruction.hpp>
 
 namespace vcrate { namespace interpreter {
 
@@ -10,6 +11,9 @@ class Interpreter {
 public:
 
     static void run_next_instruction(SandBox& sandbox);
+
+    static Instruction fetch_instruction(SandBox const& sandbox);
+    static Instruction fetch_instruction_and_move(SandBox& sandbox);
 
 private:
 

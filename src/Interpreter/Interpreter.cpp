@@ -6,7 +6,7 @@
 namespace vcrate { namespace interpreter {
 
 void Interpreter::run_next_instruction(SandBox& sandbox) {
-    auto instruction = sandbox.get_instruction_and_move();
+    auto instruction = fetch_instruction_and_move(sandbox);
     using Operations = bytecode::Operations;
     switch(instruction.get_operation()) {
         case Operations::ADD:   return Interpreter::instruction_ADD(sandbox, instruction);
@@ -50,6 +50,17 @@ void Interpreter::run_next_instruction(SandBox& sandbox) {
         default:
             throw std::runtime_error("Operations Unknown");
     }
+}
+
+Instruction Interpreter::fetch_instruction(SandBox const& sandbox) {
+    auto pc = sandbox.get_pc(); 
+    return Instruction(sandbox.get_memory_at(pc), sandbox.get_memory_at(pc + 4), sandbox.get_memory_at(pc + 8)); 
+}
+
+Instruction Interpreter::fetch_instruction_and_move(SandBox& sandbox) {
+    auto inst = fetch_instruction(sandbox); 
+    sandbox.set_pc(sandbox.get_pc() + inst.get_byte_size()); 
+    return inst; 
 }
 
 void Interpreter::write_to(SandBox& sandbox, Argument const& arg, ui32 value) {

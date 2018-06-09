@@ -86,7 +86,7 @@ STATIC_LINK_FLAG := rcs
 
 # Include path
 # Must be use with -I
-INC_FLAG := -I $(INC_FOLDER) -I lib/bytecode-description/include
+INC_FLAG := -I $(INC_FOLDER) -I lib/bytecode-description/include -I lib/sandbox/include
 
 #####
 ##### LIBRARY
@@ -94,19 +94,23 @@ INC_FLAG := -I $(INC_FOLDER) -I lib/bytecode-description/include
 
 # Path to libaries if not in $PATH, for example (relative to the project folder): lib/
 # Must be use with -L
-LIBS_PATH := -L lib/bytecode-description/build/static 
+LIBS_PATH := -L lib/bytecode-description/build/static -L lib/sandbox/build/static 
 
 # For example: -lsfml-graphics
-LIBS := -lbytecode_desc
+LIBS := -lbytecode_desc -lsandbox
 
 # Library that require to be build
-LIB_TO_BUILD := lib/bytecode-description/build/static/libbytecode_desc.a
+LIB_TO_BUILD := lib/bytecode-description/build/static/libbytecode_desc.a lib/sandbox/build/static/libsandbox.a
 
 # Create rules to build the libraries
 
 lib/bytecode-description/build/static/libbytecode_desc.a:
 	@$(call _special,BUILDING STATIC LIBRARY ($@)...)
 	@cd lib/bytecode-description/ && make | sed "s/^/\t/"
+
+lib/sandbox/build/static/libsandbox.a:
+	@$(call _special,BUILDING STATIC LIBRARY ($@)...)
+	@cd lib/sandbox/ && make | sed "s/^/\t/"
 
 ###############################################
 #                   PRIVATE                   #

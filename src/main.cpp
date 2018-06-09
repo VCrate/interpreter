@@ -59,7 +59,7 @@ int main(int argc, char** argv) {
     std::cout << "# Start #" << std::endl;
 
     while(!sandbox.is_halted() && sandbox.get_pc() < 100) {
-        auto is = sandbox.get_instruction();
+        auto is = Interpreter::fetch_instruction(sandbox);
         if (print_instructions)
             std::cout << "\033[31m\033[1m< " << sandbox.get_pc() << " : " << is.to_string() << " >\033[0m"; 
         Interpreter::run_next_instruction(sandbox);
