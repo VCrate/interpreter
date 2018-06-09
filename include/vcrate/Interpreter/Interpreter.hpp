@@ -40,7 +40,7 @@ private:
     static void instruction_AND(SandBox& sandbox, Instruction const& instruction);
     static void instruction_OR(SandBox& sandbox, Instruction const& instruction);
     static void instruction_XOR(SandBox& sandbox, Instruction const& instruction);
-    static void instruction_NEG(SandBox& sandbox, Instruction const& instruction);
+    static void instruction_NOT(SandBox& sandbox, Instruction const& instruction);
     static void instruction_SHL(SandBox& sandbox, Instruction const& instruction);
     static void instruction_RTL(SandBox& sandbox, Instruction const& instruction);
     static void instruction_SHR(SandBox& sandbox, Instruction const& instruction);

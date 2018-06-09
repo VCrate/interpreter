@@ -28,7 +28,7 @@ void Interpreter::run_next_instruction(SandBox& sandbox) {
         case Operations::AND:   return Interpreter::instruction_AND(sandbox, instruction);
         case Operations::OR:    return Interpreter::instruction_OR(sandbox, instruction);
         case Operations::XOR:   return Interpreter::instruction_XOR(sandbox, instruction);
-        case Operations::NEG:   return Interpreter::instruction_NEG(sandbox, instruction);
+        case Operations::NOT:   return Interpreter::instruction_NOT(sandbox, instruction);
         case Operations::SHL:   return Interpreter::instruction_SHL(sandbox, instruction);
         case Operations::RTL:   return Interpreter::instruction_RTL(sandbox, instruction);
         case Operations::SHR:   return Interpreter::instruction_SHR(sandbox, instruction);
@@ -238,7 +238,7 @@ void Interpreter::instruction_XOR(SandBox& sandbox, Instruction const& instructi
     );
 }
 
-void Interpreter::instruction_NEG(SandBox& sandbox, Instruction const& instruction) {
+void Interpreter::instruction_NOT(SandBox& sandbox, Instruction const& instruction) {
     auto arg = instruction.get_complete_argument();
     Interpreter::write_to(sandbox, 
         arg,
