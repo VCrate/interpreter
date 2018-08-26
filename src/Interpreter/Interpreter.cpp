@@ -2,20 +2,59 @@
 
 #include <iostream>
 #include <bitset>
+#include <cmath>
 
 namespace vcrate { namespace interpreter {
+
+template<typename In, typename Out>
+Out convert(In in) {
+    union U {
+        In in;
+        Out out;
+    };
+    return U { .in = in }.out;
+}
+
+float has_float(int i) {
+    return convert<int, float>(i);
+}
+
+float has_float(unsigned i) {
+    return convert<unsigned, float>(i);
+}
+
+int has_int(unsigned f) {
+    return convert<unsigned, int>(f);
+}
+
+int has_int(float f) {
+    return convert<float, int>(f);
+}
+
+unsigned has_unsigned(float f) {
+    return convert<float, unsigned>(f);
+}
+
+unsigned has_unsigned(int f) {
+    return convert<int, unsigned>(f);
+}
 
 void Interpreter::run_next_instruction(SandBox& sandbox) {
     auto instruction = fetch_instruction_and_move(sandbox);
     using Operations = bytecode::Operations;
     switch(instruction.get_operation()) {
         case Operations::ADD:   return Interpreter::instruction_ADD(sandbox, instruction);
+        case Operations::ADDF:  return Interpreter::instruction_ADDF(sandbox, instruction);
         case Operations::SUB:   return Interpreter::instruction_SUB(sandbox, instruction);
+        case Operations::SUBF:  return Interpreter::instruction_SUBF(sandbox, instruction);
         case Operations::MOD:   return Interpreter::instruction_MOD(sandbox, instruction);
+        case Operations::MODF:  return Interpreter::instruction_MODF(sandbox, instruction);
         case Operations::MUL:   return Interpreter::instruction_MUL(sandbox, instruction);
         case Operations::MULU:  return Interpreter::instruction_MULU(sandbox, instruction);
+        case Operations::MULF:  return Interpreter::instruction_MULF(sandbox, instruction);
         case Operations::DIV:   return Interpreter::instruction_DIV(sandbox, instruction);
         case Operations::DIVU:  return Interpreter::instruction_DIVU(sandbox, instruction);
+        case Operations::DIVF:  return Interpreter::instruction_DIVF(sandbox, instruction);
         case Operations::MOV:   return Interpreter::instruction_MOV(sandbox, instruction);
         case Operations::LEA:   return Interpreter::instruction_LEA(sandbox, instruction);
         case Operations::POP:   return Interpreter::instruction_POP(sandbox, instruction);
@@ -35,9 +74,11 @@ void Interpreter::run_next_instruction(SandBox& sandbox) {
         case Operations::RTR:   return Interpreter::instruction_RTR(sandbox, instruction);
         case Operations::SWP:   return Interpreter::instruction_SWP(sandbox, instruction);
         case Operations::CMP:   return Interpreter::instruction_CMP(sandbox, instruction);
-        case Operations::CMPU:   return Interpreter::instruction_CMPU(sandbox, instruction);
+        case Operations::CMPU:  return Interpreter::instruction_CMPU(sandbox, instruction);
         case Operations::INC:   return Interpreter::instruction_INC(sandbox, instruction);
+        case Operations::INCF:  return Interpreter::instruction_INCF(sandbox, instruction);
         case Operations::DEC:   return Interpreter::instruction_DEC(sandbox, instruction);
+        case Operations::DECF:  return Interpreter::instruction_DECF(sandbox, instruction);
         case Operations::NEW:   return Interpreter::instruction_NEW(sandbox, instruction);
         case Operations::DEL:   return Interpreter::instruction_DEL(sandbox, instruction);
         case Operations::CALL:  return Interpreter::instruction_CALL(sandbox, instruction);
@@ -47,6 +88,12 @@ void Interpreter::run_next_instruction(SandBox& sandbox) {
         case Operations::HLT:   return Interpreter::instruction_HLT(sandbox, instruction);
         case Operations::OUT:   return Interpreter::instruction_OUT(sandbox, instruction);
         case Operations::DBG:   return Interpreter::instruction_DBG(sandbox, instruction);
+        case Operations::ITU:   return Interpreter::instruction_ITU(sandbox, instruction);
+        case Operations::ITF:   return Interpreter::instruction_ITF(sandbox, instruction);
+        case Operations::UTI:   return Interpreter::instruction_UTI(sandbox, instruction);
+        case Operations::UTF:   return Interpreter::instruction_UTF(sandbox, instruction);
+        case Operations::FTI:   return Interpreter::instruction_FTI(sandbox, instruction);
+        case Operations::FTU:   return Interpreter::instruction_FTU(sandbox, instruction);
         default:
             throw std::runtime_error("Operations Unknown");
     }
@@ -102,12 +149,30 @@ void Interpreter::instruction_ADD(SandBox& sandbox, Instruction const& instructi
     );
 }
 
+void Interpreter::instruction_ADDF(SandBox& sandbox, Instruction const& instruction) {
+    auto a0 = instruction.get_first_argument();
+    auto a1 = instruction.get_second_argument();
+    Interpreter::write_to(sandbox, 
+        a0,
+        has_unsigned(has_float(Interpreter::value_of(sandbox, a0)) + has_float(Interpreter::value_of(sandbox, a1)))
+    );
+}
+
 void Interpreter::instruction_SUB(SandBox& sandbox, Instruction const& instruction) {
     auto a0 = instruction.get_first_argument();
     auto a1 = instruction.get_second_argument();
     Interpreter::write_to(sandbox, 
         a0,
         Interpreter::value_of(sandbox, a0) - Interpreter::value_of(sandbox, a1)
+    );
+}
+
+void Interpreter::instruction_SUBF(SandBox& sandbox, Instruction const& instruction) {
+    auto a0 = instruction.get_first_argument();
+    auto a1 = instruction.get_second_argument();
+    Interpreter::write_to(sandbox, 
+        a0,
+        has_unsigned(has_float(Interpreter::value_of(sandbox, a0)) - has_float(Interpreter::value_of(sandbox, a1)))
     );
 }
 
@@ -120,12 +185,21 @@ void Interpreter::instruction_MOD(SandBox& sandbox, Instruction const& instructi
     );
 }
 
+void Interpreter::instruction_MODF(SandBox& sandbox, Instruction const& instruction) {
+    auto a0 = instruction.get_first_argument();
+    auto a1 = instruction.get_second_argument();
+    Interpreter::write_to(sandbox, 
+        a0,
+        has_unsigned(std::fmod(has_float(Interpreter::value_of(sandbox, a0)), has_float(Interpreter::value_of(sandbox, a1))))
+    );
+}
+
 void Interpreter::instruction_MUL(SandBox& sandbox, Instruction const& instruction) {
     auto a0 = instruction.get_first_argument();
     auto a1 = instruction.get_second_argument();
     Interpreter::write_to(sandbox, 
         a0,
-        static_cast<i32>(Interpreter::value_of(sandbox, a0)) * static_cast<i32>(Interpreter::value_of(sandbox, a1))
+        has_unsigned(has_int(Interpreter::value_of(sandbox, a0)) * has_int(Interpreter::value_of(sandbox, a1)))
     );
 }
 
@@ -138,13 +212,22 @@ void Interpreter::instruction_MULU(SandBox& sandbox, Instruction const& instruct
     );
 }
 
+void Interpreter::instruction_MULF(SandBox& sandbox, Instruction const& instruction) {
+    auto a0 = instruction.get_first_argument();
+    auto a1 = instruction.get_second_argument();
+    Interpreter::write_to(sandbox, 
+        a0,
+        has_unsigned(has_float(Interpreter::value_of(sandbox, a0)) * has_float(Interpreter::value_of(sandbox, a1)))
+    );
+}
+
 void Interpreter::instruction_DIV(SandBox& sandbox, Instruction const& instruction) {
     // TODO : exception if a1 is 0
     auto a0 = instruction.get_first_argument();
     auto a1 = instruction.get_second_argument();
     Interpreter::write_to(sandbox, 
         a0,
-        static_cast<i32>(Interpreter::value_of(sandbox, a0)) / static_cast<i32>(Interpreter::value_of(sandbox, a1))
+        has_unsigned(has_int(Interpreter::value_of(sandbox, a0)) / has_int(Interpreter::value_of(sandbox, a1)))
     );
 }
 
@@ -154,6 +237,15 @@ void Interpreter::instruction_DIVU(SandBox& sandbox, Instruction const& instruct
     Interpreter::write_to(sandbox, 
         a0,
         Interpreter::value_of(sandbox, a0) / Interpreter::value_of(sandbox, a1)
+    );
+}
+
+void Interpreter::instruction_DIVF(SandBox& sandbox, Instruction const& instruction) {
+    auto a0 = instruction.get_first_argument();
+    auto a1 = instruction.get_second_argument();
+    Interpreter::write_to(sandbox, 
+        a0,
+        has_unsigned(has_float(Interpreter::value_of(sandbox, a0)) / has_float(Interpreter::value_of(sandbox, a1)))
     );
 }
 
@@ -321,11 +413,27 @@ void Interpreter::instruction_INC(SandBox& sandbox, Instruction const& instructi
     );
 }
 
+void Interpreter::instruction_INCF(SandBox& sandbox, Instruction const& instruction) {
+    auto arg = instruction.get_complete_argument();
+    Interpreter::write_to(sandbox, 
+        arg,
+        has_unsigned(has_float(Interpreter::value_of(sandbox, arg)) + 1.f)
+    );
+}
+
 void Interpreter::instruction_DEC(SandBox& sandbox, Instruction const& instruction) {
     auto arg = instruction.get_complete_argument();
     Interpreter::write_to(sandbox, 
         arg,
         Interpreter::value_of(sandbox, arg) - 1
+    );
+}
+
+void Interpreter::instruction_DECF(SandBox& sandbox, Instruction const& instruction) {
+    auto arg = instruction.get_complete_argument();
+    Interpreter::write_to(sandbox, 
+        arg,
+        has_unsigned(has_float(Interpreter::value_of(sandbox, arg)) - 1.f)
     );
 }
 
@@ -380,6 +488,54 @@ void Interpreter::instruction_OUT(SandBox& sandbox, Instruction const& instructi
 void Interpreter::instruction_DBG(SandBox& sandbox, Instruction const& instruction) {
     auto arg = instruction.get_complete_argument();
     std::cout << Interpreter::value_of(sandbox, arg);
+}
+
+void Interpreter::instruction_ITU(SandBox& sandbox, Instruction const& instruction) {
+    auto arg = instruction.get_complete_argument();
+    Interpreter::write_to(sandbox, 
+        arg,
+        static_cast<unsigned>(has_int(Interpreter::value_of(sandbox, arg)))
+    );
+}
+
+void Interpreter::instruction_ITF(SandBox& sandbox, Instruction const& instruction) {
+    auto arg = instruction.get_complete_argument();
+    Interpreter::write_to(sandbox, 
+        arg,
+        has_unsigned(static_cast<float>(has_int(Interpreter::value_of(sandbox, arg))))
+    );
+}
+
+void Interpreter::instruction_UTF(SandBox& sandbox, Instruction const& instruction) {
+    auto arg = instruction.get_complete_argument();
+    Interpreter::write_to(sandbox, 
+        arg,
+        has_unsigned(static_cast<float>(Interpreter::value_of(sandbox, arg)))
+    );
+}
+
+void Interpreter::instruction_UTI(SandBox& sandbox, Instruction const& instruction) {
+    auto arg = instruction.get_complete_argument();
+    Interpreter::write_to(sandbox, 
+        arg,
+        has_unsigned(static_cast<int>(Interpreter::value_of(sandbox, arg)))
+    );
+}
+
+void Interpreter::instruction_FTI(SandBox& sandbox, Instruction const& instruction) {
+    auto arg = instruction.get_complete_argument();
+    Interpreter::write_to(sandbox, 
+        arg,
+        has_unsigned(static_cast<int>(has_float(Interpreter::value_of(sandbox, arg))))
+    );
+}
+
+void Interpreter::instruction_FTU(SandBox& sandbox, Instruction const& instruction) {
+    auto arg = instruction.get_complete_argument();
+    Interpreter::write_to(sandbox, 
+        arg,
+        static_cast<unsigned>(has_float(Interpreter::value_of(sandbox, arg)))
+    );
 }
 
 }}
