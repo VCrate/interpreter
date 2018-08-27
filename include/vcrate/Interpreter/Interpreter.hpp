@@ -66,6 +66,8 @@ private:
     static void instruction_HLT(SandBox& sandbox, Instruction const& instruction);
     static void instruction_OUT(SandBox& sandbox, Instruction const& instruction);
     static void instruction_DBG(SandBox& sandbox, Instruction const& instruction);
+    static void instruction_DBGU(SandBox& sandbox, Instruction const& instruction);
+    static void instruction_DBGF(SandBox& sandbox, Instruction const& instruction);
     static void instruction_ITU(SandBox& sandbox, Instruction const& instruction);
     static void instruction_ITF(SandBox& sandbox, Instruction const& instruction);
     static void instruction_UTI(SandBox& sandbox, Instruction const& instruction);

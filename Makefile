@@ -73,9 +73,9 @@ header-of = $(1:%$(EXT_SRC_FILE)=vcrate/%$(EXT_INC_FILE))
 # Relative to $(SRC_FOLDER)
 SRC_EXCLUDE_FILE := 
 # All files that are not use for libraries, don't add src/
-SRC_MAINS := disassembler.cpp main.cpp test.cpp
+SRC_MAINS := disassembler.cpp main.cpp test.cpp try.cpp
 # The main file to use (must be in $(SRC_MAINS))
-SRC_MAIN := test.cpp
+SRC_MAIN := main.cpp
 
 #####
 ##### FLAGS
@@ -106,11 +106,11 @@ LIB_TO_BUILD := lib/bytecode-description/build/static/libbytecode_desc.a lib/san
 
 lib/bytecode-description/build/static/libbytecode_desc.a:
 	@$(call _special,BUILDING STATIC LIBRARY ($@)...)
-	@cd lib/bytecode-description/ && make | sed "s/^/\t/"
+	@cd lib/bytecode-description/ && make MAKEFLAGS="" | sed "s/^/\t/"
 
 lib/sandbox/build/static/libsandbox.a:
 	@$(call _special,BUILDING STATIC LIBRARY ($@)...)
-	@cd lib/sandbox/ && make | sed "s/^/\t/"
+	@cd lib/sandbox/ && make MAKEFLAGS="" | sed "s/^/\t/"
 
 ###############################################
 #                   PRIVATE                   #
@@ -220,6 +220,8 @@ export LD_LIBRARY_PATH += $(_LIB_PATH_LD)
 .PHONY: clean clean-executable clean-shared clean-static
 .PHONY: re re-executable re-shared re-static
 .PHONY: re-run run
+.PHONY: disassembler run-disassembler
+.PHONY: try run-try
 
 .DEFAULT_GOAL := all
 
@@ -296,6 +298,18 @@ run:
 re-run:
 	@make re-executable
 	@make run
+
+disassembler: 
+	@make SRC_MAIN=disassembler.cpp  PROJECT_NAME=disassembler
+
+run-disassembler: 
+	@make run SRC_MAIN=disassembler.cpp  PROJECT_NAME=disassembler
+
+try: 
+	@make SRC_MAIN=try.cpp  PROJECT_NAME=try
+
+run-try: 
+	@make run SRC_MAIN=try.cpp  PROJECT_NAME=try
 
 valgrind:
 	@make executable

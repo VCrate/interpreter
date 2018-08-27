@@ -88,6 +88,8 @@ void Interpreter::run_next_instruction(SandBox& sandbox) {
         case Operations::HLT:   return Interpreter::instruction_HLT(sandbox, instruction);
         case Operations::OUT:   return Interpreter::instruction_OUT(sandbox, instruction);
         case Operations::DBG:   return Interpreter::instruction_DBG(sandbox, instruction);
+        case Operations::DBGU:  return Interpreter::instruction_DBGU(sandbox, instruction);
+        case Operations::DBGF:  return Interpreter::instruction_DBGF(sandbox, instruction);
         case Operations::ITU:   return Interpreter::instruction_ITU(sandbox, instruction);
         case Operations::ITF:   return Interpreter::instruction_ITF(sandbox, instruction);
         case Operations::UTI:   return Interpreter::instruction_UTI(sandbox, instruction);
@@ -487,7 +489,17 @@ void Interpreter::instruction_OUT(SandBox& sandbox, Instruction const& instructi
 
 void Interpreter::instruction_DBG(SandBox& sandbox, Instruction const& instruction) {
     auto arg = instruction.get_complete_argument();
+    std::cout << has_int(Interpreter::value_of(sandbox, arg));
+}
+
+void Interpreter::instruction_DBGU(SandBox& sandbox, Instruction const& instruction) {
+    auto arg = instruction.get_complete_argument();
     std::cout << Interpreter::value_of(sandbox, arg);
+}
+
+void Interpreter::instruction_DBGF(SandBox& sandbox, Instruction const& instruction) {
+    auto arg = instruction.get_complete_argument();
+    std::cout << has_float(Interpreter::value_of(sandbox, arg));
 }
 
 void Interpreter::instruction_ITU(SandBox& sandbox, Instruction const& instruction) {
