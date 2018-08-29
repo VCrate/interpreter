@@ -3,6 +3,7 @@
 #include <vcrate/vcx/Executable.hpp>
 #include <vcrate/Alias.hpp>
 #include <vcrate/Interpreter/Interpreter.hpp>
+#include <vcrate/instruction/Instruction.hpp>
 #include <vcrate/bytecode/Operations.hpp>
 
 #include <fstream>
@@ -10,6 +11,7 @@
 #include <sstream>
 #include <iomanip>
 
+using namespace vcrate::instruction;
 using namespace vcrate::interpreter;
 using namespace vcrate::vcx;
 using namespace vcrate;

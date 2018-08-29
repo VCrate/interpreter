@@ -101,48 +101,48 @@ void Interpreter::run_next_instruction(SandBox& sandbox) {
     }
 }
 
-Instruction Interpreter::fetch_instruction(SandBox const& sandbox) {
+instruction::Instruction Interpreter::fetch_instruction(SandBox const& sandbox) {
     auto pc = sandbox.get_pc(); 
-    return Instruction(sandbox.get_memory_at(pc), sandbox.get_memory_at(pc + 4), sandbox.get_memory_at(pc + 8)); 
+    return instruction::Instruction(sandbox.get_memory_at(pc), sandbox.get_memory_at(pc + 4), sandbox.get_memory_at(pc + 8)); 
 }
 
-Instruction Interpreter::fetch_instruction_and_move(SandBox& sandbox) {
+instruction::Instruction Interpreter::fetch_instruction_and_move(SandBox& sandbox) {
     auto inst = fetch_instruction(sandbox); 
     sandbox.set_pc(sandbox.get_pc() + inst.get_byte_size()); 
     return inst; 
 }
 
-void Interpreter::write_to(SandBox& sandbox, Argument const& arg, ui32 value) {
-    std::visit(Visitor {
-        [               ] (Value) -> void       { throw std::runtime_error("Cannot write to that argument"); },
-        [&sandbox, value] (Register arg)        { sandbox.set_register(arg.id, value); },
-        [&sandbox, value] (Displacement arg)    { sandbox.set_memory_at(sandbox.get_register(arg.reg.id) + arg.displacement, value); },
-        [&sandbox, value] (Address arg)         { sandbox.set_memory_at(arg.address, value); },
-        [&sandbox, value] (Deferred arg)        { sandbox.set_memory_at(sandbox.get_register(arg.reg.id), value); }
+void Interpreter::write_to(SandBox& sandbox, instruction::Argument const& arg, ui32 value) {
+    std::visit(instruction::Visitor {
+        [               ] (instruction::Value) -> void       { throw std::runtime_error("Cannot write to that argument"); },
+        [&sandbox, value] (instruction::Register arg)        { sandbox.set_register(arg.id, value); },
+        [&sandbox, value] (instruction::Displacement arg)    { sandbox.set_memory_at(sandbox.get_register(arg.reg.id) + arg.displacement, value); },
+        [&sandbox, value] (instruction::Address arg)         { sandbox.set_memory_at(arg.address, value); },
+        [&sandbox, value] (instruction::Deferred arg)        { sandbox.set_memory_at(sandbox.get_register(arg.reg.id), value); }
     }, arg);
 }
 
-ui32 Interpreter::value_of(SandBox& sandbox, Argument const& arg) {
-    return std::visit(Visitor {
-        [        ] (Value arg)          { return static_cast<ui32>(arg.value); },
-        [&sandbox] (Register arg)       { return sandbox.get_register(arg.id); },
-        [&sandbox] (Displacement arg)   { return sandbox.get_memory_at(sandbox.get_register(arg.reg.id) + arg.displacement); },
-        [&sandbox] (Address arg)        { return sandbox.get_memory_at(arg.address); },
-        [&sandbox] (Deferred arg)       { return sandbox.get_memory_at(sandbox.get_register(arg.reg.id)); }
+ui32 Interpreter::value_of(SandBox& sandbox, instruction::Argument const& arg) {
+    return std::visit(instruction::Visitor {
+        [        ] (instruction::Value arg)          { return static_cast<ui32>(arg.value); },
+        [&sandbox] (instruction::Register arg)       { return sandbox.get_register(arg.id); },
+        [&sandbox] (instruction::Displacement arg)   { return sandbox.get_memory_at(sandbox.get_register(arg.reg.id) + arg.displacement); },
+        [&sandbox] (instruction::Address arg)        { return sandbox.get_memory_at(arg.address); },
+        [&sandbox] (instruction::Deferred arg)       { return sandbox.get_memory_at(sandbox.get_register(arg.reg.id)); }
     }, arg);
 }
 
-ui32 Interpreter::address_of(SandBox& sandbox, Argument const& arg) {
-    return std::visit(Visitor {
-        [        ] (Value) -> ui32      { throw std::runtime_error("This argument has no address"); },
-        [&sandbox] (Register) -> ui32   { throw std::runtime_error("This argument has no address"); },
-        [&sandbox] (Displacement arg)   { return sandbox.get_register(arg.reg.id) + arg.displacement; },
-        [&sandbox] (Address arg)        { return static_cast<ui32>(arg.address); },
-        [&sandbox] (Deferred arg)       { return sandbox.get_register(arg.reg.id); }
+ui32 Interpreter::address_of(SandBox& sandbox, instruction::Argument const& arg) {
+    return std::visit(instruction::Visitor {
+        [        ] (instruction::Value) -> ui32      { throw std::runtime_error("This argument has no address"); },
+        [&sandbox] (instruction::Register) -> ui32   { throw std::runtime_error("This argument has no address"); },
+        [&sandbox] (instruction::Displacement arg)   { return sandbox.get_register(arg.reg.id) + arg.displacement; },
+        [&sandbox] (instruction::Address arg)        { return static_cast<ui32>(arg.address); },
+        [&sandbox] (instruction::Deferred arg)       { return sandbox.get_register(arg.reg.id); }
     }, arg);
 }
 
-void Interpreter::instruction_ADD(SandBox& sandbox, Instruction const& instruction) {
+void Interpreter::instruction_ADD(SandBox& sandbox, instruction::Instruction const& instruction) {
     auto a0 = instruction.get_first_argument();
     auto a1 = instruction.get_second_argument();
     Interpreter::write_to(sandbox, 
@@ -151,7 +151,7 @@ void Interpreter::instruction_ADD(SandBox& sandbox, Instruction const& instructi
     );
 }
 
-void Interpreter::instruction_ADDF(SandBox& sandbox, Instruction const& instruction) {
+void Interpreter::instruction_ADDF(SandBox& sandbox, instruction::Instruction const& instruction) {
     auto a0 = instruction.get_first_argument();
     auto a1 = instruction.get_second_argument();
     Interpreter::write_to(sandbox, 
@@ -160,7 +160,7 @@ void Interpreter::instruction_ADDF(SandBox& sandbox, Instruction const& instruct
     );
 }
 
-void Interpreter::instruction_SUB(SandBox& sandbox, Instruction const& instruction) {
+void Interpreter::instruction_SUB(SandBox& sandbox, instruction::Instruction const& instruction) {
     auto a0 = instruction.get_first_argument();
     auto a1 = instruction.get_second_argument();
     Interpreter::write_to(sandbox, 
@@ -169,7 +169,7 @@ void Interpreter::instruction_SUB(SandBox& sandbox, Instruction const& instructi
     );
 }
 
-void Interpreter::instruction_SUBF(SandBox& sandbox, Instruction const& instruction) {
+void Interpreter::instruction_SUBF(SandBox& sandbox, instruction::Instruction const& instruction) {
     auto a0 = instruction.get_first_argument();
     auto a1 = instruction.get_second_argument();
     Interpreter::write_to(sandbox, 
@@ -178,7 +178,7 @@ void Interpreter::instruction_SUBF(SandBox& sandbox, Instruction const& instruct
     );
 }
 
-void Interpreter::instruction_MOD(SandBox& sandbox, Instruction const& instruction) {
+void Interpreter::instruction_MOD(SandBox& sandbox, instruction::Instruction const& instruction) {
     auto a0 = instruction.get_first_argument();
     auto a1 = instruction.get_second_argument();
     Interpreter::write_to(sandbox, 
@@ -187,7 +187,7 @@ void Interpreter::instruction_MOD(SandBox& sandbox, Instruction const& instructi
     );
 }
 
-void Interpreter::instruction_MODF(SandBox& sandbox, Instruction const& instruction) {
+void Interpreter::instruction_MODF(SandBox& sandbox, instruction::Instruction const& instruction) {
     auto a0 = instruction.get_first_argument();
     auto a1 = instruction.get_second_argument();
     Interpreter::write_to(sandbox, 
@@ -196,7 +196,7 @@ void Interpreter::instruction_MODF(SandBox& sandbox, Instruction const& instruct
     );
 }
 
-void Interpreter::instruction_MUL(SandBox& sandbox, Instruction const& instruction) {
+void Interpreter::instruction_MUL(SandBox& sandbox, instruction::Instruction const& instruction) {
     auto a0 = instruction.get_first_argument();
     auto a1 = instruction.get_second_argument();
     Interpreter::write_to(sandbox, 
@@ -205,7 +205,7 @@ void Interpreter::instruction_MUL(SandBox& sandbox, Instruction const& instructi
     );
 }
 
-void Interpreter::instruction_MULU(SandBox& sandbox, Instruction const& instruction) {
+void Interpreter::instruction_MULU(SandBox& sandbox, instruction::Instruction const& instruction) {
     auto a0 = instruction.get_first_argument();
     auto a1 = instruction.get_second_argument();
     Interpreter::write_to(sandbox, 
@@ -214,7 +214,7 @@ void Interpreter::instruction_MULU(SandBox& sandbox, Instruction const& instruct
     );
 }
 
-void Interpreter::instruction_MULF(SandBox& sandbox, Instruction const& instruction) {
+void Interpreter::instruction_MULF(SandBox& sandbox, instruction::Instruction const& instruction) {
     auto a0 = instruction.get_first_argument();
     auto a1 = instruction.get_second_argument();
     Interpreter::write_to(sandbox, 
@@ -223,7 +223,7 @@ void Interpreter::instruction_MULF(SandBox& sandbox, Instruction const& instruct
     );
 }
 
-void Interpreter::instruction_DIV(SandBox& sandbox, Instruction const& instruction) {
+void Interpreter::instruction_DIV(SandBox& sandbox, instruction::Instruction const& instruction) {
     // TODO : exception if a1 is 0
     auto a0 = instruction.get_first_argument();
     auto a1 = instruction.get_second_argument();
@@ -233,7 +233,7 @@ void Interpreter::instruction_DIV(SandBox& sandbox, Instruction const& instructi
     );
 }
 
-void Interpreter::instruction_DIVU(SandBox& sandbox, Instruction const& instruction) {
+void Interpreter::instruction_DIVU(SandBox& sandbox, instruction::Instruction const& instruction) {
     auto a0 = instruction.get_first_argument();
     auto a1 = instruction.get_second_argument();
     Interpreter::write_to(sandbox, 
@@ -242,7 +242,7 @@ void Interpreter::instruction_DIVU(SandBox& sandbox, Instruction const& instruct
     );
 }
 
-void Interpreter::instruction_DIVF(SandBox& sandbox, Instruction const& instruction) {
+void Interpreter::instruction_DIVF(SandBox& sandbox, instruction::Instruction const& instruction) {
     auto a0 = instruction.get_first_argument();
     auto a1 = instruction.get_second_argument();
     Interpreter::write_to(sandbox, 
@@ -251,7 +251,7 @@ void Interpreter::instruction_DIVF(SandBox& sandbox, Instruction const& instruct
     );
 }
 
-void Interpreter::instruction_MOV(SandBox& sandbox, Instruction const& instruction) {
+void Interpreter::instruction_MOV(SandBox& sandbox, instruction::Instruction const& instruction) {
     auto a0 = instruction.get_first_argument();
     auto a1 = instruction.get_second_argument();
     Interpreter::write_to(sandbox, 
@@ -259,7 +259,7 @@ void Interpreter::instruction_MOV(SandBox& sandbox, Instruction const& instructi
         Interpreter::value_of(sandbox, a1)
     );
 }
-void Interpreter::instruction_LEA(SandBox& sandbox, Instruction const& instruction) {
+void Interpreter::instruction_LEA(SandBox& sandbox, instruction::Instruction const& instruction) {
     auto a0 = instruction.get_first_argument();
     auto a1 = instruction.get_second_argument();
     Interpreter::write_to(sandbox, 
@@ -268,44 +268,44 @@ void Interpreter::instruction_LEA(SandBox& sandbox, Instruction const& instructi
     );
 }
 
-void Interpreter::instruction_POP(SandBox& sandbox, Instruction const& instruction) {
+void Interpreter::instruction_POP(SandBox& sandbox, instruction::Instruction const& instruction) {
     Interpreter::write_to(sandbox, instruction.get_complete_argument(), sandbox.pop_32());
 }
 
-void Interpreter::instruction_PUSH(SandBox& sandbox, Instruction const& instruction) {
+void Interpreter::instruction_PUSH(SandBox& sandbox, instruction::Instruction const& instruction) {
     sandbox.push_32(Interpreter::value_of(sandbox, instruction.get_complete_argument()));
 }
 
-void Interpreter::instruction_JMP(SandBox& sandbox, Instruction const& instruction) {
+void Interpreter::instruction_JMP(SandBox& sandbox, instruction::Instruction const& instruction) {
     auto arg = instruction.get_complete_argument();
     auto pc = Interpreter::value_of(sandbox, arg);
     auto arg_type = get_argument_type(arg);
-    if (arg_type == ArgumentType::Address || arg_type == ArgumentType::Value)
+    if (arg_type == instruction::ArgumentType::Address || arg_type == instruction::ArgumentType::Value)
         pc += sandbox.get_pc() - instruction.get_byte_size();
     sandbox.set_pc(pc);
 }
 
-void Interpreter::instruction_JMPE(SandBox& sandbox, Instruction const& instruction) {
+void Interpreter::instruction_JMPE(SandBox& sandbox, instruction::Instruction const& instruction) {
     if (sandbox.get_flag_zero())
         Interpreter::instruction_JMP(sandbox, instruction);
 }
 
-void Interpreter::instruction_JMPNE(SandBox& sandbox, Instruction const& instruction) {
+void Interpreter::instruction_JMPNE(SandBox& sandbox, instruction::Instruction const& instruction) {
     if (!sandbox.get_flag_zero())
         Interpreter::instruction_JMP(sandbox, instruction);
 }
 
-void Interpreter::instruction_JMPG(SandBox& sandbox, Instruction const& instruction) {
+void Interpreter::instruction_JMPG(SandBox& sandbox, instruction::Instruction const& instruction) {
     if (sandbox.get_flag_greater())
         Interpreter::instruction_JMP(sandbox, instruction);
 }
 
-void Interpreter::instruction_JMPGE(SandBox& sandbox, Instruction const& instruction) {
+void Interpreter::instruction_JMPGE(SandBox& sandbox, instruction::Instruction const& instruction) {
     if (sandbox.get_flag_greater() || sandbox.get_flag_zero())
         Interpreter::instruction_JMP(sandbox, instruction);
 }
 
-void Interpreter::instruction_AND(SandBox& sandbox, Instruction const& instruction) {
+void Interpreter::instruction_AND(SandBox& sandbox, instruction::Instruction const& instruction) {
     auto a0 = instruction.get_first_argument();
     auto a1 = instruction.get_second_argument();
     Interpreter::write_to(sandbox, 
@@ -314,7 +314,7 @@ void Interpreter::instruction_AND(SandBox& sandbox, Instruction const& instructi
     );
 }
 
-void Interpreter::instruction_OR(SandBox& sandbox, Instruction const& instruction) {
+void Interpreter::instruction_OR(SandBox& sandbox, instruction::Instruction const& instruction) {
     auto a0 = instruction.get_first_argument();
     auto a1 = instruction.get_second_argument();
     Interpreter::write_to(sandbox, 
@@ -323,7 +323,7 @@ void Interpreter::instruction_OR(SandBox& sandbox, Instruction const& instructio
     );
 }
 
-void Interpreter::instruction_XOR(SandBox& sandbox, Instruction const& instruction) {
+void Interpreter::instruction_XOR(SandBox& sandbox, instruction::Instruction const& instruction) {
     auto a0 = instruction.get_first_argument();
     auto a1 = instruction.get_second_argument();
     Interpreter::write_to(sandbox, 
@@ -332,7 +332,7 @@ void Interpreter::instruction_XOR(SandBox& sandbox, Instruction const& instructi
     );
 }
 
-void Interpreter::instruction_NOT(SandBox& sandbox, Instruction const& instruction) {
+void Interpreter::instruction_NOT(SandBox& sandbox, instruction::Instruction const& instruction) {
     auto arg = instruction.get_complete_argument();
     Interpreter::write_to(sandbox, 
         arg,
@@ -340,7 +340,7 @@ void Interpreter::instruction_NOT(SandBox& sandbox, Instruction const& instructi
     );
 }
 
-void Interpreter::instruction_SHL(SandBox& sandbox, Instruction const& instruction) {
+void Interpreter::instruction_SHL(SandBox& sandbox, instruction::Instruction const& instruction) {
     auto a0 = instruction.get_first_argument();
     auto a1 = instruction.get_second_argument();
     Interpreter::write_to(sandbox, 
@@ -349,7 +349,7 @@ void Interpreter::instruction_SHL(SandBox& sandbox, Instruction const& instructi
     );
 }
 
-void Interpreter::instruction_RTL(SandBox& sandbox, Instruction const& instruction) {
+void Interpreter::instruction_RTL(SandBox& sandbox, instruction::Instruction const& instruction) {
     auto a0 = instruction.get_first_argument();
     auto a1 = instruction.get_second_argument();
     ui32 v0 = Interpreter::value_of(sandbox, a0);
@@ -360,7 +360,7 @@ void Interpreter::instruction_RTL(SandBox& sandbox, Instruction const& instructi
     );
 }
 
-void Interpreter::instruction_SHR(SandBox& sandbox, Instruction const& instruction) {
+void Interpreter::instruction_SHR(SandBox& sandbox, instruction::Instruction const& instruction) {
     auto a0 = instruction.get_first_argument();
     auto a1 = instruction.get_second_argument();
     Interpreter::write_to(sandbox, 
@@ -369,7 +369,7 @@ void Interpreter::instruction_SHR(SandBox& sandbox, Instruction const& instructi
     );
 }
 
-void Interpreter::instruction_RTR(SandBox& sandbox, Instruction const& instruction) {
+void Interpreter::instruction_RTR(SandBox& sandbox, instruction::Instruction const& instruction) {
     auto a0 = instruction.get_first_argument();
     auto a1 = instruction.get_second_argument();
     ui32 v0 = Interpreter::value_of(sandbox, a0);
@@ -380,7 +380,7 @@ void Interpreter::instruction_RTR(SandBox& sandbox, Instruction const& instructi
     );
 }
 
-void Interpreter::instruction_SWP(SandBox& sandbox, Instruction const& instruction) {
+void Interpreter::instruction_SWP(SandBox& sandbox, instruction::Instruction const& instruction) {
     auto a0 = instruction.get_first_argument();
     auto a1 = instruction.get_second_argument();
     ui32 v0 = Interpreter::value_of(sandbox, a0);
@@ -389,7 +389,7 @@ void Interpreter::instruction_SWP(SandBox& sandbox, Instruction const& instructi
     Interpreter::write_to(sandbox, a1, v0);
 }
 
-void Interpreter::instruction_CMP(SandBox& sandbox, Instruction const& instruction) {
+void Interpreter::instruction_CMP(SandBox& sandbox, instruction::Instruction const& instruction) {
     auto a0 = instruction.get_first_argument();
     auto a1 = instruction.get_second_argument();
     ui32 v0 = static_cast<i32>(Interpreter::value_of(sandbox, a0));
@@ -398,7 +398,7 @@ void Interpreter::instruction_CMP(SandBox& sandbox, Instruction const& instructi
     sandbox.set_flag_greater(v0 > v1);
 }
 
-void Interpreter::instruction_CMPU(SandBox& sandbox, Instruction const& instruction) {
+void Interpreter::instruction_CMPU(SandBox& sandbox, instruction::Instruction const& instruction) {
     auto a0 = instruction.get_first_argument();
     auto a1 = instruction.get_second_argument();
     ui32 v0 = Interpreter::value_of(sandbox, a0);
@@ -407,7 +407,7 @@ void Interpreter::instruction_CMPU(SandBox& sandbox, Instruction const& instruct
     sandbox.set_flag_greater(v0 > v1);
 }
 
-void Interpreter::instruction_INC(SandBox& sandbox, Instruction const& instruction) {
+void Interpreter::instruction_INC(SandBox& sandbox, instruction::Instruction const& instruction) {
     auto arg = instruction.get_complete_argument();
     Interpreter::write_to(sandbox, 
         arg,
@@ -415,7 +415,7 @@ void Interpreter::instruction_INC(SandBox& sandbox, Instruction const& instructi
     );
 }
 
-void Interpreter::instruction_INCF(SandBox& sandbox, Instruction const& instruction) {
+void Interpreter::instruction_INCF(SandBox& sandbox, instruction::Instruction const& instruction) {
     auto arg = instruction.get_complete_argument();
     Interpreter::write_to(sandbox, 
         arg,
@@ -423,7 +423,7 @@ void Interpreter::instruction_INCF(SandBox& sandbox, Instruction const& instruct
     );
 }
 
-void Interpreter::instruction_DEC(SandBox& sandbox, Instruction const& instruction) {
+void Interpreter::instruction_DEC(SandBox& sandbox, instruction::Instruction const& instruction) {
     auto arg = instruction.get_complete_argument();
     Interpreter::write_to(sandbox, 
         arg,
@@ -431,7 +431,7 @@ void Interpreter::instruction_DEC(SandBox& sandbox, Instruction const& instructi
     );
 }
 
-void Interpreter::instruction_DECF(SandBox& sandbox, Instruction const& instruction) {
+void Interpreter::instruction_DECF(SandBox& sandbox, instruction::Instruction const& instruction) {
     auto arg = instruction.get_complete_argument();
     Interpreter::write_to(sandbox, 
         arg,
@@ -439,7 +439,7 @@ void Interpreter::instruction_DECF(SandBox& sandbox, Instruction const& instruct
     );
 }
 
-void Interpreter::instruction_NEW(SandBox& sandbox, Instruction const& instruction) {
+void Interpreter::instruction_NEW(SandBox& sandbox, instruction::Instruction const& instruction) {
     auto a0 = instruction.get_first_argument();
     auto a1 = instruction.get_second_argument();
     Interpreter::write_to(sandbox, 
@@ -448,61 +448,61 @@ void Interpreter::instruction_NEW(SandBox& sandbox, Instruction const& instructi
     );
 }
 
-void Interpreter::instruction_DEL(SandBox& sandbox, Instruction const& instruction) {
+void Interpreter::instruction_DEL(SandBox& sandbox, instruction::Instruction const& instruction) {
     auto arg = instruction.get_complete_argument();
     sandbox.deallocate(Interpreter::value_of(sandbox, arg));
 }
 
-void Interpreter::instruction_CALL(SandBox& sandbox, Instruction const& instruction) {
+void Interpreter::instruction_CALL(SandBox& sandbox, instruction::Instruction const& instruction) {
     auto arg = instruction.get_complete_argument();
     auto pc = Interpreter::value_of(sandbox, arg);
     auto arg_type = get_argument_type(arg);
-    if (arg_type == ArgumentType::Address || arg_type == ArgumentType::Value)
+    if (arg_type == instruction::ArgumentType::Address || arg_type == instruction::ArgumentType::Value)
         pc += sandbox.get_pc();
     sandbox.push_32(sandbox.get_pc());
     sandbox.set_pc(pc);
 }
 
-void Interpreter::instruction_RET(SandBox& sandbox, Instruction const&) {
+void Interpreter::instruction_RET(SandBox& sandbox, instruction::Instruction const&) {
     sandbox.set_pc(sandbox.pop_32());
 }
 
-void Interpreter::instruction_ETR(SandBox& sandbox, Instruction const&) {
+void Interpreter::instruction_ETR(SandBox& sandbox, instruction::Instruction const&) {
     sandbox.push_32(sandbox.get_bp());
     sandbox.set_bp(sandbox.get_sp());
 }
 
-void Interpreter::instruction_LVE(SandBox& sandbox, Instruction const&) {
+void Interpreter::instruction_LVE(SandBox& sandbox, instruction::Instruction const&) {
     sandbox.set_sp(sandbox.get_bp());
     sandbox.set_bp(sandbox.pop_32());
 }
 
-void Interpreter::instruction_HLT(SandBox& sandbox, Instruction const&) {
+void Interpreter::instruction_HLT(SandBox& sandbox, instruction::Instruction const&) {
     sandbox.halt();
 }
 
-void Interpreter::instruction_OUT(SandBox& sandbox, Instruction const& instruction) {
+void Interpreter::instruction_OUT(SandBox& sandbox, instruction::Instruction const& instruction) {
     auto arg = instruction.get_complete_argument();
     //std::cout << Interpreter::value_of(sandbox, arg) << std::endl;
     sandbox.output(static_cast<ui8>(Interpreter::value_of(sandbox, arg)));
 }
 
-void Interpreter::instruction_DBG(SandBox& sandbox, Instruction const& instruction) {
+void Interpreter::instruction_DBG(SandBox& sandbox, instruction::Instruction const& instruction) {
     auto arg = instruction.get_complete_argument();
     std::cout << has_int(Interpreter::value_of(sandbox, arg));
 }
 
-void Interpreter::instruction_DBGU(SandBox& sandbox, Instruction const& instruction) {
+void Interpreter::instruction_DBGU(SandBox& sandbox, instruction::Instruction const& instruction) {
     auto arg = instruction.get_complete_argument();
     std::cout << Interpreter::value_of(sandbox, arg);
 }
 
-void Interpreter::instruction_DBGF(SandBox& sandbox, Instruction const& instruction) {
+void Interpreter::instruction_DBGF(SandBox& sandbox, instruction::Instruction const& instruction) {
     auto arg = instruction.get_complete_argument();
     std::cout << has_float(Interpreter::value_of(sandbox, arg));
 }
 
-void Interpreter::instruction_ITU(SandBox& sandbox, Instruction const& instruction) {
+void Interpreter::instruction_ITU(SandBox& sandbox, instruction::Instruction const& instruction) {
     auto arg = instruction.get_complete_argument();
     Interpreter::write_to(sandbox, 
         arg,
@@ -510,7 +510,7 @@ void Interpreter::instruction_ITU(SandBox& sandbox, Instruction const& instructi
     );
 }
 
-void Interpreter::instruction_ITF(SandBox& sandbox, Instruction const& instruction) {
+void Interpreter::instruction_ITF(SandBox& sandbox, instruction::Instruction const& instruction) {
     auto arg = instruction.get_complete_argument();
     Interpreter::write_to(sandbox, 
         arg,
@@ -518,7 +518,7 @@ void Interpreter::instruction_ITF(SandBox& sandbox, Instruction const& instructi
     );
 }
 
-void Interpreter::instruction_UTF(SandBox& sandbox, Instruction const& instruction) {
+void Interpreter::instruction_UTF(SandBox& sandbox, instruction::Instruction const& instruction) {
     auto arg = instruction.get_complete_argument();
     Interpreter::write_to(sandbox, 
         arg,
@@ -526,7 +526,7 @@ void Interpreter::instruction_UTF(SandBox& sandbox, Instruction const& instructi
     );
 }
 
-void Interpreter::instruction_UTI(SandBox& sandbox, Instruction const& instruction) {
+void Interpreter::instruction_UTI(SandBox& sandbox, instruction::Instruction const& instruction) {
     auto arg = instruction.get_complete_argument();
     Interpreter::write_to(sandbox, 
         arg,
@@ -534,7 +534,7 @@ void Interpreter::instruction_UTI(SandBox& sandbox, Instruction const& instructi
     );
 }
 
-void Interpreter::instruction_FTI(SandBox& sandbox, Instruction const& instruction) {
+void Interpreter::instruction_FTI(SandBox& sandbox, instruction::Instruction const& instruction) {
     auto arg = instruction.get_complete_argument();
     Interpreter::write_to(sandbox, 
         arg,
@@ -542,7 +542,7 @@ void Interpreter::instruction_FTI(SandBox& sandbox, Instruction const& instructi
     );
 }
 
-void Interpreter::instruction_FTU(SandBox& sandbox, Instruction const& instruction) {
+void Interpreter::instruction_FTU(SandBox& sandbox, instruction::Instruction const& instruction) {
     auto arg = instruction.get_complete_argument();
     Interpreter::write_to(sandbox, 
         arg,
